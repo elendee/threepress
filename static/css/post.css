@@ -1,0 +1,29 @@
+body{
+
+}
+
+#threepress-post-options input{
+	margin: 10px 0
+}
+
+/* .threepress-meta-option{
+	padding: 10px;
+	margin: 10px;
+	border-left: 3px solid lightgrey;
+} */
+
+.option div{
+	display: inline-block;
+	margin-left: 20px;
+}
+.option input{
+}
+
+#threepress-post-options .postbox-header,
+#threepress-featured-model .postbox-header{
+    background: linear-gradient( 90deg, #99ffff, white, white );
+}
+#threepress-post-options *{
+/* 	color: white; */
+}
+

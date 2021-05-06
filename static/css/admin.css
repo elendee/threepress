@@ -1,0 +1,159 @@
+
+#toplevel_page_threepress-inc-admin .wp-menu-name{
+	background: linear-gradient(45deg, #99ffff, #f0f0f1);
+	padding-left: 8px !important;
+}
+#toplevel_page_threepress-inc-admin *{
+	color: black;
+}
+#toplevel_page_threepress-inc-admin img{
+	max-width: 20px;
+}
+#toplevel_page_threepress-inc-admin span{
+	margin-right: 5px;
+	vertical-align: middle;
+}
+
+
+
+.threepress *{
+	box-sizing: border-box;
+}
+.threepress img{
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.nav-tab{
+	cursor: pointer;
+	margin-bottom: -1px;
+	opacity: .7;
+}
+
+.threepress .section{
+	display: none;
+}
+.threepress .content{
+	background: white;
+	padding: 5px;
+}
+
+.threepress .selected{
+	background: linear-gradient( white, #f0f0f1);
+	border-bottom: 1px solid #f0f0f1;
+	opacity: 1;
+}
+
+#threepress-upload-types{
+	font-size: 0px;
+	display: none;
+
+}
+.threepress #threepress-upload-types .upload-type{
+    display: inline-block;
+    width: 100%;
+    max-width: 50%;
+    background: white;
+}
+#threepress-upload-types form{
+    display: inline-block;
+    width: 100%;
+    padding: 10px;
+    font-size: initial;
+    vertical-align: top;
+}
+.threepress #threepress-upload-types .upload-type form input{
+    font-size: .8rem;
+}
+.threepress #threepress-upload-types .upload-type p{
+	margin: 0px;
+}
+.threepress .title{
+	font-size: .9rem;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+#add-toggle,
+#create-toggle{
+	margin-left: 20px;
+	width: 40px;
+	height: 40px;
+}
+
+.threepress-button-wrapper{
+    display: inline-block;
+}
+
+.threepress-button{
+    font-size: 1.5rem;
+    text-align: center;
+    border: 1px solid;
+    border-radius: 3px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    background: #2271b1;
+    color: white;
+    user-select: none;
+}
+.threepress-button:hover{
+    background: #125e9b;
+}
+
+.threepress-button div{
+	display: inline-block;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.threepress-library-entry{
+    border: 1px solid;
+    padding: 15px;
+}
+
+#upload-model input[type=text],
+#upload-model textarea{
+	width: 100%;
+	margin: 3px 0;
+}
+
+#guide p,
+#guide h3{
+	max-width: 500px;
+}
+
+
+
+#browse-threepress a{
+	margin-top: 10px;
+}
+
+/* 	display: inline-block; */
+#gallery-form{
+	padding: 10px;
+	display: none;
+	width: 100%;
+	max-width: 100%;
+	background: white;
+}
+
+#gallery-form input[type=text]{
+    min-width: 350px;
+}
+
