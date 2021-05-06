@@ -208,6 +208,64 @@ class ModelRow {
 }
 
 
+class GalleryRow {
+	constructor( init ){
+		init = init || {}
+		this.id = init.id
+		this.name = init.name
+		this.created = init.created
+		this.edited = init.edited
+		this.model_id = init.model_id
+	}
+
+	gen_row(){
+		const gallery = this
+		const row = document.createElement('div')
+		row.classList.add('row', 'threepress-row')
+		row.setAttribute('data-id', this.id )
+		const name = document.createElement('div')
+		name.classList.add('column', 'column-3')
+		name.title = 'name'
+		name.innerText = this.name
+		row.appendChild( name )
+		const model_id = document.createElement('div')
+		model_id.classList.add('column', 'column-3')
+		model_id.title = 'model_id'
+		model_id.innerText = this.model_id
+		row.appendChild( model_id )
+		const data = document.createElement('div')
+		data.classList.add('column', 'column-3')
+		data.title = ''
+		data.innerText = ''
+		row.appendChild( data )
+
+		const deleteRow = document.createElement('div')
+		deleteRow.classList.add('delete')
+		deleteRow.innerHTML = '&times;'
+		deleteRow.addEventListener('click', () => {
+			fetch_wrap( ajaxurl, 'post', {
+				action: 'delete_gallery',
+				id: gallery.id,
+			}, false)
+			.then( res => {
+				if( res.success ){
+					row.remove()
+				}else{
+					hal('error', res.msg || 'error deleting row', 5000 )
+				}
+			})	
+			.catch( err => {
+				console.log( err )
+				hal('error', err.msg || 'error deleting row', 5000 )
+			})
+		})
+		row.appendChild( deleteRow )
+
+		return row
+	}
+}
+
+
 
 
 
@@ -315,6 +373,7 @@ export {
 	// log,
 
 	ModelRow,
+	GalleryRow,
 	Spinner,
 	Canvas,
 

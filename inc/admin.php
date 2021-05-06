@@ -83,7 +83,7 @@
 	    	<form id='gallery-form' action='create-gallery.php' method='post'>
 	    		<h4>gallery name</h4>
 	    		<p>
-		    		<input name='name' type='text' placeholder='<?php echo __('gallery name (not displayed publicly)', 'textdomain'); ?>'/>
+		    		<input name='gallery_name' type='text' placeholder='<?php echo __('gallery name (not displayed publicly)', 'textdomain'); ?>'/>
 		    	</p>
 	    		<h4>gallery model</h4>
 		    	<p>

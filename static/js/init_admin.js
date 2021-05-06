@@ -1,5 +1,6 @@
 import {
 	ModelRow,
+	GalleryRow,
 	hal,
 	fetch_wrap,
 } from './lib.js'
@@ -122,9 +123,9 @@ const fill = async( type ) => {
 				return
 			}
 			for( const gallery of object ){
-				gallery_content.appendChild( generate_gallery_row( gallery ) )
+				const g = new GalleryRow( gallery )
+				gallery_content.appendChild( g.gen_row() )
 			}
-			// gallery_content.innerHTML = res
 			break;
 
 		default: 
@@ -136,7 +137,19 @@ const fill = async( type ) => {
 }
 
 
-
+const render_shortcode = () => {
+	if( !shortcode ) return
+	let model_id
+	const model = gallery_form.querySelector('.threepress-row')
+	if( model ){
+		model_id = model.getAttribute('data-id')
+	}
+	const name = gallery_form.querySelector('input[name=gallery_name]').value.trim()
+	if( model_id || name ){
+		return `[threepress ${ name ? 'name=' + name + ' ' : '' }${ model_id ? 'model_id=' + model_id + ' ' : '' }]`.replace(' ]', ']')
+	}
+	return ''
+}
 
 
 
@@ -215,16 +228,17 @@ choose_model.addEventListener('click', () => {
 	model_selector(( id, row ) => {
 		model_choice.innerHTML = ''
 		model_choice.appendChild( row )
+		shortcode.value = render_shortcode()
 	})
 })
 
 gallery_form.addEventListener('submit', e => {
 	e.preventDefault()
-	const model_row = gallery_form.querySelector('.threepress-row')
+	// const model_row = gallery_form.querySelector('.threepress-row')
 	fetch_wrap( ajaxurl, 'post', {
 		action: 'save_shortcode',
-		name: gallery_form.querySelector('input[name=name]').value.trim(),
-		content: shortcode.value().trim(),
+		name: gallery_form.querySelector('input[name=gallery_name]').value.trim(),
+		content: shortcode.value.trim(),
 		// model_id: model_row ? model_row.getAttribute('data-id') : undefined,
 		// model_url: model_row ? model_row.querySelector('.column.url').innerHTML : undefined,
 	}, false)
@@ -234,6 +248,11 @@ gallery_form.addEventListener('submit', e => {
 	.catch( err => {
 		console.log( err )
 	})
+})
+
+gallery_form.addEventListener('keyup', e => {
+	if( e.keyCode === 27 ) return
+	shortcode.value = render_shortcode()
 })
 
 browse_threepress.addEventListener('submit', e => {
