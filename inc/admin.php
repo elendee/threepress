@@ -81,14 +81,20 @@
 		        </div>
 		    </h4>
 	    	<form id='gallery-form' action='create-gallery.php' method='post'>
+	    		<h4>gallery name</h4>
 	    		<p>
 		    		<input name='name' type='text' placeholder='<?php echo __('gallery name (not displayed publicly)', 'textdomain'); ?>'/>
 		    	</p>
+	    		<h4>gallery model</h4>
 		    	<p>
 		    		<div id='model-choice'></div>
 		    		<div id='choose-model' class='button button-primary'>
 			    		choose a model
 			    	</div>
+		    	</p>
+		    	<h4>gallery shortcode</h4>
+		    	<p>
+		    		<input id='shortcode' type='text' placeholder='generated shortcode will appear here' readonly/>
 		    	</p>
 	    		<p>
 		    		<input type='submit' id='create-gallery' class='button button-primary'/>

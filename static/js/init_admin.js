@@ -48,7 +48,7 @@ const model_galleries = wrap.querySelector('#model-galleries')
 const gallery_content = model_galleries.querySelector('.content')
 
 const model_choice = wrap.querySelector('#model-choice')
-
+const shortcode = wrap.querySelector('#shortcode')
 
 // main menu .. this script enqueued only when tab is active
 const admin_entry = document.querySelector('#toplevel_page_threepress-inc-admin')
@@ -222,11 +222,18 @@ gallery_form.addEventListener('submit', e => {
 	e.preventDefault()
 	const model_row = gallery_form.querySelector('.threepress-row')
 	fetch_wrap( ajaxurl, 'post', {
-		action: 'create_shortcode',
+		action: 'save_shortcode',
 		name: gallery_form.querySelector('input[name=name]').value.trim(),
-		model_id: model_row ? model_row.getAttribute('data-id') : undefined,
-		model_url: model_row ? model_row.querySelector('.column.url').innerHTML : undefined,
+		content: shortcode.value().trim(),
+		// model_id: model_row ? model_row.getAttribute('data-id') : undefined,
+		// model_url: model_row ? model_row.querySelector('.column.url').innerHTML : undefined,
 	}, false)
+	.then( res => {
+		console.log( res )
+	})
+	.catch( err => {
+		console.log( err )
+	})
 })
 
 browse_threepress.addEventListener('submit', e => {
