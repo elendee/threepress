@@ -166,7 +166,10 @@ img{
 .threepress-row .column{
 	font-size: .8rem;
 }
-
+.threepress-row input{
+    width: 100%;
+    padding: 5px;
+}
 
 .threepress .model-thumb{
 	display: inline-block;
@@ -188,5 +191,21 @@ img{
 .threepress-overlay{
 	position: absolute;
 	background: linear-gradient( 295deg, rgba(255, 0, 0, .2), rgba(0, 155, 255, .3));
-/* 	border: 2px solid blue; */
 }
+
+
+
+#toplevel_page_threepress-inc-admin .wp-menu-name{
+	padding-left: 8px !important;
+}
+#toplevel_page_threepress-inc-admin *{
+/* 	color: black; */
+}
+#toplevel_page_threepress-inc-admin img{
+	max-width: 20px;
+}
+#toplevel_page_threepress-inc-admin span{
+	margin-right: 5px;
+	vertical-align: middle;
+}
+

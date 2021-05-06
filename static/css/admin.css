@@ -1,19 +1,4 @@
 
-#toplevel_page_threepress-inc-admin .wp-menu-name{
-	background: linear-gradient(45deg, #99ffff, #f0f0f1);
-	padding-left: 8px !important;
-}
-#toplevel_page_threepress-inc-admin *{
-	color: black;
-}
-#toplevel_page_threepress-inc-admin img{
-	max-width: 20px;
-}
-#toplevel_page_threepress-inc-admin span{
-	margin-right: 5px;
-	vertical-align: middle;
-}
-
 
 
 .threepress *{
@@ -157,3 +142,11 @@
     min-width: 350px;
 }
 
+
+
+#toplevel_page_threepress-inc-admin .wp-menu-name{
+ 	background: linear-gradient(45deg, #99ffff, #f0f0f1); 
+}
+#toplevel_page_threepress-inc-admin *{
+	color: black;
+}

@@ -180,17 +180,20 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	    public static function fill_gallery(){
 			global $wpdb;
-			$sql2 = $wpdb->prepare('SELECT * FROM threepress_shortcodes LEFT JOIN wp_postmeta ON id=post_id WHERE guid LIKE "%.glb%"');
+			$id = (int)get_current_user_id();
+			_LOG( $id );  // 1
+			_LOG( gettype($id)); // integer
+			$sql2 = $wpdb->prepare('SELECT * FROM threepress_shortcodes WHERE author_key=%d', $id);
 			$rows = $wpdb->get_results( $sql2 );
+			_LOG($rows);
 			wp_die( json_encode( $rows ) ); 
-			wp_die( json_encode([]) );
 		}
 
 		 public static function delete_gallery(){
 			global $wpdb;
 			$id = $_POST['id'];
-			$sql = $wpdb->prepare('DELETE FROM threepress_shortcodes WHERE id=%d');
-			$res = $wpdb->query( $sql, $id );
+			$sql = $wpdb->prepare('DELETE FROM threepress_shortcodes WHERE id=%d', $id);
+			$res = $wpdb->query( $sql );
 			$response = new stdClass();
 			$response->success = true;
 			wp_die( json_encode( $response ) );

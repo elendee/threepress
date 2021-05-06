@@ -51,8 +51,6 @@ const gallery_content = model_galleries.querySelector('.content')
 const model_choice = wrap.querySelector('#model-choice')
 const shortcode = wrap.querySelector('#shortcode')
 
-// main menu .. this script enqueued only when tab is active
-const admin_entry = document.querySelector('#toplevel_page_threepress-inc-admin')
 
 
 
@@ -290,12 +288,6 @@ browse_threepress.addEventListener('submit', e => {
 // 	return false
 // }
 
-if( admin_entry ){
-	admin_entry.querySelector('.wp-menu-image').remove()
-	const icon = document.createElement('span')
-	icon.innerHTML = '<img src="' + THREEPRESS.plugin_url + 'assets/icon-menu.png">'
-	admin_entry.querySelector('.wp-menu-name').prepend( icon )
-}
 
 
 tabs[0].click()
