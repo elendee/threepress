@@ -158,7 +158,7 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	    public static function shortcode( $attr, $content, $name ){
 	    	// _LOG( $attr );
-	    	// _LOG( $content );
+	    	_LOG( $attr );
 	    	// _LOG( $name );
 	    	$model_id = (int)$attr['model_id'];
 	    	if( gettype( $model_id ) != 'integer' ){
@@ -168,9 +168,13 @@ if ( !class_exists( 'Threepress' ) ) {
 	    		$sql = $wpdb->prepare('SELECT * FROM wp_posts WHERE id=%d', $model_id );
 	    		$results = $wpdb->get_results( $sql );
 	    		$attr['model'] = $results[0];
-	    		_LOG( $results );
+	    		// _LOG( $results );
 	    	}
-	    	return '<div class="threepress-viewer"><div class="threepress-viewer-data">' . json_encode($attr) . '</div></div>';
+	    	$id = '';
+	    	if( $attr['name'] ){
+	    		$id = 'id="threepress-gallery-' . $attr['name'] . '"';
+	    	}
+	    	return '<div ' . $id . ' class="threepress-viewer"><div class="threepress-viewer-data">' . json_encode($attr) . '</div></div>';
 	    }
 
 

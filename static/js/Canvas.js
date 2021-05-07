@@ -41,6 +41,8 @@ export default init => {
 
 	canvas.view = init.view || 1000
 
+	canvas.name = init.name
+
 	canvas.model = init.model || canvas.model
 
 
@@ -80,8 +82,8 @@ export default init => {
 
 		if( !canvases.includes( canvas )) canvases.push( canvas )
 
-			// console.log('init: ', canvas )
 
+		// model
 		if( canvas.model ){
 			const m = canvas.model
 			const model = await (()=>{

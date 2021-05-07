@@ -100,9 +100,11 @@
 	    		
 	    		<div class='gallery-section'>
 		    		<h4>gallery name</h4>
-		    		<p>
 			    		<input name='gallery_name' type='text' placeholder='<?php echo __('gallery name (not displayed publicly)', 'textdomain'); ?>'/>
 			    	</p>
+		    		<p>
+		    			This will also append an <code>id</code> to the gallery element of form <code>#threepress-gallery-[name]</code>
+		    		<p>
 			    </div>
 	    		
 
