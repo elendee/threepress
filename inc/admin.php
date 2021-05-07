@@ -168,18 +168,8 @@
 
 
         <div id='guide' class='section'>
-        	<p>
-	        	<h3>Threepress lets you upload 3d models, then quickly customize where they are displayed.</h3>
-	        </p>
-        	<p>
-    			<b>Use Post and Product pages to control the display of Featured Images / Models.</b>
-    		</p>
-    		<p>
-    			<b>Create gallery shortcodes to display models anywhere throughout the site.</b>
-    		</p>
-    		<p>
-    			Models must be in ".glb" format - most 3d programs can export to this.  They are stored in the Media Library like everything else, but can be found easily through the Threepress library, which simply filters for ".glb" extensions.
-    		</p>
+
+        	<a href="https://github.com/elendee/threepress#readme" target="_blank">view the readme on Github</a>
         </div>
 
 
