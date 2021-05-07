@@ -1,0 +1,96 @@
+.threepress-modal{
+	position: fixed;
+	z-index: 9;
+	top: 0px;
+	left: 0px;
+	font-size: 1rem;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	background: rgba(0, 0, 0, .5);
+}
+.threepress-modal-close{
+	position: absolute;
+	z-index: 9;
+	top: 80px;
+	right: calc( 50% - 300px);
+	background: black;
+	color: white;
+	cursor: pointer;
+	height: 30px;
+	width: 30px;
+    font-size: 1.5rem;
+}
+.threepress-modal-close:hover{
+	background: white;
+	color: black;
+}
+.threepress-modal-content{
+	position: absolute;
+	background: white;
+	padding: 10px;
+	margin-top: 80px;
+	width: 100%;
+	max-width: 600px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+.threepress-modal h1,
+.threepress-modal h2,
+.threepress-modal h3{
+    color: white;
+}
+.threepress-modal  .threepress-modal-header{
+	color: #c1cafb;
+	margin-bottom: 10px;
+}
+.threepress-modal .column h3.column-header{
+	margin-top: 0;
+}
+.threepress-modal .column{
+	padding: 10px 10px 30px 10px;
+	height: 90%;
+}
+.threepress-modal .left-panel{
+}
+.threepress-modal .right-panel{
+}
+.right-panel .button{
+	margin: 5px 0;
+	border: 1px solid grey;
+}
+
+.threepress-modal img{
+	max-width: 125px;
+}
+.threepress-modal textarea,
+.threepress-modal input{
+	width: 100%;
+	max-width: 100%;
+}
+.threepress-modal label,
+.threepress-modal input[type=checkbox]{
+	display: inline-block;
+}
+.threepress-modal input[type=checkbox]{
+	width: 20px;
+	height: 20px;
+	vertical-align: middle;
+	margin: 0 10px;
+}
+
+.threepress-modal.has-columns .threepress-modal-content{
+	overflow-y: hidden;
+}
+.threepress-modal.has-columns .column{
+	overflow-y: auto;
+}
+
+
+@media screen and (max-width: 800px){
+	.threepress-modal-close{
+		right: 0px;
+	}
+}
