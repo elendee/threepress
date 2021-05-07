@@ -1,4 +1,4 @@
-
+/* #99ffff */
 
 
 .threepress *{
@@ -32,13 +32,16 @@
 #threepress-upload-types{
 	font-size: 0px;
 	display: none;
-
 }
-.threepress #threepress-upload-types .upload-type{
+.threepress .upload-type{
     display: inline-block;
     width: 100%;
     max-width: 50%;
     background: white;
+	border: 2px solid #99ffff;
+}
+.threepress .upload-type:first-of-type{
+	border-right: 0px;
 }
 #threepress-upload-types form{
     display: inline-block;
@@ -136,6 +139,7 @@
 	width: 100%;
 	max-width: 100%;
 	background: white;
+	border: 2px solid #99ffff;
 }
 
 #gallery-form input[type=text]{
@@ -149,4 +153,15 @@
 }
 #toplevel_page_threepress-inc-admin *{
 	color: black;
+}
+
+.gallery-section{
+	background: linear-gradient(90deg, rgba(0, 0, 0, .1), transparent );
+	padding: 0px 5px 10px 5px;
+	margin: 5px 0;
+	display: inline-block;
+	width: 100%;
+}
+.gallery-section h4{
+	margin: 5px 0;
 }

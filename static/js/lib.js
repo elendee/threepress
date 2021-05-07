@@ -221,7 +221,7 @@ class GalleryRow {
 	}
 
 	gen_row(){
-		
+
 		const gallery = this
 		const row = document.createElement('div')
 		row.classList.add('row', 'threepress-row')
@@ -231,16 +231,16 @@ class GalleryRow {
 		name.title = 'name'
 		name.innerText = this.name
 		row.appendChild( name )
-		const created = document.createElement('div')
-		created.classList.add('column', 'column-3')
-		created.title = 'created'
-		created.innerText = this.created
-		row.appendChild( created )
+		const edited = document.createElement('div')
+		edited.classList.add('column', 'column-3')
+		edited.title = 'edited'
+		edited.innerText = new Date( this.edited ).toDateString()
+		row.appendChild( edited )
 		const content = document.createElement('div')
 		content.classList.add('column', 'column-3')
 		content.title = 'shortcode'
 		const shortcode = document.createElement('input')
-		shortcode.readonly = true
+		shortcode.setAttribute('readonly', true )// = true
 		shortcode.value = this.shortcode
 		content.appendChild( shortcode )
 		row.appendChild( content )
@@ -249,21 +249,24 @@ class GalleryRow {
 		deleteRow.classList.add('delete')
 		deleteRow.innerHTML = '&times;'
 		deleteRow.addEventListener('click', () => {
-			fetch_wrap( ajaxurl, 'post', {
-				action: 'delete_gallery',
-				id: gallery.id,
-			}, false)
-			.then( res => {
-				if( res.success ){
-					row.remove()
-				}else{
-					hal('error', res.msg || 'error deleting row', 5000 )
-				}
-			})	
-			.catch( err => {
-				console.log( err )
-				hal('error', err.msg || 'error deleting row', 5000 )
-			})
+			if( confirm('delete?')){
+				fetch_wrap( ajaxurl, 'post', {
+					action: 'delete_gallery',
+					id: gallery.id,
+				}, false)
+				.then( res => {
+					console.log( res )
+					if( res.success ){
+						row.remove()
+					}else{
+						hal('error', res.msg || 'error deleting row', 5000 )
+					}
+				})	
+				.catch( err => {
+					console.log( err )
+					hal('error', err.msg || 'error deleting row', 5000 )
+				})
+			}
 		})
 		row.appendChild( deleteRow )
 
@@ -292,8 +295,15 @@ const fetch_wrap = ( url, method, body, no_spinner ) => {
 			method : method,
 		})
 		.then( res => {
+
+			try{
+				const r = JSON.parse( res )
+				resolve( r )
+			}catch( e ){
+				console.log( res )
+				reject( e )
+			}
 			spinner.hide()
-			resolve( res )
 		})
 		.catch( err => {
 			spinner.hide()
@@ -330,9 +340,7 @@ const render = type => {
 				})
 				canvas.align()
 				canvas.animating = true
-				canvas.init({
-					model_data: model,
-				}).catch( err => {
+				canvas.init().catch( err => {
 					log('error', err )
 				})
 				document.body.appendChild( canvas.ele )

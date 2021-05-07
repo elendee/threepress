@@ -23,6 +23,14 @@
     	</a>
 
 	    </div>
+
+
+
+
+
+
+
+
         <div id='model-library' class='section'>
         	
         	<h4>
@@ -68,6 +76,13 @@
 
         </div>
 
+
+
+
+
+
+
+
         <div id='model-galleries' class='section'>
 
         	<h4>
@@ -80,25 +95,67 @@
 		        	</div>
 		        </div>
 		    </h4>
+
 	    	<form id='gallery-form' action='create-gallery.php' method='post'>
-	    		<h4>gallery name</h4>
-	    		<p>
-		    		<input name='gallery_name' type='text' placeholder='<?php echo __('gallery name (not displayed publicly)', 'textdomain'); ?>'/>
-		    	</p>
-	    		<h4>gallery model</h4>
-		    	<p>
-		    		<div id='model-choice'></div>
-		    		<div id='choose-model' class='button button-primary'>
-			    		choose a model
+	    		
+	    		<div class='gallery-section'>
+		    		<h4>gallery name</h4>
+		    		<p>
+			    		<input name='gallery_name' type='text' placeholder='<?php echo __('gallery name (not displayed publicly)', 'textdomain'); ?>'/>
+			    	</p>
+			    </div>
+	    		
+
+	    		<div class='gallery-section'>
+		    		<h4>gallery model</h4>
+			    	<p>
+			    		<div id='model-choice'></div>
+			    		<div id='choose-model' class='button button-primary'>
+				    		choose a model
+				    	</div>
+			    	</p>
+			    </div>
+
+	    		<div class='gallery-section'>
+			    	<h4>gallery options</h4>
+			    	<div class="clarification">(in dev)</div>
+			    	<div id='gallery-options' class='threepress-disabled'>
+			    		<div class='gallery-option'>
+			    			
+			    			<h4>controls:</h4>
+			    			<label>user</label>
+			    			<input name='options-controls' type='radio' value='user'>
+			    			<label>auto orbit</label>
+			    			<input name='options-controls' type='radio' value='auto-orbit'>
+			    			<label>none</label>
+			    			<input name='options-controls' type='radio' value='none'>
+			    			
+			    			<h4>light:</h4>
+			    			<label>sun</label>
+			    			<input name='options-light' type='radio' value='sun'>
+			    			<label>directional</label>
+			    			<input name='options-light' type='radio' value='directional'>
+			    			<label>hemispherical</label>
+			    			<input name='options-light' type='radio' value='hemispherical'>
+
+			    			<h4>camera distance:</h4>
+			    			<input type='range' min=1 max=1000 name='camera-dist'>
+
+			    		</div>
 			    	</div>
-		    	</p>
-		    	<h4>gallery shortcode</h4>
-		    	<p>
-		    		<input id='shortcode' type='text' placeholder='generated shortcode will appear here' readonly/>
-		    	</p>
+			    </div>
+		    	
+	    		<div class='gallery-section'>
+			    	<h4>gallery shortcode</h4>
+			    	<p>
+			    		<input id='shortcode' type='text' placeholder='generated shortcode will appear here' readonly/>
+			    	</p>
+			    </div>
+
 	    		<p>
 		    		<input type='submit' id='create-gallery' class='button button-primary'/>
 		    	</p>
+
         	</form>
 
         	<h4>galleries</h4>
@@ -106,6 +163,9 @@
         	</div>
 
         </div>
+
+
+
 
         <div id='guide' class='section'>
         	<p>
@@ -121,5 +181,9 @@
     			Models must be in ".glb" format - most 3d programs can export to this.  They are stored in the Media Library like everything else, but can be found easily through the Threepress library, which simply filters for ".glb" extensions.
     		</p>
         </div>
+
+
+
+
 
     </div>

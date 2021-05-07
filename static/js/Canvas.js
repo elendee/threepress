@@ -41,8 +41,7 @@ export default init => {
 
 	canvas.view = init.view || 1000
 
-	// state
-	canvas.animating = false
+	canvas.model = init.model || canvas.model
 
 
 	// threejs eles
@@ -52,6 +51,9 @@ export default init => {
 		alpha: true
 	})
 	canvas.ele = canvas.RENDERER.domElement
+
+	// state
+	canvas.animating = false
 
 	canvas.LIGHT = new DirectionalLight(0xffffff, 1)
 	canvas.CAMERA = new PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, canvas.view )
@@ -69,6 +71,46 @@ export default init => {
 	}
 
 
+
+
+
+
+	// public methods
+	canvas.init = async() => { // lights camera action
+
+		if( !canvases.includes( canvas )) canvases.push( canvas )
+
+			// console.log('init: ', canvas )
+
+		if( canvas.model ){
+			const m = canvas.model
+			const model = await (()=>{
+				return new Promise((resolve, reject ) => {
+					loader.load( m.guid, res => {
+						resolve( res.scene )
+					}, xhr => {
+						// loading time
+					}, err => {
+						reject( err )
+					})
+				})
+			})();
+			// console.log( model )
+			canvas.SCENE.add( model )
+		}
+
+		canvas.set_renderer()
+
+		if( canvas.render_type === 'static' ){
+			canvas.RENDERER.render( canvas.SCENE, canvas.CAMERA )
+		}else if( canvas.render_type === 'interactive'){
+			canvas.RENDERER.render( canvas.SCENE, canvas.CAMERA )
+		}else if( canvas.render_type === 'animated'){
+			canvas.animating = true
+			animate()
+		}
+
+	}
 
 
 
@@ -99,46 +141,7 @@ export default init => {
 
 
 
-	// public methods
-	canvas.init = async( init ) => { // lights camera action
-
-		init = init || {}
-
-		if( !canvases.includes( canvas )) canvases.push( canvas )
-
-		canvas.model = init.model_data
-
-		if( canvas.model ){
-			const m = canvas.model
-			const model = await (()=>{
-				return new Promise((resolve, reject ) => {
-					loader.load( m.guid, res => {
-						resolve( res.scene )
-					}, xhr => {
-						// loading time
-					}, err => {
-						reject( err )
-					})
-				})
-			})();
-			console.log( model )
-			canvas.SCENE.add( model )
-		}
-
-		// canvas.then = performance.now()
-		if( canvas.render_type === 'static' ){
-			// canvas.RENDERER.render( canvas.SCENE, canvas.CAMERA )
-		}else if( canvas.render_type === 'interactive'){
-			// console.log( this )
-			canvas.RENDERER.render( canvas.SCENE, canvas.CAMERA )
-		}else if( canvas.render_type === 'animated'){
-			animate()
-		}
-
-	}
-
-
-	canvas.align = () => { // for ovlerays
+	canvas.align = () => { // for image ovlerays
 
 		if( !canvas.overlay ){
 			console.log('threepress: invalid align called', this )
@@ -165,13 +168,20 @@ export default init => {
 
 	}
 
-	// set_renderer(){
-	// 	canvas.RENDERER.setSize( 
-	// 		window.innerWidth / resolutions[ canvas.res_key ], 
-	// 		window.innerHeight / resolutions[ canvas.res_key ], 
-	// 		false 
-	// 	)
-	// }
+	canvas.set_renderer = () => {
+
+		// canvas.CAMERA.aspect = window.innerWidth / window.innerHeight
+		canvas.CAMERA.aspect = canvas.ele.getBoundingClientRect().width / canvas.ele.getBoundingClientRect().height
+		canvas.CAMERA.updateProjectionMatrix()
+
+		canvas.RENDERER.setSize( 
+			canvas.ele.getBoundingClientRect().width / resolutions[ canvas.res_key ],
+			canvas.ele.getBoundingClientRect().height / resolutions[ canvas.res_key ],
+			// window.innerWidth / resolutions[ canvas.res_key ], 
+			// window.innerHeight / resolutions[ canvas.res_key ], 
+			false 
+		)
+	}
 
 	// onWindowResize(){
 
@@ -193,6 +203,7 @@ export default init => {
 
 window.addEventListener('resize', () => {
 	for( const overlay of overlays ) overlay.align()
+	for( const canvas of canvases ) canvas.set_renderer()
 })
 
 

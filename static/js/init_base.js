@@ -4,11 +4,12 @@ import {
 	// log,
 } from './lib.js'
 
+import Canvas from './Canvas.js'
+
 
 // ------------------------------------------------------------ declarations
 
-const data = document.getElementById('threepress-data')
-
+const viewers = document.querySelectorAll('.threepress-viewer')
 
 
 
@@ -23,30 +24,31 @@ const data = document.getElementById('threepress-data')
 
 ;(()=>{
 
-
-if( !data || !THREEPRESS ){
-	console.log('no initial data found')
+if( !THREEPRESS ){
+	console.log('no initial data found' )
 	return
 }
 
-try{
-	THREEPRESS.data = JSON.parse( data.innerHTML )
-}catch( e ){
-	console.log( e )
-}
-
-if( THREEPRESS.data.display_choice ){
-
-	switch( THREEPRESS.data.display_choice ){
-
-		case 'ftd_model':
-			render( 'ftd_model', THREEPRESS.model_choice )
-			break;
-
-		default: break;
-
+let raw, scene
+for( const set of viewers ){
+	raw = set.querySelector('.threepress-viewer-data')
+	try{
+		scene = JSON.parse( raw.innerHTML )
+	}catch( e ){
+		console.log( e )
 	}
-}
+
+	// console.log( scene )
+
+	const canvas = Canvas( scene )
+	canvas.init()
+
+	// console.log( canvas)
+
+	set.appendChild( canvas.ele )
+	// console.log( scene )
+}	
+
 
 })();
 

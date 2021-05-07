@@ -93,34 +93,34 @@ const fill = async( type ) => {
 		action: 'fill_' + type,
 	}, false )
 
-	let object
-	try{
-		object = JSON.parse( res )
-	}catch( e ){
-		hal('error', 'error fetching results', 4000 )
-		console.log( e, res )
-		return 
-	}
+	// let object
+	// try{
+	// 	object = JSON.parse( res )
+	// }catch( e ){
+	// 	hal('error', 'error fetching results', 4000 )
+	// 	console.log( e, res )
+	// 	return 
+	// }
 
 	switch( type ){
 
 		case 'library':
-			if( !object || !object.length ){
+			if( !res || !res.length ){
 				library_content.innerHTML = 'no models uploaded - only glb files supported'
 				return
 			}
-			for( const post of object ){
+			for( const post of res ){
 				const model = new ModelRow( post )
 				library_content.appendChild( model.gen_row() )
 			}
 			break;
 
 		case 'gallery':
-			if( !object || !object.length ){
+			if( !res || !res.length ){
 				gallery_content.innerHTML = 'no galleries yet'
 				return
 			}
-			for( const gallery of object ){
+			for( const gallery of res ){
 				const g = new GalleryRow( gallery )
 				gallery_content.appendChild( g.gen_row() )
 			}
@@ -241,6 +241,10 @@ gallery_form.addEventListener('submit', e => {
 		// model_url: model_row ? model_row.querySelector('.column.url').innerHTML : undefined,
 	}, false)
 	.then( res => {
+		if( res.success ){
+			const g = new GalleryRow( res.gallery )
+			gallery_content.prepend( g.gen_row() )
+		}
 		console.log( res )
 	})
 	.catch( err => {

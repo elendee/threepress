@@ -1,6 +1,6 @@
-#threepress-data{
+/*#threepress-data{
 	display: none;
-}
+}*/
 
 body{
 
@@ -9,6 +9,11 @@ body{
 img{
 	max-width: 100%;
 	max-height: 100%;
+}
+
+.threepress-disabled{
+	opacity: .5;
+	pointer-events: none;
 }
 
 .threepress-spinner{
@@ -37,7 +42,16 @@ img{
 }
 
 
-
+.delete{
+	font-size: initial;
+	position: absolute;
+	top: -10px;
+	right: -10px;
+	padding: 3px 5px; 
+	background: black;
+	color: white;
+	cursor: pointer;
+}
 
 
 
@@ -138,6 +152,7 @@ img{
 
 .threepress .row{
 	font-size: 0px;
+	position: relative;
 }
 .threepress .column{
 	display: inline-block;
@@ -209,3 +224,10 @@ img{
 	vertical-align: middle;
 }
 
+
+.threepress-viewer canvas{
+	width: 100%;
+}
+.threepress-viewer-data{
+	display: none;
+}
