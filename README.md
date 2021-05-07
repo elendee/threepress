@@ -4,9 +4,15 @@ base Threepress plugin package
 ## installation
 standard WP plugin installation - move the plugin folder to `[yoursite.com]/wp-content/plugins/`, and activate from Dashboard.
 
+The plugin will create one database table to store your galleries:
+`threepress_shortcodes`,
+
+It will also create one folder in the file system: 
+`[yoursite.com]/wp-content/uploads/threepress_models/`
+
 ## What you can do:
 
-### create threejs galleries anywhere
+### Create threejs galleries anywhere
 
 A gallery renders one three.js Scene.
 
