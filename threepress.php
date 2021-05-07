@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Threepress 
- * Plugin URI: https://oko.nyc/product/threepress
+ * Plugin URI: https://threepress.shop
  * Plugin Description: Quickly add 3d to parts of your website with the click of a button
  * Text Domain: threepress
  */
