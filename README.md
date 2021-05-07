@@ -7,3 +7,7 @@ standard WP plugin installation - move the plugin folder to `[yoursite.com]/wp-c
 ## WHAT YOU CAN DO:
 
 ### asdf
+
+```js
+var test = 4;
+```
