@@ -38,7 +38,7 @@
     width: 100%;
     max-width: 50%;
     background: white;
-	border: 2px solid #99ffff;
+	border: 3px solid #99ffff;
 }
 .threepress .upload-type:first-of-type{
 	border-right: 0px;
@@ -139,13 +139,18 @@
 	width: 100%;
 	max-width: 100%;
 	background: white;
-	border: 2px solid #99ffff;
+	border: 3px solid #99ffff;
+/* 	box-shadow: 0px 0px 20px; */
 }
 
 #gallery-form input[type=text]{
     min-width: 350px;
 }
 
+#gallery-form textarea{
+	max-width: 100%;
+	width: 100%;
+}
 
 
 #toplevel_page_threepress-inc-admin .wp-menu-name{

@@ -148,12 +148,13 @@
 	    		<div class='gallery-section'>
 			    	<h4>gallery shortcode</h4>
 			    	<p>
-			    		<input id='shortcode' type='text' placeholder='generated shortcode will appear here' readonly/>
+			    		<textarea id='shortcode' height=50 placeholder='generated shortcode will appear here' readonly/></textarea>
+			    		<!-- <input id='shortcode' type='text' placeholder='generated shortcode will appear here' readonly/> -->
 			    	</p>
 			    </div>
 
 	    		<p>
-		    		<input type='submit' id='create-gallery' class='button button-primary'/>
+		    		<input type='submit' value='save' id='create-gallery' class='button button-primary'/>
 		    	</p>
 
         	</form>
@@ -168,8 +169,7 @@
 
 
         <div id='guide' class='section'>
-
-        	<h2><a href="https://github.com/elendee/threepress#readme" target="_blank">view the readme on Github</a></h2>
+        	<h1><a href="https://github.com/elendee/threepress#readme" target="_blank">Github readme</a></h1>
         </div>
 
 

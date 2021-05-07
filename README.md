@@ -18,13 +18,17 @@ A gallery renders one three.js Scene.
 
 Create them using the shortcode generator in the Threepress admin, and then paste the shortcode wherever you want.
 
-#### For javascript devs:
-All the galleries on a given page will be available in the global variable `THREEPRESS`, in the `canvases` property.  See the `Canvas` class (`static/js/Canvas.js`) for insight on interacting with these.  
+To customize the layout or dimensions of your gallery, use CSS.  An id tag of form `#threepress-gallery-[gallery name]` will be appended, or use class `.threepress-viewer` / `.threepress-viewer canvas`.
 
-Galleries are kept deliberately simple, for easier extensibility.
+The three.js renderer should adjust to match your given dimensions automatically to prevent skewing or blurring.
+
+Customize them yourself with code (see below), or stay tuned for future extensions to this plugin.
 
 ## Notes
 
 All models must be in ".glb" format - most 3d programs can export to this.  
 
 They are stored in the Media Library like everything else, but can be found easily through the Threepress library, which simply filters for ".glb" extensions.
+
+#### For javascript devs:
+All the galleries on a given page will be available in the global variable `THREEPRESS`, in the `canvases` property.  See the `Canvas` class (`static/js/Canvas.js`) for insight on interacting with these.  
