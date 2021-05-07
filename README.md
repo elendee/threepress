@@ -16,8 +16,9 @@ It will also create one folder in the file system for uploads:
 
 A gallery renders one three.js Scene.
 
-Create them using the shortcode generator, and then paste the shortcode wherever you want.
+Create them using the shortcode generator in the Threepress admin, and then paste the shortcode wherever you want.
 
+#### For javascript devs:
 All the galleries on a given page will be available in the global variable `THREEPRESS`, in the `canvases` property.  See the `Canvas` class (`static/js/Canvas.js`) for insight on interacting with these.  
 
 Galleries are kept deliberately simple, for easier extensibility.
