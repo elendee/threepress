@@ -1,5 +1,5 @@
 # Threepress
-base Threepress plugin package
+Easily embed [three.js](https://threejs.org) and [Wordpress](https://github.com/Wordpress/Wordpress)
 
 ## Installation
 standard WP plugin installation - move the plugin folder to `[yoursite.com]/wp-content/plugins/`, and activate from Dashboard.
@@ -12,7 +12,7 @@ It will also create one folder in the file system for uploads:
 
 ## What you can do:
 
-### Create [three.js](https://threejs.org) galleries anywhere
+### Create three.js galleries anywhere
 
 A gallery renders one three.js Scene.
 
