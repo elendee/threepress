@@ -1,5 +1,5 @@
 # Threepress
-Easily embed [three.js](https://threejs.org) and [Wordpress](https://github.com/Wordpress/Wordpress)
+Easily embed [three.js](https://threejs.org) in [Wordpress](https://github.com/Wordpress/Wordpress)
 
 ## Installation
 standard WP plugin installation - move the plugin folder to `[yoursite.com]/wp-content/plugins/`, and activate from Dashboard.
