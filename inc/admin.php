@@ -169,7 +169,7 @@
 
         <div id='guide' class='section'>
 
-        	<a href="https://github.com/elendee/threepress#readme" target="_blank">view the readme on Github</a>
+        	<h2><a href="https://github.com/elendee/threepress#readme" target="_blank">view the readme on Github</a></h2>
         </div>
 
 
