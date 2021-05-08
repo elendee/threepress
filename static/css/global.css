@@ -50,13 +50,15 @@
 	position: absolute;
 	top: -10px;
 	right: -10px;
-	padding: 3px 5px; 
-	background: black;
+	padding: 2px 4px; 
+	background: rgb(200, 0, 0);
 	color: white;
 	cursor: pointer;
 }
 
-
+.threepress .delete:hover{
+	background: rgb(160, 0, 0)
+}
 
 
 
@@ -245,6 +247,7 @@
 	background: rgb(245, 245, 245);
     display: inline-block;
     cursor: pointer;
+    line-height: 0px;
 }
 .threepress-button:hover{
 	background: #99ffff; 

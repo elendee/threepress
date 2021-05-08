@@ -221,9 +221,13 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	    public static function fill_library(){
 			global $wpdb;
+			// $sql = $wpdb->prepare('SELECT * FROM wp_posts 
+			// 	LEFT JOIN wp_postmeta ON id=post_id 
+			// 	WHERE guid LIKE "%.glb%" ORDER BY id DESC');
 			$sql = $wpdb->prepare('SELECT * FROM wp_posts 
-				LEFT JOIN wp_postmeta ON id=post_id 
-				WHERE guid LIKE "%.glb%" ORDER BY id DESC');
+				-- LEFT JOIN wp_postmeta ON id=post_id 
+				WHERE post_type="attachment" AND guid LIKE "%.glb%" ORDER BY id DESC');
+
 			$rows = $wpdb->get_results( $sql );
 			wp_die( json_encode( $rows ) ); 
 	    }

@@ -13,6 +13,8 @@ import {
 	fill_dimensions,
 } from './lib.js'
 
+import { Modal } from './helpers/Modal.js'
+
 
 
 const overlays = THREEPRESS.overlays = []
@@ -27,7 +29,7 @@ const loader = new GLTFLoader()
 
 const origin = new Vector3( 0, 0, 0 )
 
-
+let previewing = false
 
 
 
@@ -213,6 +215,28 @@ export default init => {
 			canvas.ele.getBoundingClientRect().height / resolutions[ canvas.res_key ],
 			false 
 		)
+	}
+
+
+	canvas.preview = ( guid, name ) => {
+
+		if( previewing ) return 
+		previewing = true
+
+		const modal = new Modal({
+			type: 'gallery-preview'
+		})
+		const viewer = document.createElement('div')
+		viewer.classList.add('threepress-viewer')
+		viewer.appendChild( canvas.ele )
+		modal.content.appendChild( viewer )
+		canvas.init()
+		modal.close.addEventListener('click', () => {
+			canvas.animating = false
+			previewing = false
+		})
+		document.querySelector('.threepress').appendChild( modal.ele )
+
 	}
 
 	return canvas

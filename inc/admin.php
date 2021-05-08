@@ -14,10 +14,10 @@
         ?>
         <div class='nav-tab-wrapper'>
     	<a class='nav-tab' data-section='model-library'>
-    		model library
+    		models
     	</a>
     	<a class='nav-tab' data-section='model-galleries'>
-    		model galleries
+    		galleries
     	</a>
     	<a class='nav-tab' data-section='guide'>
     		guide

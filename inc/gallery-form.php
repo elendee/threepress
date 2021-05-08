@@ -2,7 +2,7 @@
 <form id='gallery-form' action='create-gallery.php' method='post'>
 
 	<div id='gallery-preview' class='threepress-button'>
-		preview
+		<img src=<?php echo plugins_url() . '/threepress/assets/eye-viz.png' ?> '>
 	</div>
 	
 	<div class='gallery-section'>

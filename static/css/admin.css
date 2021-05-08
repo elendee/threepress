@@ -177,8 +177,22 @@
 	right: 0;
 }
 
+#gallery-preview img{
+	max-width: 50px;
+}
+
 #create-gallery{
 	font-size: 1rem;
     margin-left: 47%;
 }
 
+.model-row-preview{
+	position: absolute;
+	top: -5px;
+	right: -5px;
+	width: 30px;
+}
+
+.model-row-preview.threepress-button{
+	padding: 3px;
+}

@@ -5,8 +5,6 @@ import {
 	fetch_wrap,
 } from './lib.js'
 
-import { Modal } from './helpers/Modal.js'
-
 import Canvas from './Canvas.js'
 
 import model_selector from './model_selector.js'
@@ -266,40 +264,26 @@ browse_threepress.addEventListener('submit', e => {
 	e.preventDefault()
 })
 
-let previewing
+
 preview.addEventListener('click', async() => {
-	if( !previewing ){
 
-		const model_choice = document.querySelector('#model-choice .column.url')
-		if( !model_choice ){
-			hal('error', 'no model chosen', 4000 )
-			return
-		}
-
-		previewing = true
-
-		shortcode.value = render_shortcode()
-
-		const canvas = Canvas({
-			model: {
-				guid: model_choice.innerHTML.trim(),
-			},
-			name: document.querySelector('input[name=gallery_name]').value.trim(),
-		})
-		const modal = new Modal({
-			type: 'gallery-preview'
-		})
-		const viewer = document.createElement('div')
-		viewer.classList.add('threepress-viewer')
-		viewer.appendChild( canvas.ele )
-		modal.content.appendChild( viewer )
-		canvas.init()
-		modal.close.addEventListener('click', () => {
-			canvas.animating = false
-			previewing = false
-		})
-		document.querySelector('.threepress').appendChild( modal.ele )
+	const model_choice = document.querySelector('#model-choice .column.url input')
+	if( !model_choice ){
+		hal('error', 'no model chosen', 4000 )
+		return
 	}
+
+	shortcode.value = render_shortcode()
+
+	const canvas = Canvas({
+		model: {
+			guid: model_choice.value.trim()
+		},
+		name: document.querySelector('input[name=gallery_name]').value.trim()
+	})
+
+	canvas.preview()
+
 })
 
 

@@ -1,5 +1,5 @@
 import Canvas from './Canvas.js'
-import BROKER from './helpers/EventBroker.js'
+// import BROKER from './helpers/EventBroker.js'
 
 import {
 	Box3,
@@ -187,9 +187,13 @@ class ModelRow {
 		row.classList.add('row', 'threepress-row', 'model-row')
 		row.setAttribute('data-id', this.id )
 		const title = document.createElement('div')
-		title.classList.add('column', 'column-4')
+		title.classList.add('column', 'column-3')
 		title.title = 'title'
-		title.innerText = this.title
+		// title.innerText = this.title
+		const a = document.createElement('a')
+		a.href = THREEPRESS.home_url + '/wp-admin/post.php?post=' + this.id + '&action=edit'
+		a.innerText = this.title 
+		title.appendChild( a )
 		row.appendChild( title )
 		const thumb = document.createElement('div')
 		thumb.classList.add('model-thumb')
@@ -197,25 +201,45 @@ class ModelRow {
 		thumb_img.src = this.thumb_url
 		thumb.appendChild( thumb_img )
 		title.prepend( thumb )
-		const name = document.createElement('div')
-		name.title = 'name'
-		name.classList.add('column', 'column-4')
-		name.innerText = this.name
-		row.appendChild( name )
+		// const name = document.createElement('div')
+		// name.title = 'name'
+		// name.classList.add('column', 'column-3')
+		// name.innerText = this.name
+		// row.appendChild( name )
 		const date = document.createElement('div')
 		date.title = 'date created'
-		date.classList.add('column', 'column-4')
+		date.classList.add('column', 'column-3')
 		date.innerText = new Date( this.date ).toLocaleString()
 		row.appendChild( date )
 		const id = document.createElement('div')
 		id.title = 'model id'
-		id.classList.add('column', 'column-4')
+		id.classList.add('column', 'column-3')
 		id.innerText = this.id
 		row.appendChild( id )
 		const url = document.createElement('div')
 		url.classList.add('column', 'url')
-		url.innerText = this.url
+		// url.innerText = this.url
+		const input = document.createElement('input')
+		// input.type = 'text'
+		input.setAttribute('readonly', true )
+		input.value = this.url
+		url.appendChild( input )
 		row.appendChild( url )
+
+		const viz = document.createElement('div')
+		viz.classList.add('model-row-preview', 'threepress-button')
+		const eye = document.createElement('img')
+		eye.src = THREEPRESS.plugin_url + 'assets/eye-viz.png'
+		viz.appendChild( eye )
+		row.appendChild( viz )
+		viz.addEventListener('click', () => {
+			const canvas = Canvas({
+				model: { guid: input.value.trim() },
+				name: '',
+			})
+			canvas.preview()
+		})
+
 		return row
 	}
 
@@ -263,7 +287,7 @@ class GalleryRow {
 		deleteRow.classList.add('delete')
 		deleteRow.innerHTML = '&times;'
 		deleteRow.addEventListener('click', () => {
-			if( confirm('delete?')){
+			if( confirm('delete gallery? (models will not be deleted)')){
 				fetch_wrap( ajaxurl, 'post', {
 					action: 'delete_gallery',
 					id: gallery.id,
@@ -386,11 +410,6 @@ const fill_dimensions = model => {
 	model.userData.radius = Math.max( temp.x, temp.y, temp.z )
 
 }
-
-
-
-
-
 
 
 
