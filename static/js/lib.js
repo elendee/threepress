@@ -1,7 +1,10 @@
 import Canvas from './Canvas.js'
 import BROKER from './helpers/EventBroker.js'
 
-
+import {
+	Box3,
+	Vector3,
+} from './three.module.js'
 
 
 // ------------------------------------------------------------ declarations
@@ -162,11 +165,14 @@ const spinner = window.spinner = new Spinner({
 })
 
 
-class ModelRow {
+class ModelRow {  
+	// takes BOTH wp.media return values, AND wp_post attachment values as {init}
+	// these are references to the same objects (models) with completely different syntax
+	// so this constructor is made with care
 
 	constructor( init ){
 		init = init || {}
-		this.id = init.id
+		this.id = init.ID || init.id
 		this.title = init.post_title || init.title
 		this.name = init.post_name || init.name
 		this.url = init.guid || init.url
@@ -178,10 +184,10 @@ class ModelRow {
 	gen_row(){
 
 		const row = document.createElement('div')
-		row.classList.add('row', 'threepress-row')
+		row.classList.add('row', 'threepress-row', 'model-row')
 		row.setAttribute('data-id', this.id )
 		const title = document.createElement('div')
-		title.classList.add('column', 'column-3')
+		title.classList.add('column', 'column-4')
 		title.title = 'title'
 		title.innerText = this.title
 		row.appendChild( title )
@@ -193,14 +199,19 @@ class ModelRow {
 		title.prepend( thumb )
 		const name = document.createElement('div')
 		name.title = 'name'
-		name.classList.add('column', 'column-3')
+		name.classList.add('column', 'column-4')
 		name.innerText = this.name
 		row.appendChild( name )
 		const date = document.createElement('div')
 		date.title = 'date created'
-		date.classList.add('column', 'column-3')
+		date.classList.add('column', 'column-4')
 		date.innerText = new Date( this.date ).toLocaleString()
 		row.appendChild( date )
+		const id = document.createElement('div')
+		id.title = 'model id'
+		id.classList.add('column', 'column-4')
+		id.innerText = this.id
+		row.appendChild( id )
 		const url = document.createElement('div')
 		url.classList.add('column', 'url')
 		url.innerText = this.url
@@ -363,6 +374,18 @@ const render = type => {
 
 
 
+const fill_dimensions = model => {
+
+	model.userData = model.userData || {}
+	model.userData.box3 = new Box3().setFromObject( model )
+	model.userData.dimensions = new Vector3()
+	
+	model.userData.box3.getSize( model.userData.dimensions )
+
+	const temp = new Vector3().copy( model.userData.dimensions ).divideScalar( 2 )
+	model.userData.radius = Math.max( temp.x, temp.y, temp.z )
+
+}
 
 
 
@@ -386,15 +409,19 @@ const render = type => {
 
 export {
 
+	// base ui functions
 	hal,
 	render,
 	fetch_wrap,
-	// log,
 
+	// base app classes
 	ModelRow,
 	GalleryRow,
 	Spinner,
 	Canvas,
+
+	// helper functions
+	fill_dimensions,
 
 }
 

@@ -113,6 +113,7 @@ const fill = async( type ) => {
 				library_content.innerHTML = 'no models uploaded - only glb files supported'
 				return
 			}
+				console.log( res )
 			for( const post of res ){
 				const model = new ModelRow( post )
 				library_content.appendChild( model.gen_row() )

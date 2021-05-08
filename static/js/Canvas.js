@@ -9,10 +9,14 @@ import {
 
 import { GLTFLoader } from './helpers/GLTFLoader.js'
 
+import {
+	fill_dimensions,
+} from './lib.js'
 
 
-const overlays = []
-const canvases = window.canvases = []
+
+const overlays = THREEPRESS.overlays = []
+const canvases = THREEPRESS.canvases = []
 
 const resolutions = [4, 2, 1.5, 1]
 const animation_types = ['static', 'interactive', 'animated']
@@ -63,9 +67,6 @@ export default init => {
 	canvas.SCENE.add( canvas.LIGHT )
 	canvas.SCENE.add( canvas.CAMERA )
 
-	canvas.CAMERA.position.set( 120, 120, 20 )
-	canvas.CAMERA.lookAt( origin )
-
 	if( init.overlay ){
 		canvas.overlay = init.overlay
 		canvas.ele.classList.add('threepress-overlay')
@@ -84,11 +85,13 @@ export default init => {
 
 
 		// model
+		let model
 		if( canvas.model ){
 			const m = canvas.model
-			const model = await (()=>{
+			model = await (()=>{
 				return new Promise((resolve, reject ) => {
 					loader.load( m.guid, res => {
+						fill_dimensions( res.scene )
 						resolve( res.scene )
 					}, xhr => {
 						// loading time
@@ -99,6 +102,15 @@ export default init => {
 			})();
 			// console.log( model )
 			canvas.SCENE.add( model )
+
+			const radius = model.userData.radius
+
+			// console.log( radius, model.position )
+			canvas.CAMERA.far = radius * 10
+
+			canvas.CAMERA.position.set( 0, radius, radius * 2 )
+			canvas.CAMERA.lookAt( model.position )
+
 		}
 
 		canvas.set_renderer()
@@ -143,7 +155,7 @@ export default init => {
 
 
 
-	canvas.align = () => { // for image ovlerays
+	canvas.align = () => { // for image overlays
 
 		if( !canvas.overlay ){
 			console.log('threepress: invalid align called', this )

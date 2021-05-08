@@ -31,6 +31,7 @@ export default ( callback ) => {
 	model_frame.on( 'select', function() {
 
 		const attachment = model_frame.state().get('selection').first().toJSON()
+		console.log(attachment)
 		const model = new ModelRow( attachment )
 		const row = model.gen_row()
 		
