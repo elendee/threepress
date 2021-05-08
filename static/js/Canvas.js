@@ -22,12 +22,11 @@ const canvases = THREEPRESS.canvases = []
 
 const resolutions = [4, 2, 1.5, 1]
 
-const animation_types = ['static', 'rotating', 'pulsing']
-const interaction_types = ['none', 'orbit_controls', 'first_person', 'third_person', 'flight']
+// const animation_types = ['static', 'rotating', 'pulsing']
+// const interaction_types = ['none', 'orbit_controls', 'first_person', 'third_person', 'flight']
 
 const loader = new GLTFLoader()
 
-const origin = new Vector3( 0, 0, 0 )
 
 let previewing = false
 
@@ -42,21 +41,12 @@ export default init => {
 
 	const canvas = {}
 
-
-
-
+	for( const key in init ) canvas[ key ] = init[ key ]
 
 	// inits
 	canvas.res_key = typeof init.res_key === 'number' ? init.res_key : resolutions.length - 1
 
-	canvas.render_type = animation_types[ typeof init.render_type === 'number' ? init.render_type : 1 ]
-
 	canvas.view = init.view || 1000
-
-	canvas.name = init.name
-
-	canvas.model = init.model || canvas.model
-
 
 	// state
 	canvas.animating = false
@@ -72,7 +62,7 @@ export default init => {
 	canvas.ele.height = canvas.ele.width * .7
 	// console.log( canvas.ele.width , canvas.ele.height )
 
-	canvas.LIGHT = new DirectionalLight( 0xffffff, 1 )
+	canvas.LIGHT = new DirectionalLight( 0xffffff, ( 5 - canvas.intensity ) / 5 )
 	canvas.CAMERA = new PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, canvas.view )
 
 	canvas.SCENE.add( canvas.LIGHT )
@@ -117,23 +107,24 @@ export default init => {
 
 			const radius = model.userData.radius
 
-			canvas.CAMERA.far = radius * 10
+			canvas.CAMERA.far = radius * 100
 
-			canvas.CAMERA.position.set( 0, radius, radius * 2.5 )
+			canvas.CAMERA.position.set( 0, radius, radius * canvas.camera_dist * 2.5 )
+			canvas.LIGHT.position.set( 1, 1, 1 ).multiplyScalar( radius * 3 )
 			canvas.CAMERA.lookAt( model.position )
 
 		}
 
 		canvas.set_renderer()
 
-		if( canvas.render_type === 'static' ){
-
-			canvas.RENDERER.render( canvas.SCENE, canvas.CAMERA )
-
-		}else if( canvas.render_type === 'rotating' || canvas.render_type === 'pulsing' ){
+		if( canvas.rotate_scene ){
 
 			canvas.animating = true
 			animate()
+
+		}else{
+
+			canvas.RENDERER.render( canvas.SCENE, canvas.CAMERA )
 
 		}
 
@@ -143,7 +134,7 @@ export default init => {
 
 
 
-	let now, delta, delta_seconds
+	let now// , delta//, delta_seconds
 	let then = 0
 
 	const animate = () => {
@@ -151,21 +142,13 @@ export default init => {
 		if( !canvas.animating ) return
 
 		now = performance.now()
-		delta = now - then
-		delta_seconds = delta / 1000 
+		// delta = now - then
+		// delta_seconds = delta / 1000 
 		canvas.RENDERER.render( canvas.SCENE, canvas.CAMERA )
 
 		for( const child of canvas.SCENE.children ){
-			if( child.userData.subject ){
-				switch( canvas.render_type ){
-					case 'rotating':
-						child.rotation.y += .001
-						break;
-					// case 'pulsing':
-					// 	break;
-					default: break;
-
-				}
+			if( child.userData.subject && canvas.rotate_scene ){
+				child.rotation.y += canvas.rotate_speed / 1000
 			}
 		}
 
@@ -218,7 +201,7 @@ export default init => {
 	}
 
 
-	canvas.preview = ( guid, name ) => {
+	canvas.preview = () => {
 
 		if( previewing ) return 
 		previewing = true

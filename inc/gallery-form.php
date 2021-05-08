@@ -15,7 +15,7 @@ function threepress_gallery_form(){
 	    		<input name='gallery_name' type='text' placeholder='<?php  __('gallery name (not displayed publicly)', 'textdomain') ?>'/>
 	    	</p>
 			<p>
-				This will also append an <code>id</code> to the gallery element of form <code>#threepress-gallery-[name]</code>
+				<div class='clarification'>This will also append an <code>id</code> to the gallery element of form <code>#threepress-gallery-[name]</code></div>
 			<p>
 	    </div>
 		
@@ -39,19 +39,19 @@ function threepress_gallery_form(){
 		    			<h4>controls</h4>
 		    			<div class='selection'>
 			    			<label>none</label>
-			    			<input name='options-controls' type='radio' value='none'>
+			    			<input name='options_controls' type='radio' value='none'>
 			    		</div>
 		    			<div class='selection'>
 			    			<label>orbit</label>
-			    			<input name='options-controls' type='radio' value='orbit'>
+			    			<input name='options_controls' type='radio' value='orbit'>
 			    		</div>
 		    			<div class='selection threepress-disabled'>
 			    			<label>first person</label>
-			    			<input name='options-controls' type='radio' value='first'>
+			    			<input name='options_controls' type='radio' value='first'>
 			    		</div>
 		    			<div class='selection threepress-disabled'>
 			    			<label>flight</label>
-			    			<input name='options-controls' type='radio' value='flight'>
+			    			<input name='options_controls' type='radio' value='flight'>
 			    		</div>
 		    		</div>
 	    			
@@ -59,15 +59,19 @@ function threepress_gallery_form(){
 		    			<h4>light</h4>
 		    			<div class='selection threepress-disabled'>
 			    			<label>sun</label>
-			    			<input name='options-light' type='radio' value='sun'>
+			    			<input name='options_light' type='radio' value='sun'>
 			    		</div>
 		    			<div class='selection'>
 			    			<label>directional</label>
-			    			<input name='options-light' type='radio' value='directional'>
+			    			<input name='options_light' type='radio' value='directional'>
 			    		</div>
 		    			<div class='selection'>
 			    			<label>hemispherical</label>
-			    			<input name='options-light' type='radio' value='hemispherical'>
+			    			<input name='options_light' type='radio' value='hemispherical'>
+			    		</div>
+			    		<div class='selection'>
+			    			<label>intensity</label>
+			    			<input type='range' min=1 max=5 name='intensity' value=5 />
 			    		</div>
 		    		</div>
 
@@ -75,23 +79,27 @@ function threepress_gallery_form(){
 		    			<h4>camera</h4>
 		    			<div class='selection'>
 			    			<label>user zoom</label>
-			    			<input type='checkbox' name='user-zoom'>
+			    			<input type='checkbox' name='camera_user_zoom'>
+			    		</div>
+			  			<div class='selection'>
+			    			<label>user rotate</label>
+			    			<input type='checkbox' name='camera_user_rotate'>
 			    		</div>
 		    			<div class='selection'>
 			    			<label>initial zoom</label>
-			    			<input type='range' min=1 max=1000 name='camera-dist'>
+			    			<input type='range' min=1 max=5 name='camera_dist'>
 			    		</div>
 		    		</div>
 
-		    		<div class='threepress-options-category threepress-disabled'>
+		    		<div class='threepress-options-category'>
 		    			<h4>misc</h4>
 		    			<div class='selection'>
 			    			<label>rotate scene</label>
-			    			<input type='checkbox' name='rotate'>
+			    			<input type='checkbox' name='rotate_scene'>
 			    		</div>
 		    			<div class='selection'>
 			    			<label>rotation speed</label>
-			    			<input type='range' min=1 max=1000 name='rotation-speed'>
+			    			<input type='range' min=1 max=5 name='rotate_speed'>
 			    		</div>
 		    		</div>
 
@@ -110,6 +118,8 @@ function threepress_gallery_form(){
 		<p>
 			<input type='submit' value='save' id='create-gallery' class='button button-primary'/>
 		</p>
+    	<div class='clarification'>you do not have to save a shortcode to use it - saving is just for reference</div>
+
 
 	</form>
 

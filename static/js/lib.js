@@ -419,6 +419,7 @@ const fill_dimensions = model => {
 
 
 
+const origin = new Vector3( 0, 0, 0 )
 
 
 
@@ -441,6 +442,7 @@ export {
 
 	// helper functions
 	fill_dimensions,
+	origin,
 
 }
 

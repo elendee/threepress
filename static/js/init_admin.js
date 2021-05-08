@@ -5,7 +5,7 @@ import {
 	fetch_wrap,
 } from './lib.js'
 
-import init_gallery from './init_gallery.js'
+import render_gallery_form from './render_gallery_form.js'
 
 
 
@@ -83,7 +83,7 @@ const fill = async( type ) => {
 				library_content.innerHTML = 'no models uploaded - only glb files supported'
 				return
 			}
-				console.log( res )
+				// console.log( res )
 			for( const post of res ){
 				const model = new ModelRow( post )
 				library_content.appendChild( model.gen_row() )
@@ -227,7 +227,7 @@ browse_threepress.addEventListener('submit', e => {
 // 	return false
 // }
 
-init_gallery( wrap, gallery_form )
+render_gallery_form( wrap, gallery_form )
 
 
 tabs[0].click()

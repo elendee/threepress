@@ -48,7 +48,7 @@
 .threepress .delete{
 	font-size: initial;
 	position: absolute;
-	top: -10px;
+	top: -0px;
 	right: -10px;
 	padding: 2px 4px; 
 	background: rgb(200, 0, 0);
@@ -271,4 +271,15 @@
 }
 .threepress-row.model-row .column-4:nth-of-type(4){
     text-align: center;
+}
+
+
+
+@media screen and (max-width: 800px){
+	.threepress-row .column{
+		max-width: 100%;
+	}
+	.threepress-row{
+		margin: 10px 0;
+	}
 }
