@@ -97,7 +97,10 @@
 		        </div>
 		    </h4>
 
-		    <?php require_once 'gallery-form.php'; ?>
+			<?php do_action('threepress_gallery_form'); ?>
+
+
+		    <?php //require_once 'gallery-form.php'; ?>
 
         	<h4>galleries</h4>
 		   	<div class='content'>

@@ -123,6 +123,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    user-select: none;
 }
 .alert-close-3p:hover{
     background: rgba(250, 50, 55, .4);
@@ -239,7 +240,12 @@
 	display: none;
 }
 
+.threepress .button{
+    user-select: none;
+}
+/* not same ^^ vv */
 .threepress-button{
+    user-select: none;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: bold;

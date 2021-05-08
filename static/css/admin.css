@@ -196,3 +196,39 @@
 .model-row-preview.threepress-button{
 	padding: 3px;
 }
+.threepress-options-category:nth-of-type(odd){
+   background: rgba(255, 255, 255, .4);
+
+}
+.threepress-options-category:hover{
+   background: rgba(0, 0, 0, .1);
+
+}
+
+.threepress-options-category h4{
+    display: inline-block;
+    margin-right: 20px;
+    margin-left: 5px;
+    background: rgba(255, 255, 255, .7);
+    padding: 0 5px;
+}
+.threepress-options-category .selection{
+	display: inline-block;
+	padding: 0 3px;
+}
+.threepress-options-category .selection:hover{
+    background: rgba(0, 0, 0, .2)
+}
+.threepress-options-category input{
+	vertical-align: middle;
+}
+
+/*.threepress-options-category label,
+.threepress-options-category input{
+    display: none;
+}
+
+.dropped.threepress-options-category label,
+.dropped.threepress-options-category input{
+    display: inline-block;
+} */

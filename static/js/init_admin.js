@@ -5,19 +5,7 @@ import {
 	fetch_wrap,
 } from './lib.js'
 
-import Canvas from './Canvas.js'
-
-import model_selector from './model_selector.js'
-
-
-
-
-
-
-
-
-
-
+import init_gallery from './init_gallery.js'
 
 
 
@@ -42,7 +30,6 @@ const gallery_form = wrap.querySelector('form#gallery-form')
 // action buttons
 const model_upload = wrap.querySelector('form#upload-model')
 const browse_threepress = wrap.querySelector('form#browse-threepress')
-const choose_model = wrap.querySelector('#choose-model')
 
 // content areas
 const model_library = wrap.querySelector('#model-library')
@@ -50,10 +37,8 @@ const library_content = model_library.querySelector('.content')
 const model_galleries = wrap.querySelector('#model-galleries')
 const gallery_content = model_galleries.querySelector('.content')
 
-const model_choice = wrap.querySelector('#model-choice')
-const shortcode = wrap.querySelector('#shortcode')
 
-const preview = document.querySelector('#gallery-preview')
+
 
 
 
@@ -71,19 +56,6 @@ const preview = document.querySelector('#gallery-preview')
 //--------------------------------------------------------------- declare functions & classes
 
 
-
-const generate_gallery_row = gallery => {
-	const row = document.createElement('div')
-	row.classList.add('row')
-	const title = document.createElement('div')
-	title.classList.add('column', 'column-3')
-	title.title = 'gallery title'
-	title.innerText = gallery.title
-	//
-	//
-	//
-	return row 
-}
 
 
 
@@ -137,20 +109,6 @@ const fill = async( type ) => {
 
 }
 
-
-const render_shortcode = () => {
-	if( !shortcode ) return
-	let model_id
-	const model = gallery_form.querySelector('.threepress-row')
-	if( model ){
-		model_id = model.getAttribute('data-id')
-	}
-	const name = gallery_form.querySelector('input[name=gallery_name]').value.trim()
-	if( model_id || name ){
-		return `[threepress ${ name ? 'name=' + name + ' ' : '' }${ model_id ? 'model_id=' + model_id + ' ' : '' }]`.replace(' ]', ']')
-	}
-	return ''
-}
 
 
 
@@ -211,11 +169,14 @@ add_model.addEventListener('click', () => {
 
 
 add_gallery.addEventListener('click', () => {
+	// if( !gallery_form.style.height || gallery_form.style.height.match(/^0/) ){
 	if( !gallery_form.style.display || gallery_form.style.display === 'none' ){
 		gallery_form.style.display = 'inline-block'
+		// gallery_form.style.height = '100%'
 		add_gallery.querySelector('div').innerText = '-'
 	}else{
 		gallery_form.style.display = 'none'
+		// gallery_form.style.height = '0px'
 		add_gallery.querySelector('div').innerText = '+'
 	}
 })
@@ -225,66 +186,17 @@ model_upload.addEventListener('submit', e => {
 	window.location.assign( THREEPRESS.home_url + '/wp-admin/media-new.php')
 })
 
-choose_model.addEventListener('click', () => {
-	model_selector(( id, row ) => {
-		model_choice.innerHTML = ''
-		model_choice.appendChild( row )
-		shortcode.value = render_shortcode()
-	})
-})
-
-gallery_form.addEventListener('submit', e => {
-	e.preventDefault()
-	// const model_row = gallery_form.querySelector('.threepress-row')
-	fetch_wrap( ajaxurl, 'post', {
-		action: 'save_shortcode',
-		name: gallery_form.querySelector('input[name=gallery_name]').value.trim(),
-		content: shortcode.value.trim(),
-		// model_id: model_row ? model_row.getAttribute('data-id') : undefined,
-		// model_url: model_row ? model_row.querySelector('.column.url').innerHTML : undefined,
-	}, false)
-	.then( res => {
-		if( res.success ){
-			const g = new GalleryRow( res.gallery )
-			gallery_content.prepend( g.gen_row() )
-		}
-		console.log( res )
-	})
-	.catch( err => {
-		console.log( err )
-	})
-})
-
-gallery_form.addEventListener('keyup', e => {
-	if( e.keyCode === 27 ) return
-	shortcode.value = render_shortcode()
-})
 
 browse_threepress.addEventListener('submit', e => {
 	e.preventDefault()
 })
 
 
-preview.addEventListener('click', async() => {
 
-	const model_choice = document.querySelector('#model-choice .column.url input')
-	if( !model_choice ){
-		hal('error', 'no model chosen', 4000 )
-		return
-	}
 
-	shortcode.value = render_shortcode()
 
-	const canvas = Canvas({
-		model: {
-			guid: model_choice.value.trim()
-		},
-		name: document.querySelector('input[name=gallery_name]').value.trim()
-	})
 
-	canvas.preview()
 
-})
 
 
 
@@ -315,6 +227,7 @@ preview.addEventListener('click', async() => {
 // 	return false
 // }
 
+init_gallery( wrap, gallery_form )
 
 
 tabs[0].click()
