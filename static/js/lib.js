@@ -133,8 +133,11 @@ class Spinner{
 
 	show( ele ){
 		if( ele ){
+			if( getComputedStyle( ele ).position === 'static' ) ele.style.position = 'relative'
+			this.ele.style.position = 'absolute'
 			ele.prepend( this.ele )
 		}else{
+			this.ele.style.position = 'fixed'
 			document.body.prepend( this.ele )
 		}
 		this.ele.style.display = 'flex'
@@ -154,8 +157,8 @@ class Spinner{
 
 }
 
-const spinner = new Spinner({
-	src: THREEPRESS.plugin_url + '/assets/spinner.gif'
+const spinner = window.spinner = new Spinner({
+	src: THREEPRESS.plugin_url + '/assets/giffer9.gif'
 })
 
 

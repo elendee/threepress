@@ -20,7 +20,7 @@
 }
 
 .threepress-spinner{
-    position: absolute;
+    position: fixed;
     z-index: 999999999;
     width: 100%;
     height: 100%;
@@ -32,7 +32,7 @@
     align-items: center;
 
     transition: .3s;
-    background: rgba(0, 0, 0, .2);
+    background: rgba(0, 0, 0, .6);
 	font-size: initial;
 
 }
@@ -40,7 +40,7 @@
 .threepress-spinner>img{
 	opacity: 1 !important;
 	font-size: initial;
-    width: 50px;
+    width: 100px;
     max-width: 90% !important;
 }
 
