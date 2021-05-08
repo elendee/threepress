@@ -11,9 +11,8 @@ class Modal {
 		this.ele.classList.add('threepress-modal')
 		if( init.id ) this.ele.id = init.id
 
-		// const type = this.type = init.type
-		// this.ele.classList.add( type )
-		// this.ele.setAttribute('data-type', type )
+		const type = this.type = init.type
+		this.ele.classList.add( 'modal-type-' + type )
 
 		this.content = document.createElement('div')
 		this.content.classList.add('threepress-modal-content')

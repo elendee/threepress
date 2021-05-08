@@ -17,11 +17,15 @@ const values = {
 	name: undefined, 
 	controls: undefined, 
 	light: undefined, 
-	camera_user_zoom: undefined, 
-	camera_user_rotate: undefined, 
+	// camera_user_zoom: undefined, 
+	// camera_user_rotate: undefined, 
 	camera_dist: undefined, 
 	rotate_scene: undefined, 
 	rotate_speed: undefined,
+	rotate_x: undefined,
+	rotate_y: undefined,
+	rotate_z: undefined,
+	bg_color: undefined,
 }
 
 const render_shortcode = gallery_form => {
@@ -46,17 +50,21 @@ const render_shortcode = gallery_form => {
 	values.intensity = gallery_form.querySelector('input[name=intensity]').value
 
 	// camera
-	values.camera_user_zoom = gallery_form.querySelector('input[name=camera_user_zoom]').checked
-	values.camera_user_rotate = gallery_form.querySelector('input[name=camera_user_rotate]').checked
 	values.camera_dist = gallery_form.querySelector('input[name=camera_dist').value
 
-	// misc
+	// rotation
 	values.rotate_scene = gallery_form.querySelector('input[name=rotate_scene]').checked
 	if( values.rotate_scene ){
 		values.rotate_speed = gallery_form.querySelector('input[name=rotate_speed]').value
 	}else{
 		values.rotate_speed = undefined
 	}
+	values.rotate_x = gallery_form.querySelector('input[name=rotate_x]').checked
+	values.rotate_y = gallery_form.querySelector('input[name=rotate_y]').checked
+	values.rotate_z = gallery_form.querySelector('input[name=rotate_z]').checked
+
+	// bg color
+	values.bg_color = gallery_form.querySelector('input[name=bg_color]').value.trim()
 
 	let shortcodes = ''
 	for( const key in values ){
@@ -75,14 +83,16 @@ const render_shortcode = gallery_form => {
 
 
 
-export default ( wrap, gallery_form ) => {
+export default ( gallery_form ) => {
 
-	const model_choice = wrap.querySelector('#model-choice')
-	const shortcode = wrap.querySelector('#shortcode')
-	const choose_model = wrap.querySelector('#choose-model')
-	const preview = wrap.querySelector('#gallery-preview')
+	const model_choice = gallery_form.querySelector('#model-choice')
+	const shortcode = gallery_form.querySelector('#shortcode')
+	const color_picker = gallery_form.querySelector("#gallery-options input[type=color]")
+	const bg_color = gallery_form.querySelector('input[name=bg_color]')
+	// const choose_model = gallery_form.querySelector('#choose-model')
+	// const preview = gallery_form.querySelector('#gallery-preview')
 
-	const label_selections = wrap.querySelectorAll('.threepress-options-category .selection label')
+	const label_selections = gallery_form.querySelectorAll('.threepress-options-category .selection label')
 
 	for( const label of label_selections ){
 		label.addEventListener('click', () => {
@@ -91,12 +101,49 @@ export default ( wrap, gallery_form ) => {
 		})
 	}
 
-	choose_model.addEventListener('click', () => {
-		model_selector(( id, row ) => {
-			model_choice.innerHTML = ''
-			model_choice.appendChild( row )
-			shortcode.value = render_shortcode( gallery_form )
-		})
+	gallery_form.addEventListener('keyup', e => {
+		if( e.keyCode === 27 ) return
+		shortcode.value = render_shortcode( gallery_form )
+	})
+
+	gallery_form.addEventListener('click', e => {
+
+		if( e.target.id === 'choose-model'){
+			model_selector(( id, row ) => {
+				model_choice.innerHTML = ''
+				model_choice.appendChild( row )
+				shortcode.value = render_shortcode( gallery_form )
+			})
+
+		}else if( e.target.parentElement.id === 'gallery-preview' ){
+
+			const model_choice = document.querySelector('#model-choice .column.url input')
+			if( !model_choice ){
+				hal('error', 'no model chosen', 4000 )
+				return
+			}
+
+			const init = Object.assign( {}, values )
+			// delete init.model_id
+			init.model = {
+				guid: document.querySelector("#model-choice .url input").value.trim()
+			}
+
+			const canvas = Canvas( init )
+
+			canvas.preview()
+
+		}else if( e.target.name === 'rotate_scene'){
+
+			const contings = e.target.parentElement.parentElement.querySelectorAll('.contingent')
+			for( const ele of contings ){
+				e.target.checked ? ele.classList.remove('threepress-disabled') : ele.classList.add('threepress-disabled')
+			}
+
+		}
+
+		shortcode.value = render_shortcode( gallery_form )
+
 	})
 
 	gallery_form.addEventListener('submit', e => {
@@ -118,34 +165,28 @@ export default ( wrap, gallery_form ) => {
 		})
 	})
 
-	gallery_form.addEventListener('keyup', e => {
-		if( e.keyCode === 27 ) return
-		shortcode.value = render_shortcode( gallery_form )
+	color_picker.addEventListener('change', e => {
+		bg_color.value = color_picker.value
 	})
 
-	gallery_form.addEventListener('click', () => {
-		shortcode.value = render_shortcode( gallery_form )
+	// preview.addEventListener('click', async() => {
 
-	})
+	// 	const model_choice = document.querySelector('#model-choice .column.url input')
+	// 	if( !model_choice ){
+	// 		hal('error', 'no model chosen', 4000 )
+	// 		return
+	// 	}
 
-	preview.addEventListener('click', async() => {
+	// 	const init = Object.assign( {}, values )
+	// 	// delete init.model_id
+	// 	init.model = {
+	// 		guid: document.querySelector("#model-choice .url input").value.trim()
+	// 	}
 
-		const model_choice = document.querySelector('#model-choice .column.url input')
-		if( !model_choice ){
-			hal('error', 'no model chosen', 4000 )
-			return
-		}
+	// 	const canvas = Canvas( init )
 
-		const init = Object.assign( {}, values )
-		// delete init.model_id
-		init.model = {
-			guid: document.querySelector("#model-choice .url input").value.trim()
-		}
+	// 	canvas.preview()
 
-		const canvas = Canvas( init )
-
-		canvas.preview()
-
-	})
+	// })
 
 }

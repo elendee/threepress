@@ -4,10 +4,11 @@ import {
 	WebGLRenderer,
 	Scene,
 	PerspectiveCamera,
-	Vector3,
+	// Vector3,
 } from '../inc/three.module.js'
 
 import { GLTFLoader } from '../inc/GLTFLoader.js'
+import { OrbitControls } from '../inc/OrbitControls.js'
 
 import {
 	fill_dimensions,
@@ -39,13 +40,13 @@ export default init => {
 
 	init = init || {}
 
-	const canvas = {}
+	const canvas = window.canvas = {}
 
 	for( const key in init ) canvas[ key ] = init[ key ]
 
 	// inits
 	canvas.res_key = typeof init.res_key === 'number' ? init.res_key : resolutions.length - 1
-
+	canvas.scaled_rotate = canvas.rotate_speed / 1000
 	canvas.view = init.view || 1000
 
 	// state
@@ -62,7 +63,9 @@ export default init => {
 	canvas.ele.height = canvas.ele.width * .7
 	// console.log( canvas.ele.width , canvas.ele.height )
 
-	canvas.LIGHT = new DirectionalLight( 0xffffff, ( 5 - canvas.intensity ) / 5 )
+	const intensity_threshold = 3 // input value goes higher than this intentionally
+
+	canvas.LIGHT = new DirectionalLight( 0xffffff, ( canvas.intensity / intensity_threshold ) )
 	canvas.CAMERA = new PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, canvas.view )
 
 	canvas.SCENE.add( canvas.LIGHT )
@@ -106,27 +109,36 @@ export default init => {
 			canvas.SCENE.add( model )
 
 			const radius = model.userData.radius
+			const diam = radius * 2
 
 			canvas.CAMERA.far = radius * 100
 
-			canvas.CAMERA.position.set( 0, radius, radius * canvas.camera_dist * 2.5 )
-			canvas.LIGHT.position.set( 1, 1, 1 ).multiplyScalar( radius * 3 )
+			canvas.CAMERA.position.set( 0, radius, radius * canvas.camera_dist )
+			canvas.LIGHT.position.set( -diam, diam, diam )
 			canvas.CAMERA.lookAt( model.position )
+			canvas.LIGHT.lookAt( model.position )
 
 		}
 
 		canvas.set_renderer()
 
+		if( canvas.controls === 'orbit' ){
+			canvas.orbit_controls = new OrbitControls( canvas.CAMERA, canvas.ele )
+		}
+
 		if( canvas.rotate_scene ){
 
 			canvas.animating = true
-			animate()
+			canvas.orbit_controls ? animate_controls() : animate()
 
 		}else{
 
 			canvas.RENDERER.render( canvas.SCENE, canvas.CAMERA )
 
 		}
+
+		if( canvas.bg_color )  canvas.ele.style.background = canvas.bg_color
+		
 
 	}
 
@@ -135,7 +147,7 @@ export default init => {
 
 
 	let now// , delta//, delta_seconds
-	let then = 0
+	// let then = 0
 
 	const animate = () => {
 
@@ -148,11 +160,33 @@ export default init => {
 
 		for( const child of canvas.SCENE.children ){
 			if( child.userData.subject && canvas.rotate_scene ){
-				child.rotation.y += canvas.rotate_speed / 1000
+				if( canvas.rotate_x ) child.rotation.x += canvas.scaled_rotate
+				if( canvas.rotate_y ) child.rotation.y += canvas.scaled_rotate
+				if( canvas.rotate_z ) child.rotation.z += canvas.scaled_rotate
 			}
 		}
 
 		requestAnimationFrame( animate )
+
+	}
+
+
+	const animate_controls = () => {
+		if( !canvas.animating ) return
+		now = performance.now()
+		// delta = now - then
+		// delta_seconds = delta / 1000 
+		canvas.RENDERER.render( canvas.SCENE, canvas.CAMERA )
+
+		for( const child of canvas.SCENE.children ){
+			if( child.userData.subject && canvas.rotate_scene ){
+				if( canvas.rotate_x ) child.rotation.x += canvas.scaled_rotate
+				if( canvas.rotate_y ) child.rotation.y += canvas.scaled_rotate
+				if( canvas.rotate_z ) child.rotation.z += canvas.scaled_rotate
+			}
+		}
+		canvas.orbit_controls.update()
+		requestAnimationFrame( animate_controls )
 
 	}
 

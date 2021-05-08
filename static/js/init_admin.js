@@ -227,10 +227,25 @@ browse_threepress.addEventListener('submit', e => {
 // 	return false
 // }
 
-render_gallery_form( wrap, gallery_form )
+render_gallery_form( gallery_form )
 
 
 tabs[0].click()
+
+const view = localStorage.getItem('threepress-dev-view')
+if( view ){
+	switch( view ){
+		case 'galleries':
+			tabs[1].click()
+			break;
+		case 'create':
+			tabs[1].click()
+			add_gallery.click()
+			document.querySelector('#choose-model').click()
+			break;
+		default: break;
+	}
+}
 
 
 

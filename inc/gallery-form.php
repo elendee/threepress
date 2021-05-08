@@ -34,6 +34,17 @@ function threepress_gallery_form(){
 	    	<h4>gallery options</h4>
 	    	<div id='gallery-options'>
 	    		<div class='gallery-option'>
+
+		    		<div class='threepress-options-category'>
+		    			<h4>background</h4>
+		    			<div class='selection'>
+		    				<input type='color' name='bg_color_selector'>
+			    		</div>
+		    			<div class='selection'>
+		    				<label>use picker <b>or</b> any valid CSS color:</label>
+		    				<input name='bg_color' type='text' value='linear-gradient( 45deg, white, transparent )'>
+		    			</div>
+		    		</div>
 	    			
 	    			<div class='threepress-options-category'>
 		    			<h4>controls</h4>
@@ -43,7 +54,7 @@ function threepress_gallery_form(){
 			    		</div>
 		    			<div class='selection'>
 			    			<label>orbit</label>
-			    			<input name='options_controls' type='radio' value='orbit'>
+			    			<input name='options_controls' type='radio' value='orbit' checked='true'>
 			    		</div>
 		    			<div class='selection threepress-disabled'>
 			    			<label>first person</label>
@@ -63,43 +74,55 @@ function threepress_gallery_form(){
 			    		</div>
 		    			<div class='selection'>
 			    			<label>directional</label>
-			    			<input name='options_light' type='radio' value='directional'>
+			    			<input name='options_light' type='radio' value='directional' checked="true">
 			    		</div>
-		    			<div class='selection'>
+		    			<div class='selection threepress-disabled'>
 			    			<label>hemispherical</label>
 			    			<input name='options_light' type='radio' value='hemispherical'>
 			    		</div>
 			    		<div class='selection'>
 			    			<label>intensity</label>
-			    			<input type='range' min=1 max=5 name='intensity' value=5 />
+			    			<input type='range' min=1 max=5 name='intensity' value=3 />
 			    		</div>
 		    		</div>
 
 		    		<div class='threepress-options-category'>
 		    			<h4>camera</h4>
-		    			<div class='selection'>
+<!-- 		    			<div class='selection'>
 			    			<label>user zoom</label>
 			    			<input type='checkbox' name='camera_user_zoom'>
 			    		</div>
 			  			<div class='selection'>
 			    			<label>user rotate</label>
 			    			<input type='checkbox' name='camera_user_rotate'>
-			    		</div>
+			    		</div> -->
 		    			<div class='selection'>
 			    			<label>initial zoom</label>
-			    			<input type='range' min=1 max=5 name='camera_dist'>
+			    			<input type='range' min=1 max=20 name='camera_dist'>
 			    		</div>
 		    		</div>
 
 		    		<div class='threepress-options-category'>
-		    			<h4>misc</h4>
+		    			<h4>rotation</h4>
 		    			<div class='selection'>
-			    			<label>rotate scene</label>
-			    			<input type='checkbox' name='rotate_scene'>
+			    			<label>auto rotate scene</label>
+			    			<input type='checkbox' name='rotate_scene' checked="true">
 			    		</div>
-		    			<div class='selection'>
+		    			<div class='selection contingent'>
 			    			<label>rotation speed</label>
-			    			<input type='range' min=1 max=5 name='rotate_speed'>
+			    			<input type='range' min=1 max=150 name='rotate_speed' value='20'>
+			    		</div>
+		    			<div class='selection contingent'>
+			    			<label>x axis</label>
+			    			<input type='checkbox' name='rotate_x'>
+			    		</div>
+		    			<div class='selection contingent'>
+			    			<label>y axis</label>
+			    			<input type='checkbox' name='rotate_y' checked="true">
+			    		</div>
+		    			<div class='selection contingent'>
+			    			<label>z axis</label>
+			    			<input type='checkbox' name='rotate_z'>
 			    		</div>
 		    		</div>
 

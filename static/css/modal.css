@@ -1,6 +1,6 @@
 .threepress-modal{
 	position: fixed;
-	z-index: 9;
+	z-index: 9999;
 	top: 0px;
 	left: 0px;
 	font-size: 1rem;
@@ -89,6 +89,11 @@
 	overflow-y: auto;
 }
 
+.modal-type-gallery-preview .threepress-modal-content{
+	background: transparent;
+	border: 1px solid;
+	box-shadow: 0px 0px 20px;
+}
 
 @media screen and (max-width: 800px){
 	.threepress-modal-close{
