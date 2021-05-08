@@ -235,6 +235,7 @@
 }
 .threepress-viewer canvas{
 	width: 100%;
+	outline: 0;
 }
 .threepress-viewer-data{
 	display: none;
