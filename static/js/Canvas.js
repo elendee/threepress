@@ -46,8 +46,14 @@ export default init => {
 
 	// inits
 	canvas.res_key = typeof init.res_key === 'number' ? init.res_key : resolutions.length - 1
-	canvas.scaled_rotate = canvas.rotate_speed / 1000
 	canvas.view = init.view || 1000
+
+	canvas.rotate_speed = canvas.rotate_speed || 1
+	canvas.scaled_rotate = canvas.rotate_speed / 1000
+
+	canvas.camera_dist = init.camera_dist || 5
+	canvas.intensity = init.intensity || 5
+	canvas.light = init.light || 'directional'
 
 	// state
 	canvas.animating = false
@@ -65,7 +71,11 @@ export default init => {
 
 	const intensity_threshold = 3 // input value goes higher than this intentionally
 
-	canvas.LIGHT = new DirectionalLight( 0xffffff, ( canvas.intensity / intensity_threshold ) )
+	if( canvas.light === 'directional' ){
+		canvas.LIGHT = new DirectionalLight( 0xffffff, ( canvas.intensity / intensity_threshold ) )
+	}else{
+		//
+	}
 	canvas.CAMERA = new PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, canvas.view )
 
 	canvas.SCENE.add( canvas.LIGHT )
@@ -79,7 +89,7 @@ export default init => {
 	}
 
 
-
+	console.log('instantiate: ', canvas )
 
 
 
@@ -138,7 +148,10 @@ export default init => {
 		}
 
 		if( canvas.bg_color )  canvas.ele.style.background = canvas.bg_color
-		
+
+
+		console.log('init: ', canvas )
+
 
 	}
 

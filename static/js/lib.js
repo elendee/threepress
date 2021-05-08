@@ -236,6 +236,9 @@ class ModelRow {
 			const canvas = Canvas({
 				model: { guid: input.value.trim() },
 				name: '',
+				rotate_scene: true,
+				bg_color: 'linear-gradient(45deg, white, transparent)',
+				controls: 'orbit',
 			})
 			canvas.preview()
 		})
