@@ -216,7 +216,7 @@ if ( !class_exists( 'Threepress' ) ) {
 		 public static function delete_gallery(){
 			global $wpdb;
 			$id = $_POST['id'];
-			_LOG( $id );
+			// _LOG( $id );
 			$sql = $wpdb->prepare('DELETE FROM threepress_shortcodes WHERE id=%d', $id);
 			$res = $wpdb->query( $sql );
 			$response = new stdClass();
