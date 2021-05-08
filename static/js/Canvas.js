@@ -67,6 +67,8 @@ export default init => {
 		alpha: true
 	})
 	canvas.ele = canvas.RENDERER.domElement
+	canvas.ele.height = canvas.ele.width * .7
+	// console.log( canvas.ele.width , canvas.ele.height )
 
 	canvas.LIGHT = new DirectionalLight( 0xffffff, 1 )
 	canvas.CAMERA = new PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, canvas.view )
