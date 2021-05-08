@@ -4,7 +4,7 @@ import BROKER from './helpers/EventBroker.js'
 import {
 	Box3,
 	Vector3,
-} from './three.module.js'
+} from '../inc/three.module.js'
 
 
 // ------------------------------------------------------------ declarations

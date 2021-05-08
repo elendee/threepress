@@ -185,7 +185,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	  //   }
 
 	    public static function shortcode( $attr, $content, $name ){
-	    	_LOG( $attr );
+	    	// _LOG( $attr );
 	    	// _LOG( $name );
 	    	$model_id = (int)$attr['model_id'];
 	    	if( gettype( $model_id ) != 'integer' ){

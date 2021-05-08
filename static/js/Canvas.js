@@ -5,9 +5,9 @@ import {
 	Scene,
 	PerspectiveCamera,
 	Vector3,
-} from './three.module.js'
+} from '../inc/three.module.js'
 
-import { GLTFLoader } from './helpers/GLTFLoader.js'
+import { GLTFLoader } from '../inc/GLTFLoader.js'
 
 import {
 	fill_dimensions,
@@ -19,11 +19,17 @@ const overlays = THREEPRESS.overlays = []
 const canvases = THREEPRESS.canvases = []
 
 const resolutions = [4, 2, 1.5, 1]
-const animation_types = ['static', 'interactive', 'animated']
+
+const animation_types = ['static', 'rotating', 'pulsing']
+const interaction_types = ['none', 'orbit_controls', 'first_person', 'third_person', 'flight']
 
 const loader = new GLTFLoader()
 
 const origin = new Vector3( 0, 0, 0 )
+
+
+
+
 
 
 
@@ -41,13 +47,17 @@ export default init => {
 	// inits
 	canvas.res_key = typeof init.res_key === 'number' ? init.res_key : resolutions.length - 1
 
-	canvas.render_type = animation_types[ typeof init.render_type === 'number' ? init.render_type : 2 ]
+	canvas.render_type = animation_types[ typeof init.render_type === 'number' ? init.render_type : 1 ]
 
 	canvas.view = init.view || 1000
 
 	canvas.name = init.name
 
 	canvas.model = init.model || canvas.model
+
+
+	// state
+	canvas.animating = false
 
 
 	// threejs eles
@@ -58,15 +68,13 @@ export default init => {
 	})
 	canvas.ele = canvas.RENDERER.domElement
 
-	// state
-	canvas.animating = false
-
-	canvas.LIGHT = new DirectionalLight(0xffffff, 1)
+	canvas.LIGHT = new DirectionalLight( 0xffffff, 1 )
 	canvas.CAMERA = new PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, canvas.view )
 
 	canvas.SCENE.add( canvas.LIGHT )
 	canvas.SCENE.add( canvas.CAMERA )
 
+	// dom
 	if( init.overlay ){
 		canvas.overlay = init.overlay
 		canvas.ele.classList.add('threepress-overlay')
@@ -78,11 +86,9 @@ export default init => {
 
 
 
-	// public methods
 	canvas.init = async() => { // lights camera action
 
 		if( !canvases.includes( canvas )) canvases.push( canvas )
-
 
 		// model
 		let model
@@ -91,24 +97,25 @@ export default init => {
 			model = await (()=>{
 				return new Promise((resolve, reject ) => {
 					loader.load( m.guid, res => {
-						fill_dimensions( res.scene )
 						resolve( res.scene )
 					}, xhr => {
-						// loading time
+						// loading progress
 					}, err => {
 						reject( err )
 					})
 				})
 			})();
-			// console.log( model )
+
+			fill_dimensions( model )
+			model.userData.subject = true
+
 			canvas.SCENE.add( model )
 
 			const radius = model.userData.radius
 
-			// console.log( radius, model.position )
 			canvas.CAMERA.far = radius * 10
 
-			canvas.CAMERA.position.set( 0, radius, radius * 2 )
+			canvas.CAMERA.position.set( 0, radius, radius * 2.5 )
 			canvas.CAMERA.lookAt( model.position )
 
 		}
@@ -116,12 +123,14 @@ export default init => {
 		canvas.set_renderer()
 
 		if( canvas.render_type === 'static' ){
+
 			canvas.RENDERER.render( canvas.SCENE, canvas.CAMERA )
-		}else if( canvas.render_type === 'interactive'){
-			canvas.RENDERER.render( canvas.SCENE, canvas.CAMERA )
-		}else if( canvas.render_type === 'animated'){
+
+		}else if( canvas.render_type === 'rotating' || canvas.render_type === 'pulsing' ){
+
 			canvas.animating = true
 			animate()
+
 		}
 
 	}
@@ -133,7 +142,6 @@ export default init => {
 	let now, delta, delta_seconds
 	let then = 0
 
-	// private methods
 	const animate = () => {
 
 		if( !canvas.animating ) return
@@ -142,9 +150,20 @@ export default init => {
 		delta = now - then
 		delta_seconds = delta / 1000 
 		canvas.RENDERER.render( canvas.SCENE, canvas.CAMERA )
-		canvas.CAMERA.position.x += 5 * Math.sin( delta_seconds )
-		canvas.CAMERA.position.z += 5 * Math.sin( delta_seconds )
-		canvas.CAMERA.lookAt( origin )
+
+		for( const child of canvas.SCENE.children ){
+			if( child.userData.subject ){
+				switch( canvas.render_type ){
+					case 'rotating':
+						child.rotation.y += .001
+						break;
+					// case 'pulsing':
+					// 	break;
+					default: break;
+
+				}
+			}
+		}
 
 		requestAnimationFrame( animate )
 
@@ -184,27 +203,15 @@ export default init => {
 
 	canvas.set_renderer = () => {
 
-		// canvas.CAMERA.aspect = window.innerWidth / window.innerHeight
 		canvas.CAMERA.aspect = canvas.ele.getBoundingClientRect().width / canvas.ele.getBoundingClientRect().height
 		canvas.CAMERA.updateProjectionMatrix()
 
 		canvas.RENDERER.setSize( 
 			canvas.ele.getBoundingClientRect().width / resolutions[ canvas.res_key ],
 			canvas.ele.getBoundingClientRect().height / resolutions[ canvas.res_key ],
-			// window.innerWidth / resolutions[ canvas.res_key ], 
-			// window.innerHeight / resolutions[ canvas.res_key ], 
 			false 
 		)
 	}
-
-	// onWindowResize(){
-
-	// 	canvas.CAMERA.aspect = window.innerWidth / window.innerHeight
-	// 	canvas.CAMERA.updateProjectionMatrix()
-
-	// 	canvas.set_renderer()
-
-	// }
 
 	return canvas
 
@@ -215,9 +222,16 @@ export default init => {
 
 
 
+let resizing = false
 window.addEventListener('resize', () => {
-	for( const overlay of overlays ) overlay.align()
-	for( const canvas of canvases ) canvas.set_renderer()
+	if( !resizing ){
+		resizing = setTimeout(() => {  // be nice to overloaded WP sites
+			for( const overlay of overlays ) overlay.align()
+			for( const canvas of canvases ) canvas.set_renderer()		
+			clearTimeout( resizing )
+			resizing = false
+		}, 1000 )
+	}
 })
 
 
