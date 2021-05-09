@@ -227,7 +227,7 @@ browse_threepress.addEventListener('submit', e => {
 // 	return false
 // }
 
-render_gallery_form( gallery_form )
+render_gallery_form( gallery_form, gallery_content )
 
 
 tabs[0].click()
@@ -247,5 +247,11 @@ if( view ){
 	}
 }
 
+document.addEventListener('keyup', e => {
+	if( e.keyCode === 27 ){
+		const close = document.querySelector('.threepress-modal-close')
+		if( close ) close.click()
+	}
+})
 
 

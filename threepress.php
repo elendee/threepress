@@ -33,6 +33,12 @@ require_once( ABSPATH . 'wp-includes/pluggable.php' );
 require_once( __DIR__ . '/inc/gallery-form.php' );
 
 
+if( defined( 'ALLOW_UNFILTERED_UPLOADS' ) ){
+	$allow_unfiltered = ALLOW_UNFILTERED_UPLOADS;
+}else{
+	$allow_unfiltered = false;
+}
+
 
 function _LOG( $msg ){
 
@@ -245,6 +251,8 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	));
 
 	    	$res->success = true;
+	    	$gallery->edited = $gallery->datetime;
+	    	$gallery->created = $gallery->datetime;
 	    	$res->gallery = $gallery;
 
 	    	wp_die( json_encode( $res ) );
@@ -269,7 +277,7 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	if( current_user_can('manage_options') ){
 
-		define( 'ALLOW_UNFILTERED_UPLOADS', true );
+		// define( 'ALLOW_UNFILTERED_UPLOADS', true );
 		
 		$threepress = strpos( $_SERVER['REQUEST_URI'], 'page=threepress' );
 		$admin_ajax = strpos( $_SERVER['REQUEST_URI'], 'wp-admin/admin-ajax' );		
@@ -293,7 +301,7 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	}else{ // _____ public pages
 
-		define( 'ALLOW_UNFILTERED_UPLOADS', $allow_unfiltered );
+		// define( 'ALLOW_UNFILTERED_UPLOADS', $allow_unfiltered );
 
 	}
 

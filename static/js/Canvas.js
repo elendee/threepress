@@ -150,7 +150,7 @@ export default init => {
 		if( canvas.bg_color )  canvas.ele.style.background = canvas.bg_color
 
 
-		console.log('init: ', canvas )
+		// console.log('init: ', canvas )
 
 
 	}

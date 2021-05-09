@@ -237,6 +237,7 @@ class ModelRow {
 				model: { guid: input.value.trim() },
 				name: '',
 				rotate_scene: true,
+				rotate_y: 1,
 				bg_color: 'linear-gradient(45deg, white, transparent)',
 				controls: 'orbit',
 			})
@@ -255,10 +256,10 @@ class GalleryRow {
 		init = init || {}
 		this.id = init.id || this.id
 		this.name = init.name || this.name
-		this.created = init.created || this.created
 		this.shortcode = init.content || this.shortcode
-		this.edited = init.edited || this.edited
 		this.model_id = init.model_id || this.model_id 
+		this.created = init.created || this.created
+		this.edited = init.edited || this.edited
 	}
 
 	gen_row(){

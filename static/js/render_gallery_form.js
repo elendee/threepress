@@ -5,13 +5,16 @@ import model_selector from './model_selector.js'
 import {
 	hal,
 	fetch_wrap,
+	GalleryRow,
 } from './lib.js'
 
 
-const tag = ( key , value ) => {
-	return value ? `${ key }=${ value } ` : ''
-}
 
+
+// value DOM holders
+let model_choice, model_input, shortcode, color_picker, bg_color
+
+// value names
 const values = {
 	model_id: undefined, 
 	name: undefined, 
@@ -27,6 +30,41 @@ const values = {
 	rotate_z: undefined,
 	bg_color: undefined,
 }
+
+const tag = ( key , value ) => {
+	return value ? `${ key }=${ value } ` : ''
+}
+
+
+
+
+
+
+const validate = ( gallery_form, pop_errors ) => {
+
+	const invalidations = []
+
+	model_input = model_choice.querySelector('.url input')
+
+	if( !model_input || !model_input.value || !model_input.value.match(/\.glb$/)) invalidations.push('invalid or missing model - must be glb format')
+
+	if( invalidations.length ){
+		if( pop_errors ){
+			for( const msg of invalidations ) hal('error', msg, 5000 )
+		}
+		return false
+	}
+
+	return true
+
+}
+
+
+
+
+
+
+
 
 const render_shortcode = gallery_form => {
 
@@ -83,12 +121,22 @@ const render_shortcode = gallery_form => {
 
 
 
-export default ( gallery_form ) => {
 
-	const model_choice = gallery_form.querySelector('#model-choice')
-	const shortcode = gallery_form.querySelector('#shortcode')
-	const color_picker = gallery_form.querySelector("#gallery-options input[type=color]")
-	const bg_color = gallery_form.querySelector('input[name=bg_color]')
+
+
+
+
+
+
+
+
+export default ( gallery_form, gallery_content ) => {
+
+	model_choice = gallery_form.querySelector('#model-choice')
+	shortcode = gallery_form.querySelector('#shortcode')
+	color_picker = gallery_form.querySelector("#gallery-options input[type=color]")
+	bg_color = gallery_form.querySelector('input[name=bg_color]')
+
 	// const choose_model = gallery_form.querySelector('#choose-model')
 	// const preview = gallery_form.querySelector('#gallery-preview')
 
@@ -117,11 +165,7 @@ export default ( gallery_form ) => {
 
 		}else if( e.target.parentElement.id === 'gallery-preview' ){
 
-			const model_choice = document.querySelector('#model-choice .column.url input')
-			if( !model_choice ){
-				hal('error', 'no model chosen', 4000 )
-				return
-			}
+			if( !validate( gallery_form, true ) ) return
 
 			const init = Object.assign( {}, values )
 			// delete init.model_id
@@ -148,6 +192,9 @@ export default ( gallery_form ) => {
 
 	gallery_form.addEventListener('submit', e => {
 		e.preventDefault()
+
+		if( !validate( gallery_form, true ) ) return
+
 		fetch_wrap( ajaxurl, 'post', {
 			action: 'save_shortcode',
 			name: gallery_form.querySelector('input[name=gallery_name]').value.trim(),
@@ -157,10 +204,14 @@ export default ( gallery_form ) => {
 			if( res.success ){
 				const g = new GalleryRow( res.gallery )
 				gallery_content.prepend( g.gen_row() )
+				hal('success', 'success', 5000 )
+			}else{
+				hal('error', res.msg || 'error saving', 5000 )
+				console.log( res )
 			}
-			console.log( res )
 		})
 		.catch( err => {
+			hal('error', err.msg || 'error saving', 5000 )
 			console.log( err )
 		})
 	})

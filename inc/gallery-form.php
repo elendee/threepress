@@ -88,14 +88,6 @@ function threepress_gallery_form(){
 
 		    		<div class='threepress-options-category'>
 		    			<h4>camera</h4>
-<!-- 		    			<div class='selection'>
-			    			<label>user zoom</label>
-			    			<input type='checkbox' name='camera_user_zoom'>
-			    		</div>
-			  			<div class='selection'>
-			    			<label>user rotate</label>
-			    			<input type='checkbox' name='camera_user_rotate'>
-			    		</div> -->
 		    			<div class='selection'>
 			    			<label>initial zoom</label>
 			    			<input type='range' min=1 max=20 name='camera_dist'>
@@ -110,7 +102,7 @@ function threepress_gallery_form(){
 			    		</div>
 		    			<div class='selection contingent'>
 			    			<label>rotation speed</label>
-			    			<input type='range' min=1 max=150 name='rotate_speed' value='20'>
+			    			<input type='range' min=1 max=100 name='rotate_speed' value='20'>
 			    		</div>
 		    			<div class='selection contingent'>
 			    			<label>x axis</label>
