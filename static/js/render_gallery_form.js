@@ -1,11 +1,12 @@
 import Gallery from './Gallery.js'
 // import BROKER from './helpers/EventBroker.js'
 
-import model_selector from './model_selector.js'
+// import model_selector from './model_selector.js'
 
 import {
 	hal,
 	fetch_wrap,
+	model_selector,
 	// GalleryRow,
 	// ModelRow,
 	set_contingents,
@@ -15,27 +16,27 @@ import {
 
 
 // value DOM holders
-let model_choice, model_input, shortcode, color_picker, bg_color
+let model_choice, shortcode, color_picker, bg_color
 
 const gallery_form = document.querySelector('#gallery-form')
 // const add_gallery = document.querySelector('#create-toggle')
 
 // value names
-let values = {
-	model_id: undefined, 
-	name: undefined, 
-	controls: undefined, 
-	light: undefined, 
-	// camera_user_zoom: undefined, 
-	// camera_user_rotate: undefined, 
-	camera_dist: undefined, 
-	rotate_scene: undefined, 
-	rotate_speed: undefined,
-	rotate_x: undefined,
-	rotate_y: undefined,
-	rotate_z: undefined,
-	bg_color: undefined,
-}
+// let values = {
+// 	model_id: undefined, 
+// 	name: undefined, 
+// 	controls: undefined, 
+// 	light: undefined, 
+// 	// camera_user_zoom: undefined, 
+// 	// camera_user_rotate: undefined, 
+// 	camera_dist: undefined, 
+// 	rotate_scene: undefined, 
+// 	rotate_speed: undefined,
+// 	rotate_x: undefined,
+// 	rotate_y: undefined,
+// 	rotate_z: undefined,
+// 	bg_color: undefined,
+// }
 
 
 
@@ -91,55 +92,25 @@ export default ( gallery_content ) => {
 		})
 	}
 
-	gallery_form.addEventListener('keyup', e => {
-		if( e.keyCode === 27 ){
-
-			return
-
-		}else if( e.target.name === 'bg_color' ){
-
-			e.target.value = e.target.value.replace(/ /g, '')
-
-		}
-
-		shortcode.value = render_shortcode()
-	})
 
 
-	gallery_form.addEventListener('click', e => {
 
-		if( e.target.id === 'choose-model'){
-			model_selector(( id, row ) => {
-				model_choice.innerHTML = ''
-				model_choice.appendChild( row )
-				shortcode.value = render_shortcode()
-			})
+	// preview gallery
+	gallery_form.querySelector('#gallery-preview').addEventListener('click', () => {
 
-		}else if( e.target.id === 'gallery-preview' || e.target.parentElement.id === 'gallery-preview' ){
+		const gallery = Gallery()
+		gallery.ingest_form( gallery_form )
 
-			const init = Object.assign( {}, values )
+		if( !gallery.validate( true ) ) return 
 
-			const gallery = Gallery( init )
-			gallery.model = {
-				guid: document.querySelector("#model-choice .url input").value.trim()
-			}
-
-			if( !gallery.validate( true ) ) return 
-
-			// delete init.model_id
-			gallery.preview()
-
-		}else if( e.target.name === 'rotate_scene'){
-
-			set_contingents( e.target.parentElement.parentElement.querySelectorAll('.contingent'), e.target.checked )
-
-		}
-
-		shortcode.value = render_shortcode()
+		gallery.preview()
 
 	})
 
 
+
+
+	// save gallery
 	gallery_form.addEventListener('submit', e => {
 		e.preventDefault()
 
@@ -169,9 +140,53 @@ export default ( gallery_content ) => {
 		})
 	})
 
+
+	// close gallery
+	gallery_form.querySelector('#close-gallery').addEventListener('click', () => {
+
+
+		
+	})
+
+
+	// custom form behaviors
+	gallery_form.addEventListener('click', e => {
+
+		if( e.target.id === 'choose-model'){
+
+			model_selector(( id, row ) => {
+				model_choice.innerHTML = ''
+				model_choice.appendChild( row )
+				shortcode.value = render_shortcode()
+			})
+
+		}else if( e.target.name === 'rotate_scene'){
+
+			set_contingents( e.target.parentElement.parentElement.querySelectorAll('.contingent'), e.target.checked )
+
+		}
+
+		shortcode.value = render_shortcode()
+
+	})
+
+
+
+	gallery_form.querySelector('input[name=bg_color]').addEventListener('keyup', e => {
+
+		e.target.value = e.target.value.replace(/ /g, '')
+
+		shortcode.value = render_shortcode()
+
+	})
+
+
+
 	color_picker.addEventListener('change', e => {
 		bg_color.value = color_picker.value
 	})
+
+
 
 	// preview.addEventListener('click', async() => {
 

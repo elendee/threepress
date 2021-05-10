@@ -91,7 +91,7 @@ export default init => {
 	gallery.created = init.created  || defaults.created
 	gallery.edited = init.edited || defaults.edited
 	// data
-	gallery.model_url = init.model_url || defaults.model_url
+	gallery.model = init.model || {}
 	gallery.model_id = init.model_id || defaults.model_id
 	// rendering
 	gallery.controls = init.controls || defaults.controls
@@ -224,7 +224,7 @@ export default init => {
 
 	gallery.init = async() => { // lights camera action
 
-		if( !galleryes.includes( gallery )) galleryes.push( gallery )
+		if( !galleries.includes( gallery )) galleries.push( gallery )
 
 		// model
 		let model
@@ -297,11 +297,17 @@ export default init => {
 
 
 
-	gallery.validate = () => {
+	gallery.validate = pop_errors => {
 
 		const invalidations = []
 
-		if( !gallery.model_url || !gallery.model_url.match(/\.glb/) ) invalidations.push('invalid or missing model - must be glb format')	
+		const mc = gallery_form.querySelector('#model-choice .threepress-row')
+		if( mc ){
+			gallery.model = gallery.model || {}
+			gallery.model.guid = mc.querySelector('.url input').value.trim()
+		}
+
+		if( !gallery.model.guid || !gallery.model.guid.match(/\.glb/) ) invalidations.push('invalid or missing model - must be glb format')	
 
 		if( invalidations.length ){
 			if( pop_errors ){

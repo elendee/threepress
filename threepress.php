@@ -42,12 +42,16 @@ if( defined( 'ALLOW_UNFILTERED_UPLOADS' ) ){
 
 function _LOG( $msg ){
 
+	if( !file_exists( __DIR__ . '/.threepress-log.txt') ){
+		return;
+	}
+
 	$type = gettype( $msg );
 	if( $type  === 'object' || $type === 'array' ){
 		$msg = '(' . $type . ')
 ' . json_encode($msg, JSON_PRETTY_PRINT);
 	}
-    $logfile = __DIR__ . '/.oko-log.txt';
+    $logfile = __DIR__ . '/.threepress-log.txt';
     file_put_contents($logfile, date('M:D:H:i') . ' _LOG:
 ' . $msg . PHP_EOL, FILE_APPEND | LOCK_EX);
 
@@ -63,17 +67,8 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	abstract class Threepress{
 
-	    // public static function init() {
-	    //     register_setting( 'threepress_settings', 'threepress_settings' );
-	    // }
-
-	    // public static function get_settings() {
-	    //     return get_option( 'threepress_settings' );
-	    // }
-
 	    public static function activate(){
 			global $wpdb;
-	    	// global $threepress_local_models;
 	    	$threepress_local_models = WP_CONTENT_DIR . '/uploads/threepress_models';
 
 	    	// model upload dir
@@ -171,8 +166,6 @@ if ( !class_exists( 'Threepress' ) ) {
 
 
 	    public static function shortcode( $attr, $content, $name ){
-	    	// _LOG( $attr );
-	    	// _LOG( $name );
 	    	$model_id = (int)$attr['model_id'];
 	    	if( gettype( $model_id ) != 'integer' ){
 	    		$attr['invalid'] = true;
@@ -181,7 +174,6 @@ if ( !class_exists( 'Threepress' ) ) {
 	    		$sql = $wpdb->prepare('SELECT * FROM wp_posts WHERE id=%d', $model_id );
 	    		$results = $wpdb->get_results( $sql );
 	    		$attr['model'] = $results[0];
-	    		// _LOG( $results );
 	    	}
 	    	$id = '';
 	    	if( $attr['name'] ){
@@ -194,14 +186,9 @@ if ( !class_exists( 'Threepress' ) ) {
 
 
 	    // ajax
-
 	    public static function fill_library(){
 			global $wpdb;
-			// $sql = $wpdb->prepare('SELECT * FROM wp_posts 
-			// 	LEFT JOIN wp_postmeta ON id=post_id 
-			// 	WHERE guid LIKE "%.glb%" ORDER BY id DESC');
 			$sql = $wpdb->prepare('SELECT * FROM wp_posts 
-				-- LEFT JOIN wp_postmeta ON id=post_id 
 				WHERE post_type="attachment" AND guid LIKE "%.glb%" ORDER BY id DESC');
 
 			$rows = $wpdb->get_results( $sql );
@@ -211,18 +198,14 @@ if ( !class_exists( 'Threepress' ) ) {
 	    public static function fill_gallery(){
 			global $wpdb;
 			$id = (int)get_current_user_id();
-			// _LOG( $id );  // 1
-			// _LOG( gettype($id)); // integer
 			$sql2 = $wpdb->prepare('SELECT * FROM threepress_shortcodes WHERE author_key=%d ORDER BY edited DESC', $id);
 			$rows = $wpdb->get_results( $sql2 );
-			// _LOG($rows);
 			wp_die( json_encode( $rows ) ); 
 		}
 
 		 public static function delete_gallery(){
 			global $wpdb;
 			$id = $_POST['id'];
-			// _LOG( $id );
 			$sql = $wpdb->prepare('DELETE FROM threepress_shortcodes WHERE id=%d', $id);
 			$res = $wpdb->query( $sql );
 			$response = new stdClass();
@@ -241,7 +224,6 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	$gallery->id = get_current_user_id();
 	    	$gallery->name = $_POST['name'];
 	    	$gallery->shortcode = $_POST['shortcode'];
-	    	// _LOG($_POST);
 	    	$results = $wpdb->insert('threepress_shortcodes', array(
 	    		'author_key' => $gallery->id,
 	    		'name' => $gallery->name,
@@ -283,19 +265,12 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	}
 
-
-
-	// Threepress::init();
-	// Threepress::get_settings();
-
 	$has_module = false;
 
 	// --------------------------------------------- admin init
 
 	if( current_user_can('manage_options') ){
 
-		// define( 'ALLOW_UNFILTERED_UPLOADS', true );
-		
 		$threepress = strpos( $_SERVER['REQUEST_URI'], 'page=threepress' );
 		$admin_ajax = strpos( $_SERVER['REQUEST_URI'], 'wp-admin/admin-ajax' );		
 		$post_edit = strpos( $_SERVER['REQUEST_URI'], 'wp-admin/post.php');
@@ -313,39 +288,24 @@ if ( !class_exists( 'Threepress' ) ) {
 			add_action( 'wp_ajax_save_shortcode', 'Threepress::save_shortcode' );
 			add_action( 'wp_ajax_delete_gallery', 'Threepress::delete_gallery' );
 			add_action( 'wp_ajax_get_model', 'Threepress::get_model' );
-			// add_action( 'wp_ajax_http_shortcode', 'Threepress::http_shortcode' );
 
 		}
 
-	}else{ // _____ public pages
-
-		// define( 'ALLOW_UNFILTERED_UPLOADS', $allow_unfiltered );
-
 	}
 
+	// -------------------------------------------- global init
 
-
-
-	// -------------------------------------------- client init
-
-
-
-
-
-	// -------------------------------------------- global inits
-
-	add_filter('upload_mimes', 'Threepress::allow_glb');
 
 	add_shortcode('threepress', 'Threepress::shortcode');
 
-	if( !$has_module ){
-		add_action('init', 'Threepress::base_scripts', 100);
-	}
+	
 
 	add_action('init', 'Threepress::global_scripts', 100);
 	add_action('admin_menu', 'Threepress::options_page');
+	if( !$has_module ) add_action('init', 'Threepress::base_scripts', 100);
 
 	add_filter('script_loader_tag', 'Threepress::filter_modules' , 10, 3);
+	add_filter('upload_mimes', 'Threepress::allow_glb');
 
 	register_activation_hook( __FILE__, 'Threepress::activate' );
 
