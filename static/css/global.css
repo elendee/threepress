@@ -267,7 +267,15 @@
     text-align: center;
 }
 
-
+.threepress-gallery-type{
+	position: absolute;
+	top: 10px;
+	font-weight: bold;
+	left: 10px;
+	color: #bd2448;
+	background: white;
+	padding: 3px;
+}
 
 @media screen and (max-width: 800px){
 	.threepress-row .column{

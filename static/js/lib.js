@@ -190,6 +190,7 @@ class ModelRow {
 		row.appendChild( viz )
 		viz.addEventListener('click', () => {
 			const gallery = Gallery({
+				preview_type: 'model',
 				model: { guid: input.value.trim() },
 				name: '',
 				rotate_scene: true,

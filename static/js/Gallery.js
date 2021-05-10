@@ -68,6 +68,7 @@ const defaults = { // form values, not scaled values
 	intensity: 5,
 	camera_dist: 5,
 	aspect_ratio: .7,
+	rotate_speed: 1,
 	bg_color: 'linear-gradient(45deg,white,transparent)',
 }
 
@@ -80,7 +81,7 @@ export default init => {
 
 	init = init || {}
 
-	const gallery = window.gallery = {}
+	const gallery = THREEPRESS.last_gallery = {}
 	// db
 	gallery.id = init.id || defaults.id
 	gallery.author_key = init.author_key || defaults.author_key
@@ -106,6 +107,8 @@ export default init => {
 	gallery.light = init.light  || defaults.light
 	gallery.overlay = init.overlay || defaults.overlay
 	gallery.aspect_ratio = init.aspect_ratio  || defaults.aspect_ratio
+
+	gallery.preview_type = init.preview_type
 
 	// console.log( Object.keys( init ))
 	// console.log( gallery )
@@ -236,8 +239,6 @@ export default init => {
 
 
 	gallery.init_scene = async() => { // lights camera action
-
-		if( !galleries.includes( gallery )) galleries.push( gallery )
 
 		if( !gallery.validate( true )) return { msg: 'failed to init scene' }
 
@@ -696,8 +697,6 @@ export default init => {
 		gallery.init_scene()
 		.then( res => {
 
-			console.log( gallery )
-
 			if( res.success ){
 
 				viewer.appendChild( gallery.canvas )
@@ -722,6 +721,8 @@ export default init => {
 
 				}
 
+				if( !galleries.includes( gallery )) galleries.push( gallery )
+
 			}else{
 				console.log('gallery display fail: ', res )
 			}
@@ -735,6 +736,7 @@ export default init => {
 
 		// gallery.scale('rotate')
 		// gallery.scale('intensity')
+		gallery.fill_model_guid()
 
 		gallery.init_scene()
 		.then( res => {
@@ -767,16 +769,19 @@ export default init => {
 
 				}else{
 
-					console.log('???')
-
 					gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
-
-					// window.addEventListener('mousedown', test )
 
 					gallery.canvas.parentElement.addEventListener('pointerdown', start_animation )
 					gallery.canvas.parentElement.addEventListener('pointerup', stop_animation )
 
 				}
+
+				const type = document.createElement('div')
+				type.classList.add('threepress-gallery-type')
+				type.innerText = ( gallery.preview_type || 'gallery' ) + ' preview'
+				gallery.canvas.parentElement.appendChild( type )
+
+				if( !galleries.includes( gallery )) galleries.push( gallery )
 
 			}else{
 
