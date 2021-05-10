@@ -39,8 +39,8 @@ for( const viewer of viewers ){
 	}
 
 	console.log( scene )
-
 	const gallery = Gallery( scene )
+	console.log( gallery, gallery.allow_zoom )
 	gallery.display( viewer )
 
 }	

@@ -365,6 +365,13 @@ const model_selector = ( callback ) => {
 
 
 
+const val_boolean = ( ...values ) => {
+	for( const val of values ){
+		if( typeof val === 'boolean' ) return val
+		if( val ) return true
+	}
+	return values[ values.length - 1 ]
+}
 
 
 
@@ -387,6 +394,8 @@ export {
 	set_contingents,
 	model_selector,
 
+	// validations
+	val_boolean,
 
 }
 

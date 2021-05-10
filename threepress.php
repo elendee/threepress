@@ -179,6 +179,9 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	if( $attr['name'] ){
 	    		$id = 'id="threepress-gallery-' . $attr['name'] . '"';
 	    	}
+
+	    	_LOG( $attr );
+
 	    	return '<div ' . $id . ' class="threepress-gallery"><div class="threepress-gallery-data">' . json_encode($attr) . '</div></div>';
 
 	    }

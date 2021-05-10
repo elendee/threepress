@@ -6,7 +6,7 @@ function threepress_gallery_form(){
 
 	<form id='gallery-form' action='create-gallery.php' method='post'>
 
-		<div id='gallery-preview' class='threepress-button'>
+		<div id='gallery-preview' class='threepress-button' title='gallery preview'>
 			<img src='<?php echo plugins_url() . "/threepress/assets/eye-viz.png"?>'>
 		</div>
 		
@@ -91,7 +91,13 @@ function threepress_gallery_form(){
 		    			<div class='selection'>
 		    				<label>allow zoom</label>
 		    				<input type='checkbox' name='allow_zoom' checked="true">
-			    			<label>initial zoom</label>
+			    		</div>
+			    		<div class='selection contingent'>
+			    			<label>zoom speed</label>
+			    			<input type='range' min=1 max=12 name='zoom_speed'>
+			    		</div>
+			    		<div class='selection'>
+							<label>initial zoom</label>
 			    			<input type='range' min=1 max=20 name='camera_dist'>
 			    		</div>
 		    		</div>

@@ -1,14 +1,9 @@
 import Gallery from './Gallery.js'
-// import BROKER from './helpers/EventBroker.js'
-
-// import model_selector from './model_selector.js'
 
 import {
 	hal,
 	fetch_wrap,
 	model_selector,
-	// GalleryRow,
-	// ModelRow,
 	set_contingents,
 } from './lib.js'
 
@@ -19,31 +14,8 @@ import {
 let model_choice, shortcode, color_picker, bg_color
 
 const gallery_form = document.querySelector('#gallery-form')
-// const add_gallery = document.querySelector('#create-toggle')
 
-// value names
-// let values = {
-// 	model_id: undefined, 
-// 	name: undefined, 
-// 	controls: undefined, 
-// 	light: undefined, 
-// 	// camera_user_zoom: undefined, 
-// 	// camera_user_rotate: undefined, 
-// 	camera_dist: undefined, 
-// 	rotate_scene: undefined, 
-// 	rotate_speed: undefined,
-// 	rotate_x: undefined,
-// 	rotate_y: undefined,
-// 	rotate_z: undefined,
-// 	bg_color: undefined,
-// }
-
-
-
-
-
-
-
+const attributes = gallery_form.querySelectorAll('input')
 
 
 
@@ -115,8 +87,6 @@ export default ( gallery_content ) => {
 		const gallery = Gallery()
 		gallery.ingest_form( gallery_form )
 
-		gallery.fill_model_guid()
-
 		if( !gallery.validate( true )) return
 
 		fetch_wrap( ajaxurl, 'post', {
@@ -143,9 +113,7 @@ export default ( gallery_content ) => {
 
 	// close gallery
 	gallery_form.querySelector('#close-gallery').addEventListener('click', () => {
-
 		gallery_form.style.display = 'none'
-		
 	})
 
 
@@ -164,20 +132,17 @@ export default ( gallery_content ) => {
 
 			set_contingents( e.target.parentElement.parentElement.querySelectorAll('.contingent'), e.target.checked )
 
-		}
+		}else if( e.target.name === 'allow_zoom' ){
 
-		shortcode.value = render_shortcode()
+			set_contingents( [gallery_form.querySelector('input[name=zoom_speed]')], e.target.checked )
+
+		}
 
 	})
 
 
-
 	gallery_form.querySelector('input[name=bg_color]').addEventListener('keyup', e => {
-
 		e.target.value = e.target.value.replace(/ /g, '')
-
-		shortcode.value = render_shortcode()
-
 	})
 
 
@@ -186,43 +151,14 @@ export default ( gallery_content ) => {
 		bg_color.value = color_picker.value
 	})
 
+	for( const input of attributes ){
+		input.addEventListener('change', e => {
+			shortcode.value = render_shortcode()
+		})
+	}
 
-
-	// preview.addEventListener('click', async() => {
-
-	// 	const model_choice = document.querySelector('#model-choice .column.url input')
-	// 	if( !model_choice ){
-	// 		hal('error', 'no model chosen', 4000 )
-	// 		return
-	// 	}
-
-	// 	const init = Object.assign( {}, values )
-	// 	// delete init.model_id
-	// 	init.model = {
-	// 		guid: document.querySelector("#model-choice .url input").value.trim()
-	// 	}
-
-	// 	const gallery = gallery( init )
-
-	// 	gallery.preview()
-
-	// })
 
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// BROKER.subscribe('THREEPRESS_HYDRATE_EDITOR', hydrate_editor )

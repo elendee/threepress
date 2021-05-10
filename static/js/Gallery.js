@@ -6,7 +6,7 @@ import {
 	WebGLRenderer,
 	Scene,
 	PerspectiveCamera,
-	// Vector3,
+	Vector3,
 } from '../inc/three.module.js'
 
 import { GLTFLoader } from '../inc/GLTFLoader.js'
@@ -18,7 +18,8 @@ import {
 	ModelRow,
 	set_contingents,
 	hal,
-
+	val_boolean,
+	origin,
 } from './lib.js'
 
 import { Modal } from './helpers/Modal.js'
@@ -44,18 +45,22 @@ const gallery_form = document.querySelector('#gallery-form')
 const tag = ( key , value ) => { return value ? `${ key }=${ value } ` : '' }
 
 
-
-
 const shortcode_values = [
 	'model_id',
 	'name',
+
+	'controls',
+
 	'light',
+	'intensity',
+
 	'camera_dist',
+	'allow_zoom',
+	'zoom_speed',
 	'rotate_x',
 	'rotate_y',
 	'rotate_z',
-	'controls',
-	'intensity',
+
 	'bg_color',
 ]
 
@@ -69,11 +74,16 @@ const defaults = { // form values, not scaled values
 	camera_dist: 5,
 	aspect_ratio: .7,
 	rotate_speed: 1,
+	zoom_speed: 5,
 	bg_color: 'linear-gradient(45deg,white,transparent)',
 }
 
 
-
+const set_scalars = gallery => {
+	gallery.scaled_intensity = ( gallery.intensity / 10 ) * 5
+	gallery.scaled_rotate = gallery.rotate_speed / 1000
+	gallery.scaled_zoom = gallery.zoom_speed ? gallery.zoom_speed * 2 : defaults.zoom_speed * 2
+}
 
 
 
@@ -94,11 +104,12 @@ export default init => {
 	gallery.model_id = init.model_id || defaults.model_id
 	// rendering
 	gallery.controls = init.controls || defaults.controls
-	gallery.allow_zoom = typeof init.allow_zoom === 'boolean' ? init.allow_zoom : false
-	gallery.rotate_scene = typeof init.rotate_scene === 'boolean' ? init.rotate_scene : false
+	gallery.allow_zoom = val_boolean( init.allow_zoom, false )
+	gallery.zoom_speed = init.zoom_speed || defaults.zoom_speed
+	gallery.rotate_scene = val_boolean( init.rotate_scene, false )
 	gallery.rotate_speed = init.rotate_speed || defaults.rotate_speed
 	gallery.rotate_x = init.rotate_x || defaults.rotate_x
-	gallery.rotate_y = typeof init.rotate_y === 'boolean' ? init.rotate_y : true
+	gallery.rotate_y = val_boolean( init.rotate_y, true )
 	gallery.rotate_z = init.rotate_z || defaults.rotate_z
 	gallery.bg_color = init.bg_color  || defaults.bg_color
 	gallery.view = init.view  || defaults.view
@@ -110,9 +121,6 @@ export default init => {
 
 	gallery.preview_type = init.preview_type
 
-	// console.log( Object.keys( init ))
-	// console.log( gallery )
-
 	// calculated
 	gallery.res_key = typeof init.res_key === 'number' ? init.res_key : resolutions.length - 1
 
@@ -122,6 +130,7 @@ export default init => {
 
 
 	// threejs eles
+	gallery.MODELS = []
 	gallery.SCENE = new Scene()
 	gallery.RENDERER = new WebGLRenderer({ 
 		antialias: true,
@@ -129,10 +138,6 @@ export default init => {
 	})
 	gallery.canvas = gallery.RENDERER.domElement
 	gallery.canvas.height = gallery.canvas.width * gallery.aspect_ratio
-
-	// debugger
-	// console.log( gallery.canvas.width , gallery.canvas.height )
-
 
 	if( gallery.light === 'directional' ){
 		gallery.LIGHT = new DirectionalLight( 0xffffff, gallery.scaled_intensity )
@@ -151,7 +156,7 @@ export default init => {
 	}
 
 
-	// console.log('instantiate: ', gallery )
+
 
 
 
@@ -215,15 +220,57 @@ export default init => {
 	}
 
 
+	const camera_step = new Vector3()
+	const projection = new Vector3()
+	let projected_dist, buffer_radius, too_close, pass_through
+	// a, b, c, d, e
+	let pass = 0
 	const scroll_canvas = e => {
-		console.log('ya')
+		pass++
 		for( const gallery of galleries ){
 			gallery_bound = gallery.canvas.getBoundingClientRect()
 			gallery_top = window.pageYOffset + gallery_bound.top
-			if( e.clientX > gallery_bound.left && e.clientX < gallery_bound.left + gallery_bound.width ){
-				if( e.clientY > gallery_top && e.clientY < gallery_top + gallery_bound.height ){
-					gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
-					if( gallery.orbit_controls ) gallery.orbit_controls.update()
+			if( gallery.orbit_controls && gallery.allow_zoom ){
+				if( e.clientX > gallery_bound.left && e.clientX < gallery_bound.left + gallery_bound.width ){
+					if( e.clientY > gallery_top && e.clientY < gallery_top + gallery_bound.height ){
+
+						e.preventDefault()
+
+						camera_step.subVectors( gallery.CAMERA.position, origin )
+						.normalize()
+						.multiplyScalar( gallery.scaled_zoom )
+						
+						projection.copy( gallery.CAMERA.position )
+
+						if( e.deltaY > 0 ){ // out
+							
+							projection.add( camera_step )
+
+						}else{ // in
+
+							projection.sub( camera_step )
+							projected_dist = projection.distanceTo( gallery.MODELS[0].position )
+							buffer_radius = gallery.MODELS[0].userData.radius * 1.5
+							too_close = projected_dist < buffer_radius
+							pass_through = gallery.CAMERA.position.distanceTo( projection ) >= gallery.CAMERA.position.distanceTo( gallery.MODELS[0].position ) - buffer_radius
+							// projection.x * gallery.CAMERA.position.x < 0 || projection.y * gallery.CAMERA.position.y < 0 || projection.z * gallery.CAMERA.position.z < 0
+							
+							if( too_close || pass_through ){
+								return
+							}else{
+								projection.sub( camera_step )
+							}
+							
+						}
+
+						projection.clampLength( gallery.MODELS[0].userData.radius * 1.5, 9999999 )
+
+						gallery.CAMERA.position.copy( projection )
+
+						gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+						if( gallery.orbit_controls ) gallery.orbit_controls.update()
+
+					}
 				}
 			}
 		}
@@ -240,15 +287,13 @@ export default init => {
 
 	gallery.init_scene = async() => { // lights camera action
 
-		if( !gallery.validate( true )) return { msg: 'failed to init scene' }
+		if( !gallery.validate( false, true )) return
 
 		// model
-		let model
 		if( gallery.model ){
-			const m = gallery.model
-			model = await (()=>{
+			const model = await (()=>{
 				return new Promise((resolve, reject ) => {
-					loader.load( m.guid, res => {
+					loader.load( gallery.model.guid, res => {
 						resolve( res.scene )
 					}, xhr => {
 						// loading progress
@@ -262,6 +307,8 @@ export default init => {
 			model.userData.subject = true
 
 			gallery.SCENE.add( model )
+
+			gallery.MODELS.push( model )
 
 			const radius = model.userData.radius
 			const diam = radius * 2
@@ -280,14 +327,16 @@ export default init => {
 			gallery.orbit_controls.enableZoom = false // implement this yourself so it doesn't jack scroll
 		}
 
-		gallery.scale('rotate')
-		gallery.scale('intensity')
+		if( !bound_wheel ){
+			window.addEventListener('wheel', scroll_canvas, { passive: false } ) // mouse
+			bound_wheel = true
+		}
+
+		set_scalars( gallery )
 
 		if( gallery.bg_color )  gallery.canvas.style.background = gallery.bg_color
 
-		return {
-			success: true
-		}
+		return true
 
 	}
 
@@ -305,7 +354,7 @@ export default init => {
 
 
 
-	gallery.validate = pop_errors => {
+	gallery.validate = ( pop_errors, log_errors ) => {
 
 		const invalidations = []
 
@@ -313,14 +362,14 @@ export default init => {
 		if( !gallery.model.guid || !gallery.model.guid.match(/\.glb/) ) invalidations.push('invalid or missing model - must be glb format')	
 
 		// NaN's
-		// console.log( gallery.rotate_scene )
 		if( gallery.rotate_scene ){
 			if( isNaN( gallery.rotate_speed ) ) invalidations.push('invalid rotation speed')
 		}
 
 		if( invalidations.length ){
-			if( pop_errors ){
-				for( const msg of invalidations ) hal('error', msg, 8000 )
+			for( const msg of invalidations ){
+				if( pop_errors ) hal('error', msg, 8000 )
+				if( log_errors ) console.log( msg )
 			}
 			return false
 		}
@@ -365,10 +414,11 @@ export default init => {
 		gallery.reset_form( form )
 
 		// chosen model
-		const model_row = form.querySelector('.threepress-row')
-		if( model_row ){
-			gallery.model_id = model_row.getAttribute('data-id')
-		}
+		gallery.fill_model_guid()
+		// const model_row = form.querySelector('.threepress-row')
+		// if( model_row ){
+		// 	gallery.model_id = model_row.getAttribute('data-id')
+		// }
 		// gallery name
 		gallery.name = form.querySelector('input[name=gallery_name]').value.trim().replace(/ /g, '%%')
 
@@ -383,6 +433,8 @@ export default init => {
 
 		// allow_zoom 
 		gallery.allow_zoom = form.querySelector('input[name=allow_zoom]').checked
+		// zoom speed
+		gallery.zoom_speed = form.querySelector('input[name=zoom_speed]').value
 
 		// camera
 		gallery.camera_dist = form.querySelector('input[name=camera_dist').value
@@ -440,7 +492,7 @@ export default init => {
 			hal('error', 'failed to parse shortcode', 5000 )
 			return 
 		}
-		if( typeof Number( gallery.model_id ) !== 'number' ){
+		if( isNaN( gallery.model_id ) ){
 			hal('error', 'invalid model id', 5000 )
 			return
 		}
@@ -479,7 +531,6 @@ export default init => {
 		// hydrate model
 		model_choice.innerHTML = ''
 		if( !is_new ){
-			// console.log( gallery.model_id )
 			const res = await fetch_wrap( ajaxurl, 'post', {
 				action: 'get_model',
 				id: gallery.model_id,
@@ -501,7 +552,12 @@ export default init => {
 			if( option.value === gallery.controls ) option.checked = true
 		}
 		// allow zoom
-		form.querySelector('input[name=allow_zoom]').checked = gallery.allow_zoom ? true : false
+		const allow_zoom = form.querySelector('input[name=allow_zoom]')
+		allow_zoom.checked = gallery.allow_zoom ? true : false
+		// zoom speed
+		const zoom_speed = form.querySelector('input[name=zoom_speed]')
+		zoom_speed.value = gallery.zoom_speed
+		set_contingents( [zoom_speed], allow_zoom.checked )
 
 		// light
 		for( const option of form.querySelectorAll('input[name=options_light]')){
@@ -520,8 +576,8 @@ export default init => {
 		form.querySelector('input[name=rotate_x]').checked = gallery.rotate_x
 		form.querySelector('input[name=rotate_y]').checked = gallery.rotate_y
 		form.querySelector('input[name=rotate_z]').checked = gallery.rotate_z
-		const contingents = rotate_scene.parentElement.parentElement.querySelectorAll('.contingent')
-		set_contingents( contingents, rotate_scene.checked )
+		const rot_contingents = rotate_scene.parentElement.parentElement.querySelectorAll('.contingent')
+		set_contingents( rot_contingents, rotate_scene.checked )
 
 		// shortcode
 		form.querySelector('#shortcode').value = gallery.shortcode// render_shortcode()
@@ -537,28 +593,6 @@ export default init => {
 		hal('success', 'editing "' + name + '"', 3000 )
 
 	}
-
-
-
-
-
-	gallery.scale = type => {
-		switch( type ){
-
-			case 'intensity':
-				gallery.scaled_intensity = ( gallery.intensity / 10 ) * 3
-				break;
-
-			case 'rotate':
-				gallery.scaled_rotate = gallery.rotate_speed / 1000
-				// console.log('we do attempt though', gallery.rotate_speed )
-
-				break;
-
-			default: break;
-		}
-	}
-
 
 
 
@@ -694,10 +728,11 @@ export default init => {
 	}
 
 	gallery.display = viewer => {
-		gallery.init_scene()
-		.then( res => {
 
-			if( res.success ){
+		gallery.init_scene()
+		.then( success => {
+
+			if( success ){
 
 				viewer.appendChild( gallery.canvas )
 
@@ -714,17 +749,13 @@ export default init => {
 
 					gallery.canvas.parentElement.addEventListener('pointerdown', start_animation )
 					gallery.canvas.parentElement.addEventListener('pointerup', stop_animation )
-					if( !bound_wheel ){
-						window.addEventListener('wheel', scroll_canvas ) // mouse
-						bound_wheel = true
-					}
 
 				}
 
 				if( !galleries.includes( gallery )) galleries.push( gallery )
 
 			}else{
-				console.log('gallery display fail: ', res )
+				console.log('gallery display fail')
 			}
 		})
 		.catch( err => {
@@ -734,13 +765,13 @@ export default init => {
 
 	gallery.preview = () => {
 
-		// gallery.scale('rotate')
-		// gallery.scale('intensity')
 		gallery.fill_model_guid()
 
+		if( !gallery.validate( true, true ) ) return
+
 		gallery.init_scene()
-		.then( res => {
-			if( res.success ){
+		.then( success => {
+			if( success ){
 
 				if( previewing ) return 
 				previewing = true
@@ -785,7 +816,7 @@ export default init => {
 
 			}else{
 
-				hal('error', res.msg || 'failed to init', 4000 )
+				hal('error', 'failed to init preview', 4000 )
 
 			}
 		})
