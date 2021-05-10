@@ -1,7 +1,8 @@
+import Gallery from './Gallery.js'
+
 import {
 	ModelRow,
-	GalleryRow,
-	hal,
+	// hal,
 	fetch_wrap,
 } from './lib.js'
 
@@ -95,9 +96,10 @@ const fill = async( type ) => {
 				gallery_content.innerHTML = 'no galleries yet'
 				return
 			}
-			for( const gallery of res ){
-				const g = new GalleryRow( gallery )
-				gallery_content.appendChild( g.gen_row() )
+			for( const g of res ){
+				const gallery = Gallery( g )
+				const row = gallery.gen_row()
+				gallery_content.appendChild( row )
 			}
 			break;
 
@@ -167,17 +169,17 @@ add_model.addEventListener('click', () => {
 	}
 })
 
-
 add_gallery.addEventListener('click', () => {
-	// if( !gallery_form.style.height || gallery_form.style.height.match(/^0/) ){
 	if( !gallery_form.style.display || gallery_form.style.display === 'none' ){
 		gallery_form.style.display = 'inline-block'
-		// gallery_form.style.height = '100%'
-		add_gallery.querySelector('div').innerText = '-'
+		// add_gallery.querySelector('div').innerText = '-'
 	}else{
-		gallery_form.style.display = 'none'
-		// gallery_form.style.height = '0px'
-		add_gallery.querySelector('div').innerText = '+'
+		if( confirm('clear the current form and start anew?')){
+			const gallery = Gallery()
+			gallery.hydrate_editor( gallery_form )
+		}
+		// gallery_form.style.display = 'none'
+		// add_gallery.querySelector('div').innerText = '+'
 	}
 })
 
@@ -227,25 +229,25 @@ browse_threepress.addEventListener('submit', e => {
 // 	return false
 // }
 
-render_gallery_form( gallery_form, gallery_content )
+render_gallery_form( gallery_content )
 
 
-tabs[0].click()
 
-const view = localStorage.getItem('threepress-dev-view')
-if( view ){
-	switch( view ){
-		case 'galleries':
-			tabs[1].click()
-			break;
-		case 'create':
-			tabs[1].click()
-			add_gallery.click()
-			document.querySelector('#choose-model').click()
-			break;
-		default: break;
-	}
+
+switch( localStorage.getItem('threepress-dev-view') ){
+	case 'galleries':
+		tabs[1].click()
+		break;
+	case 'create':
+		tabs[1].click()
+		add_gallery.click()
+		document.querySelector('#choose-model').click()
+		break;
+	default: 
+		tabs[0].click()
+		break;
 }
+
 
 document.addEventListener('keyup', e => {
 	if( e.keyCode === 27 ){

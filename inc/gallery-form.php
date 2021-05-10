@@ -82,7 +82,7 @@ function threepress_gallery_form(){
 			    		</div>
 			    		<div class='selection'>
 			    			<label>intensity</label>
-			    			<input type='range' min=1 max=5 name='intensity' value=3 />
+			    			<input type='range' min=1 max=10 name='intensity' value=5 />
 			    		</div>
 		    		</div>
 
@@ -132,6 +132,7 @@ function threepress_gallery_form(){
 
 		<p>
 			<input type='submit' value='save' id='create-gallery' class='button button-primary'/>
+			<input type='submit' value='close' id='close-gallery' class='button button-primary'/>
 		</p>
     	<div class='clarification'>you do not have to save a shortcode to use it - saving is just for reference</div>
 

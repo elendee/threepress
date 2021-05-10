@@ -192,19 +192,12 @@
     padding: 5px;
 }
 
-.threepress .model-thumb{
-	display: inline-block;
-	vertical-align: middle;
-	margin-right: 10px;
-	max-width: 30px;
-}
 
-
-.threepress-meta-section{
+/* .threepress-meta-section{
 	padding: 5px 10px;;
 	background: rgba(0, 100, 100, .1);
 	margin: 5px 0;
-}
+} */
 
 
 
@@ -267,10 +260,10 @@
 }
 
 
-.threepress-row.model-row .column-4:nth-of-type(3){
+.threepress-model-row .column-4:nth-of-type(3){
 	text-align: right;
 }
-.threepress-row.model-row .column-4:nth-of-type(4){
+.threepress-model-row .column-4:nth-of-type(4){
     text-align: center;
 }
 

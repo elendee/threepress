@@ -1,10 +1,10 @@
-import {
-	hal,
-	render,
-	// log,
-} from './lib.js'
+// import {
+// 	hal,
+// 	render,
+// 	// log,
+// } from './lib.js'
 
-import Canvas from './Canvas.js'
+import Gallery from './Gallery.js'
 
 
 // ------------------------------------------------------------ declarations
@@ -40,12 +40,12 @@ for( const set of viewers ){
 
 	// console.log( scene )
 
-	const canvas = Canvas( scene )
-	canvas.init()
+	const gallery = Gallery( scene )
+	gallery.init()
 
-	// console.log( canvas)
+	// console.log( gallery)
 
-	set.appendChild( canvas.ele )
+	set.appendChild( gallery.ele )
 	// console.log( scene )
 }	
 

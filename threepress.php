@@ -89,7 +89,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    		name varchar(255),
 	    		created datetime,
 	    		edited datetime,
-	    		content text )');
+	    		shortcode text )');
 	    	$results = $wpdb->get_results( $sql );
 	    }
 
@@ -188,7 +188,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    		$id = 'id="threepress-gallery-' . $attr['name'] . '"';
 	    	}
 	    	return '<div ' . $id . ' class="threepress-viewer"><div class="threepress-viewer-data">' . json_encode($attr) . '</div></div>';
-	    	// return Threepress::core_shortcode( $attr, $content, $name );
+
 	    }
 
 
@@ -213,7 +213,7 @@ if ( !class_exists( 'Threepress' ) ) {
 			$id = (int)get_current_user_id();
 			// _LOG( $id );  // 1
 			// _LOG( gettype($id)); // integer
-			$sql2 = $wpdb->prepare('SELECT * FROM threepress_shortcodes WHERE author_key=%d ORDER BY id DESC', $id);
+			$sql2 = $wpdb->prepare('SELECT * FROM threepress_shortcodes WHERE author_key=%d ORDER BY edited DESC', $id);
 			$rows = $wpdb->get_results( $sql2 );
 			// _LOG($rows);
 			wp_die( json_encode( $rows ) ); 
@@ -240,14 +240,14 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	$gallery->datetime = threepress_datetime();
 	    	$gallery->id = get_current_user_id();
 	    	$gallery->name = $_POST['name'];
-	    	$gallery->content = $_POST['content'];
+	    	$gallery->shortcode = $_POST['shortcode'];
 	    	// _LOG($_POST);
 	    	$results = $wpdb->insert('threepress_shortcodes', array(
 	    		'author_key' => $gallery->id,
 	    		'name' => $gallery->name,
 	    		'edited' => $gallery->datetime,
 	    		'created' => $gallery->datetime,
-	    		'content' => $gallery->content,
+	    		'shortcode' => $gallery->shortcode,
 	    	));
 
 	    	$res->success = true;
@@ -257,6 +257,23 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	    	wp_die( json_encode( $res ) );
 
+		}
+
+	    public static function get_model(){
+	    	global $wpdb;
+
+	    	$res = new stdClass();
+	    	$res->success = false;
+
+	    	_LOG('looking for', $_POST['id'] );
+
+	    	$sql = $wpdb->prepare('SELECT * FROM wp_posts WHERE id=%d', $_POST['id'] );
+	    	$results = $wpdb->get_results( $sql );
+	    	if( $results ){
+	    		$res->success = true;
+	    		$res->model = $results[0];
+	    	}
+	    	wp_die( json_encode($res) );
 		}
 
 		public static function allow_glb( $mimes ){
@@ -295,6 +312,7 @@ if ( !class_exists( 'Threepress' ) ) {
 			add_action( 'wp_ajax_fill_gallery', 'Threepress::fill_gallery' );
 			add_action( 'wp_ajax_save_shortcode', 'Threepress::save_shortcode' );
 			add_action( 'wp_ajax_delete_gallery', 'Threepress::delete_gallery' );
+			add_action( 'wp_ajax_get_model', 'Threepress::get_model' );
 			// add_action( 'wp_ajax_http_shortcode', 'Threepress::http_shortcode' );
 
 		}

@@ -1,4 +1,4 @@
-import Canvas from './Canvas.js'
+import Gallery from './Gallery.js'
 // import BROKER from './helpers/EventBroker.js'
 
 import {
@@ -17,58 +17,6 @@ document.body.appendChild( alert_contain )
 
 
 
-
-// const log = (type, ...msgs) => {
-
-//     const line = new Error().stack.split(/\n/)[2]
-// 	if( typeof line !== 'string' ) line = '(invalid log call)'
-
-// 	const call = '...' + line.substr( line.length - 30 )
-
-//     // Define different types of styles
-//     const baseStyles = [
-//         "color: #fff",
-//         "background-color: rgba(0, 0, 0, 0)",
-//         "padding: 1px 3px",
-//         "border-radius: 2px"
-//     ].join(';');
-
-//     const types = {
-//     	success: [
-// 	        "color: #eee",
-// 	        "background-color: green"
-// 	    ].join(';'),
-// 	    standard: [
-// 	    	'color: #eee',
-// 	    	'background-color: none',
-// 	    ].join(';'),
-// 	    warn: [
-// 	        "background-color: orange"
-// 	    ].join(';'),
-// 	    error: [
-// 	        "background-color: rgb(100, 0, 0)"
-// 	    ].join(';'),
-// 	}
-    
-//     let style = baseStyles + ';';
-
-//     if( type && types[ type ]){
-//     	style += types[ type ]
-//     }else{
-//     	msgs.unshift( type )
-//     }
-
-//     if( msgs.length > 1 ){
-//     	console.log(`%cthreepress:`, style )
-//     	for( const msg of msgs ){	
-// 		    console.log(`%c${ msgs }`, baseStyles ); // 'background-color: none'
-//     	}
-//     }else{
-// 	    console.log(`%cthreepress:%c${ msgs }`, style, baseStyles ); // 'background-color: none'
-//     }
-//     console.log('		' + call )
-
-// }
 
 
 
@@ -119,6 +67,10 @@ const hal = ( type, msg, time ) => {
 
 
 
+
+
+
+
 let spinning = false
 
 class Spinner{
@@ -160,9 +112,13 @@ class Spinner{
 
 }
 
+
+
 const spinner = window.spinner = new Spinner({
 	src: THREEPRESS.plugin_url + '/assets/giffer9.gif'
 })
+
+
 
 
 class ModelRow {  
@@ -184,7 +140,7 @@ class ModelRow {
 	gen_row(){
 
 		const row = document.createElement('div')
-		row.classList.add('row', 'threepress-row', 'model-row')
+		row.classList.add('row', 'threepress-row', 'threepress-model-row')
 		row.setAttribute('data-id', this.id )
 		const title = document.createElement('div')
 		title.classList.add('column', 'column-3')
@@ -196,7 +152,7 @@ class ModelRow {
 		title.appendChild( a )
 		row.appendChild( title )
 		const thumb = document.createElement('div')
-		thumb.classList.add('model-thumb')
+		thumb.classList.add('threepress-row-icon')
 		const thumb_img = document.createElement('img')
 		thumb_img.src = this.thumb_url
 		thumb.appendChild( thumb_img )
@@ -233,7 +189,7 @@ class ModelRow {
 		viz.appendChild( eye )
 		row.appendChild( viz )
 		viz.addEventListener('click', () => {
-			const canvas = Canvas({
+			const gallery = Gallery({
 				model: { guid: input.value.trim() },
 				name: '',
 				rotate_scene: true,
@@ -241,83 +197,13 @@ class ModelRow {
 				bg_color: 'linear-gradient(45deg, white, transparent)',
 				controls: 'orbit',
 			})
-			canvas.preview()
+			gallery.preview()
 		})
 
 		return row
 	}
 
 }
-
-
-class GalleryRow {
-
-	constructor( init ){
-		init = init || {}
-		this.id = init.id || this.id
-		this.name = init.name || this.name
-		this.shortcode = init.content || this.shortcode
-		this.model_id = init.model_id || this.model_id 
-		this.created = init.created || this.created
-		this.edited = init.edited || this.edited
-	}
-
-	gen_row(){
-
-		const gallery = this
-		const row = document.createElement('div')
-		row.classList.add('row', 'threepress-row')
-		row.setAttribute('data-id', this.id )
-		const name = document.createElement('div')
-		name.classList.add('column', 'column-3')
-		name.title = 'name'
-		name.innerText = this.name
-		row.appendChild( name )
-		const edited = document.createElement('div')
-		edited.classList.add('column', 'column-3')
-		edited.title = 'edited'
-		edited.innerText = new Date( this.edited ).toDateString()
-		row.appendChild( edited )
-		const content = document.createElement('div')
-		content.classList.add('column', 'column-3')
-		content.title = 'shortcode'
-		const shortcode = document.createElement('input')
-		shortcode.setAttribute('readonly', true )// = true
-		shortcode.value = this.shortcode
-		content.appendChild( shortcode )
-		row.appendChild( content )
-
-		const deleteRow = document.createElement('div')
-		deleteRow.classList.add('delete')
-		deleteRow.innerHTML = '&times;'
-		deleteRow.addEventListener('click', () => {
-			if( confirm('delete gallery? (models will not be deleted)')){
-				fetch_wrap( ajaxurl, 'post', {
-					action: 'delete_gallery',
-					id: gallery.id,
-				}, false)
-				.then( res => {
-					console.log( res )
-					if( res.success ){
-						row.remove()
-					}else{
-						hal('error', res.msg || 'error deleting row', 5000 )
-					}
-				})	
-				.catch( err => {
-					console.log( err )
-					hal('error', err.msg || 'error deleting row', 5000 )
-				})
-			}
-		})
-		row.appendChild( deleteRow )
-
-		return row
-
-	}
-
-}
-
 
 
 
@@ -377,15 +263,15 @@ const render = type => {
 					log('invalid model init')
 					return
 				}
-				const canvas = Canvas({
+				const gallery = Gallery({
 					overlay: ftd_img,
 				})
-				canvas.align()
-				canvas.animating = true
-				canvas.init().catch( err => {
+				gallery.align()
+				gallery.animating = true
+				gallery.init().catch( err => {
 					log('error', err )
 				})
-				document.body.appendChild( canvas.ele )
+				document.body.appendChild( gallery.ele )
 			}else{
 				log('error', 'no featured image found')
 			}
@@ -428,6 +314,16 @@ const origin = new Vector3( 0, 0, 0 )
 
 
 
+const set_contingents = ( contingents, enabled ) => {
+	for( const ele of contingents ){
+		enabled ? ele.classList.remove('threepress-disabled') : ele.classList.add('threepress-disabled')
+	}
+}
+
+
+
+
+
 
 
 
@@ -440,13 +336,14 @@ export {
 
 	// base app classes
 	ModelRow,
-	GalleryRow,
 	Spinner,
-	Canvas,
+	Gallery,
 
 	// helper functions
 	fill_dimensions,
 	origin,
+	set_contingents,
+
 
 }
 

@@ -103,6 +103,7 @@
 		    <?php //require_once 'gallery-form.php'; ?>
 
         	<h4>galleries</h4>
+        	<div class='clarification'>click row to edit</div>
 		   	<div class='content'>
         	</div>
 

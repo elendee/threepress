@@ -141,6 +141,9 @@
 	position: relative;
 	box-shadow: 0px 0px 20px;
 }
+#gallery-form.editing{
+    border: 3px solid #bd2448; 
+}
 
 #gallery-form input[type=text]{
     min-width: 350px;
@@ -186,7 +189,10 @@
 
 #create-gallery{
 	font-size: 1rem;
-    margin-left: 47%;
+    margin-left: 43%;
+}
+#close-gallery{
+	font-size: 1rem;
 }
 
 .model-row-preview{
@@ -241,6 +247,22 @@
 .gallery-section>h4{
 	color: #bd2448;
 }
+
+#model-galleries .content .threepress-row{
+	cursor: pointer;
+}
+#model-galleries .content .threepress-row:hover{
+    border-left: 2px solid #bd2448;
+}
+
+.threepress-row-icon{
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 10px;
+	max-width: 30px;
+}
+
+form.editing
 
 @media screen and (max-width: 800px){
 	.threepress-options-category .selection{

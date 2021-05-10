@@ -1,11 +1,14 @@
-import Canvas from './Canvas.js'
+import Gallery from './Gallery.js'
+// import BROKER from './helpers/EventBroker.js'
 
 import model_selector from './model_selector.js'
 
 import {
 	hal,
 	fetch_wrap,
-	GalleryRow,
+	// GalleryRow,
+	// ModelRow,
+	set_contingents,
 } from './lib.js'
 
 
@@ -14,8 +17,11 @@ import {
 // value DOM holders
 let model_choice, model_input, shortcode, color_picker, bg_color
 
+const gallery_form = document.querySelector('#gallery-form')
+// const add_gallery = document.querySelector('#create-toggle')
+
 // value names
-const values = {
+let values = {
 	model_id: undefined, 
 	name: undefined, 
 	controls: undefined, 
@@ -31,33 +37,6 @@ const values = {
 	bg_color: undefined,
 }
 
-const tag = ( key , value ) => {
-	return value ? `${ key }=${ value } ` : ''
-}
-
-
-
-
-
-
-const validate = ( gallery_form, pop_errors ) => {
-
-	const invalidations = []
-
-	model_input = model_choice.querySelector('.url input')
-
-	if( !model_input || !model_input.value || !model_input.value.match(/\.glb$/)) invalidations.push('invalid or missing model - must be glb format')
-
-	if( invalidations.length ){
-		if( pop_errors ){
-			for( const msg of invalidations ) hal('error', msg, 5000 )
-		}
-		return false
-	}
-
-	return true
-
-}
 
 
 
@@ -66,54 +45,19 @@ const validate = ( gallery_form, pop_errors ) => {
 
 
 
-const render_shortcode = gallery_form => {
 
-	for( const key in values ) values[ key ] = undefined
 
-	// chosen model
-	const model = gallery_form.querySelector('.threepress-row')
-	if( model ){
-		values.model_id = model.getAttribute('data-id')
-	}
-	// gallery name
-	values.name = gallery_form.querySelector('input[name=gallery_name]').value.trim()
 
-	// controls & light
-	const radios = {
-		controls: gallery_form.querySelectorAll('input[name=options_controls]'),
-		light: gallery_form.querySelectorAll('input[name=options_light]'),
-	}
-	for( const opt of radios.controls ) if( opt.checked ) values.controls = opt.value
-	for( const opt of radios.light ) if( opt.checked ) values.light = opt.value
-	values.intensity = gallery_form.querySelector('input[name=intensity]').value
 
-	// camera
-	values.camera_dist = gallery_form.querySelector('input[name=camera_dist').value
+const render_shortcode = () => {
 
-	// rotation
-	values.rotate_scene = gallery_form.querySelector('input[name=rotate_scene]').checked
-	if( values.rotate_scene ){
-		values.rotate_speed = gallery_form.querySelector('input[name=rotate_speed]').value
-	}else{
-		values.rotate_speed = undefined
-	}
-	values.rotate_x = gallery_form.querySelector('input[name=rotate_x]').checked
-	values.rotate_y = gallery_form.querySelector('input[name=rotate_y]').checked
-	values.rotate_z = gallery_form.querySelector('input[name=rotate_z]').checked
+	const gallery = Gallery()
+	gallery.ingest_form( gallery_form )
 
-	// bg color
-	values.bg_color = gallery_form.querySelector('input[name=bg_color]').value.trim()
+	gallery.gen_shortcode()
 
-	let shortcodes = ''
-	for( const key in values ){
-		if( values[ key ] ){
-			shortcodes += tag( key, values[ key ] )
-		}
-	}
-	if( shortcodes ){
-		return `[threepress ${ shortcodes }]`.replace(' ]', ']')
-	}
-	return ''
+	return gallery.shortcode
+	
 }
 
 
@@ -130,15 +74,13 @@ const render_shortcode = gallery_form => {
 
 
 
-export default ( gallery_form, gallery_content ) => {
+export default ( gallery_content ) => {
 
 	model_choice = gallery_form.querySelector('#model-choice')
 	shortcode = gallery_form.querySelector('#shortcode')
 	color_picker = gallery_form.querySelector("#gallery-options input[type=color]")
 	bg_color = gallery_form.querySelector('input[name=bg_color]')
 
-	// const choose_model = gallery_form.querySelector('#choose-model')
-	// const preview = gallery_form.querySelector('#gallery-preview')
 
 	const label_selections = gallery_form.querySelectorAll('.threepress-options-category .selection label')
 
@@ -150,9 +92,19 @@ export default ( gallery_form, gallery_content ) => {
 	}
 
 	gallery_form.addEventListener('keyup', e => {
-		if( e.keyCode === 27 ) return
-		shortcode.value = render_shortcode( gallery_form )
+		if( e.keyCode === 27 ){
+
+			return
+
+		}else if( e.target.name === 'bg_color' ){
+
+			e.target.value = e.target.value.replace(/ /g, '')
+
+		}
+
+		shortcode.value = render_shortcode()
 	})
+
 
 	gallery_form.addEventListener('click', e => {
 
@@ -160,50 +112,51 @@ export default ( gallery_form, gallery_content ) => {
 			model_selector(( id, row ) => {
 				model_choice.innerHTML = ''
 				model_choice.appendChild( row )
-				shortcode.value = render_shortcode( gallery_form )
+				shortcode.value = render_shortcode()
 			})
 
-		}else if( e.target.parentElement.id === 'gallery-preview' ){
-
-			if( !validate( gallery_form, true ) ) return
+		}else if( e.target.id === 'gallery-preview' || e.target.parentElement.id === 'gallery-preview' ){
 
 			const init = Object.assign( {}, values )
-			// delete init.model_id
-			init.model = {
+
+			const gallery = Gallery( init )
+			gallery.model = {
 				guid: document.querySelector("#model-choice .url input").value.trim()
 			}
 
-			const canvas = Canvas( init )
+			if( !gallery.validate( true ) ) return 
 
-			canvas.preview()
+			// delete init.model_id
+			gallery.preview()
 
 		}else if( e.target.name === 'rotate_scene'){
 
-			const contings = e.target.parentElement.parentElement.querySelectorAll('.contingent')
-			for( const ele of contings ){
-				e.target.checked ? ele.classList.remove('threepress-disabled') : ele.classList.add('threepress-disabled')
-			}
+			set_contingents( e.target.parentElement.parentElement.querySelectorAll('.contingent'), e.target.checked )
 
 		}
 
-		shortcode.value = render_shortcode( gallery_form )
+		shortcode.value = render_shortcode()
 
 	})
+
 
 	gallery_form.addEventListener('submit', e => {
 		e.preventDefault()
 
-		if( !validate( gallery_form, true ) ) return
+		const gallery = Gallery()
+		gallery.ingest_form( gallery_form )
+
+		if( !gallery.validate( true )) return
 
 		fetch_wrap( ajaxurl, 'post', {
 			action: 'save_shortcode',
 			name: gallery_form.querySelector('input[name=gallery_name]').value.trim(),
-			content: shortcode.value.trim(),
+			shortcode: shortcode.value.trim(),
 		}, false)
 		.then( res => {
 			if( res.success ){
-				const g = new GalleryRow( res.gallery )
-				gallery_content.prepend( g.gen_row() )
+				const gallery = Gallery( res.gallery )
+				gallery_content.prepend( gallery.gen_row() )
 				hal('success', 'success', 5000 )
 			}else{
 				hal('error', res.msg || 'error saving', 5000 )
@@ -234,10 +187,27 @@ export default ( gallery_form, gallery_content ) => {
 	// 		guid: document.querySelector("#model-choice .url input").value.trim()
 	// 	}
 
-	// 	const canvas = Canvas( init )
+	// 	const gallery = gallery( init )
 
-	// 	canvas.preview()
+	// 	gallery.preview()
 
 	// })
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// BROKER.subscribe('THREEPRESS_HYDRATE_EDITOR', hydrate_editor )
