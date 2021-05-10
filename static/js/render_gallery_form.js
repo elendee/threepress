@@ -115,6 +115,8 @@ export default ( gallery_content ) => {
 		const gallery = Gallery()
 		gallery.ingest_form( gallery_form )
 
+		gallery.fill_model_guid()
+
 		if( !gallery.validate( true )) return
 
 		fetch_wrap( ajaxurl, 'post', {
@@ -142,7 +144,7 @@ export default ( gallery_content ) => {
 	// close gallery
 	gallery_form.querySelector('#close-gallery').addEventListener('click', () => {
 
-
+		gallery_form.style.display = 'none'
 		
 	})
 

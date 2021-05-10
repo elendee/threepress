@@ -14,11 +14,11 @@ It will also create one folder in the file system for uploads:
 
 ### Create three.js galleries anywhere
 
+Create galleries using the shortcode generator in the Threepress admin, and then paste the shortcode wherever you want - the javascript that renders the shortcodes is loaded on all public pages.
+
 A gallery renders one three.js Scene.
 
-Create them using the shortcode generator in the Threepress admin, and then paste the shortcode wherever you want - the javascript that renders the shortcodes is loaded on all public pages.
-
-To customize the layout or dimensions of your gallery, use CSS.  An id tag of form `#threepress-gallery-[gallery name]` will be appended, or use class `.threepress-viewer` / `.threepress-viewer canvas`.
+To customize the layout or dimensions of your gallery, use CSS.  An id tag of form `#threepress-gallery-[gallery name]` is put on the *wrapper* of the <canvas> element, or use class `.threepress-gallery` / `.threepress-gallery canvas` to target all galleries.
 
 The three.js renderer should adjust to match your given dimensions automatically to prevent skewing or blurring.
 

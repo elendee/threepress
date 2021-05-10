@@ -9,7 +9,7 @@ import Gallery from './Gallery.js'
 
 // ------------------------------------------------------------ declarations
 
-const viewers = document.querySelectorAll('.threepress-viewer')
+const viewers = document.querySelectorAll('.threepress-gallery')
 
 
 
@@ -30,23 +30,19 @@ if( !THREEPRESS ){
 }
 
 let raw, scene
-for( const set of viewers ){
-	raw = set.querySelector('.threepress-viewer-data')
+for( const viewer of viewers ){
+	raw = viewer.querySelector('.threepress-gallery-data')
 	try{
 		scene = JSON.parse( raw.innerHTML )
 	}catch( e ){
 		console.log( e )
 	}
 
-	// console.log( scene )
+	console.log( scene )
 
 	const gallery = Gallery( scene )
-	gallery.init_scene().catch( err => {
-		console.log( err )
-	})
+	gallery.display( viewer )
 
-	set.appendChild( gallery.ele )
-	// console.log( scene )
 }	
 
 

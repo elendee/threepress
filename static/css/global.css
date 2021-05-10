@@ -223,14 +223,14 @@
 	vertical-align: middle;
 }
 
-.threepress-viewer{
+.threepress-gallery{
 	width: 100%;
 }
-.threepress-viewer canvas{
+.threepress-gallery canvas{
 	width: 100%;
 	outline: 0;
 }
-.threepress-viewer-data{
+.threepress-gallery-data{
 	display: none;
 }
 

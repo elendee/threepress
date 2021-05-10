@@ -89,6 +89,8 @@ function threepress_gallery_form(){
 		    		<div class='threepress-options-category'>
 		    			<h4>camera</h4>
 		    			<div class='selection'>
+		    				<label>allow zoom</label>
+		    				<input type='checkbox' name='allow_zoom' checked="true">
 			    			<label>initial zoom</label>
 			    			<input type='range' min=1 max=20 name='camera_dist'>
 			    		</div>
@@ -132,7 +134,7 @@ function threepress_gallery_form(){
 
 		<p>
 			<input type='submit' value='save' id='create-gallery' class='button button-primary'/>
-			<input type='submit' value='close' id='close-gallery' class='button button-primary'/>
+			<input value='close' id='close-gallery' class='button button-primary'/>
 		</p>
     	<div class='clarification'>you do not have to save a shortcode to use it - saving is just for reference</div>
 

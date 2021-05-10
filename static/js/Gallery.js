@@ -35,15 +35,13 @@ const resolutions = [4, 2, 1.5, 1]
 const loader = new GLTFLoader()
 
 let previewing = false
+let bound_wheel = false
+let gallery_bound, gallery_top
 
 const gallery_form = document.querySelector('#gallery-form')
 // const add_gallery = document.querySelector('#create-toggle')
 
-
-const tag = ( key , value ) => {
-	return value ? `${ key }=${ value } ` : ''
-}
-
+const tag = ( key , value ) => { return value ? `${ key }=${ value } ` : '' }
 
 
 
@@ -95,7 +93,8 @@ export default init => {
 	gallery.model_id = init.model_id || defaults.model_id
 	// rendering
 	gallery.controls = init.controls || defaults.controls
-	gallery.rotate_scene = init.rotate_scene  || defaults.rotate_scene
+	gallery.allow_zoom = typeof init.allow_zoom === 'boolean' ? init.allow_zoom : false
+	gallery.rotate_scene = typeof init.rotate_scene === 'boolean' ? init.rotate_scene : false
 	gallery.rotate_speed = init.rotate_speed || defaults.rotate_speed
 	gallery.rotate_x = init.rotate_x || defaults.rotate_x
 	gallery.rotate_y = typeof init.rotate_y === 'boolean' ? init.rotate_y : true
@@ -125,9 +124,11 @@ export default init => {
 		antialias: true,
 		alpha: true
 	})
-	gallery.ele = gallery.RENDERER.domElement
-	gallery.ele.height = gallery.ele.width * gallery.aspect_ratio
-	// console.log( gallery.ele.width , gallery.ele.height )
+	gallery.canvas = gallery.RENDERER.domElement
+	gallery.canvas.height = gallery.canvas.width * gallery.aspect_ratio
+
+	// debugger
+	// console.log( gallery.canvas.width , gallery.canvas.height )
 
 
 	if( gallery.light === 'directional' ){
@@ -142,7 +143,7 @@ export default init => {
 
 	// dom
 	if( gallery.overlay ){
-		gallery.ele.classList.add('threepress-overlay')
+		gallery.canvas.classList.add('threepress-overlay')
 		overlays.push( gallery )
 	}
 
@@ -161,9 +162,7 @@ export default init => {
 	let now// , delta//, delta_seconds
 	// let then = 0
 
-
 	const start_animation = () => { // single frame updates
-		console.log('eh')
 		gallery.animating = true
 		animate_controls()
 	}
@@ -213,6 +212,20 @@ export default init => {
 	}
 
 
+	const scroll_canvas = e => {
+		console.log('ya')
+		for( const gallery of galleries ){
+			gallery_bound = gallery.canvas.getBoundingClientRect()
+			gallery_top = window.pageYOffset + gallery_bound.top
+			if( e.clientX > gallery_bound.left && e.clientX < gallery_bound.left + gallery_bound.width ){
+				if( e.clientY > gallery_top && e.clientY < gallery_top + gallery_bound.height ){
+					gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+					if( gallery.orbit_controls ) gallery.orbit_controls.update()
+				}
+			}
+		}
+	}
+
 
 
 
@@ -261,40 +274,32 @@ export default init => {
 
 		}
 
-		gallery.set_renderer()
-
 		if( gallery.controls === 'orbit' ){
-			gallery.orbit_controls = new OrbitControls( gallery.CAMERA, gallery.ele )
+			gallery.orbit_controls = new OrbitControls( gallery.CAMERA, gallery.canvas )
+			gallery.orbit_controls.enableZoom = false // implement this yourself so it doesn't jack scroll
 		}
 
-		if( gallery.rotate_scene ){
+		gallery.scale('rotate')
+		gallery.scale('intensity')
 
-			gallery.animating = true
-			gallery.orbit_controls ? animate_controls() : animate()
+		if( gallery.bg_color )  gallery.canvas.style.background = gallery.bg_color
 
-		}else{
-
-			console.log('???')
-
-			gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
-
-			// window.addEventListener('mousedown', test )
-
-			// gallery.ele.parentElement.addEventListener('mousedown', start_animation )
-			// gallery.ele.parentElement.addEventListener('mouseup', stop_animation )
-
+		return {
+			success: true
 		}
-
-		if( gallery.bg_color )  gallery.ele.style.background = gallery.bg_color
-
-
-		console.log('init_scene: ', gallery )
-
 
 	}
 
 
 
+
+	gallery.fill_model_guid = () => {
+		gallery.model = gallery.model || {}
+		const mc = gallery_form.querySelector('#model-choice .threepress-row')
+		if( mc ){
+			gallery.model.guid = mc.querySelector('.url input').value.trim()
+		}
+	}
 
 
 
@@ -303,20 +308,13 @@ export default init => {
 
 		const invalidations = []
 
-
 		// model guid
-		const mc = gallery_form.querySelector('#model-choice .threepress-row')
-		if( mc ){
-			gallery.model = gallery.model || {}
-			gallery.model.guid = mc.querySelector('.url input').value.trim()
-		}
 		if( !gallery.model.guid || !gallery.model.guid.match(/\.glb/) ) invalidations.push('invalid or missing model - must be glb format')	
 
 		// NaN's
 		// console.log( gallery.rotate_scene )
 		if( gallery.rotate_scene ){
 			if( isNaN( gallery.rotate_speed ) ) invalidations.push('invalid rotation speed')
-			if( isNaN( gallery.scaled_rotate ) ) invalidations.push('invalid scaled rotate')
 		}
 
 		if( invalidations.length ){
@@ -373,7 +371,7 @@ export default init => {
 		// gallery name
 		gallery.name = form.querySelector('input[name=gallery_name]').value.trim().replace(/ /g, '%%')
 
-		// controls & light
+		// radios: controls & light
 		const radios = {
 			controls: form.querySelectorAll('input[name=options_controls]'),
 			light: form.querySelectorAll('input[name=options_light]'),
@@ -381,6 +379,9 @@ export default init => {
 		for( const opt of radios.controls ) if( opt.checked ) gallery.controls = opt.value
 		for( const opt of radios.light ) if( opt.checked ) gallery.light = opt.value
 		gallery.intensity = form.querySelector('input[name=intensity]').value
+
+		// allow_zoom 
+		gallery.allow_zoom = form.querySelector('input[name=allow_zoom]').checked
 
 		// camera
 		gallery.camera_dist = form.querySelector('input[name=camera_dist').value
@@ -423,7 +424,7 @@ export default init => {
 		let invalid = false
 		let split
 		for( const val of arr ){
-			if( !val.match(/.*=.*/) ){
+			if( val && !val.match(/.*=.*/) ){
 				invalid = true
 				break;
 			}
@@ -475,7 +476,9 @@ export default init => {
 		form.querySelector('input[name=gallery_name]').value = name
 
 		// hydrate model
+		model_choice.innerHTML = ''
 		if( !is_new ){
+			// console.log( gallery.model_id )
 			const res = await fetch_wrap( ajaxurl, 'post', {
 				action: 'get_model',
 				id: gallery.model_id,
@@ -487,7 +490,6 @@ export default init => {
 			}
 			const model = res.model
 			const new_model = new ModelRow( model )
-			model_choice.innerHTML = ''
 			model_choice.appendChild( new_model.gen_row() )
 		}
 
@@ -497,12 +499,14 @@ export default init => {
 		for( const option of form.querySelectorAll('input[name=options_controls]')){
 			if( option.value === gallery.controls ) option.checked = true
 		}
+		// allow zoom
+		form.querySelector('input[name=allow_zoom]').checked = gallery.allow_zoom ? true : false
+
 		// light
 		for( const option of form.querySelectorAll('input[name=options_light]')){
 			if( option.value === gallery.controls ) option.checked = true
 		}
 		// light intensity
-		// gallery.scale('intensity')
 		form.querySelector('input[name=intensity]').value = gallery.intensity // scaled_intensity
 
 		// camera zoom
@@ -635,9 +639,6 @@ export default init => {
 				.catch( err => {
 					console.log( err )
 				})
-				// BROKER.publish('THREEPRESS_HYDRATE_EDITOR', {
-				// 	shortcode: shortcode.value,
-				// })
 
 			}
 		})
@@ -660,21 +661,20 @@ export default init => {
 			return
 		}
 		const bounds = gallery.overlay.getBoundingClientRect()
-		gallery.ele.style.top = bounds.top + 'px'
-		gallery.ele.style.left = bounds.left + 'px'
-		gallery.ele.style.width = bounds.width + 'px'
-		gallery.ele.style.height = bounds.height + 'px'
+		gallery.canvas.style.top = bounds.top + 'px'
+		gallery.canvas.style.left = bounds.left + 'px'
+		gallery.canvas.style.width = bounds.width + 'px'
+		gallery.canvas.style.height = bounds.height + 'px'
 
 	}
 
-
-	gallery.display = target => {
+	gallery.make_visible = target => {
 
 		if( target ){
-			gallery.ele.style.opacity = 0
+			gallery.canvas.style.opacity = 0
 			gallery.overlay.style.opacity = 1
 		}else{
-			gallery.ele.style.opacity = 1
+			gallery.canvas.style.opacity = 1
 			gallery.overlay.style.opacity = 0
 		}
 
@@ -682,18 +682,59 @@ export default init => {
 
 	gallery.set_renderer = () => {
 
-		gallery.CAMERA.aspect = gallery.ele.getBoundingClientRect().width / gallery.ele.getBoundingClientRect().height
+		gallery.CAMERA.aspect = gallery.canvas.getBoundingClientRect().width / gallery.canvas.getBoundingClientRect().height
 		gallery.CAMERA.updateProjectionMatrix()
 
 		gallery.RENDERER.setSize( 
-			gallery.ele.getBoundingClientRect().width / resolutions[ gallery.res_key ],
-			gallery.ele.getBoundingClientRect().height / resolutions[ gallery.res_key ],
+			gallery.canvas.getBoundingClientRect().width / resolutions[ gallery.res_key ],
+			gallery.canvas.getBoundingClientRect().height / resolutions[ gallery.res_key ],
 			false 
 		)
 	}
 
+	gallery.display = viewer => {
+		gallery.init_scene()
+		.then( res => {
+
+			console.log( gallery )
+
+			if( res.success ){
+
+				viewer.appendChild( gallery.canvas )
+
+				gallery.set_renderer()
+
+				if( gallery.rotate_scene ){
+
+					gallery.animating = true
+					gallery.orbit_controls ? animate_controls() : animate()
+
+				}else{
+
+					gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+
+					gallery.canvas.parentElement.addEventListener('pointerdown', start_animation )
+					gallery.canvas.parentElement.addEventListener('pointerup', stop_animation )
+					if( !bound_wheel ){
+						window.addEventListener('wheel', scroll_canvas ) // mouse
+						bound_wheel = true
+					}
+
+				}
+
+			}else{
+				console.log('gallery display fail: ', res )
+			}
+		})
+		.catch( err => {
+			console.log( err )
+		})	
+	}
 
 	gallery.preview = () => {
+
+		// gallery.scale('rotate')
+		// gallery.scale('intensity')
 
 		gallery.init_scene()
 		.then( res => {
@@ -705,10 +746,12 @@ export default init => {
 				const modal = new Modal({
 					type: 'gallery-preview'
 				})
+				
 				const viewer = document.createElement('div')
-				viewer.classList.add('threepress-viewer')
-				viewer.appendChild( gallery.ele )
+				viewer.classList.add('threepress-gallery')
+				viewer.appendChild( gallery.canvas )
 				modal.content.appendChild( viewer )
+
 				modal.close.addEventListener('click', () => {
 					gallery.animating = false
 					previewing = false
@@ -716,6 +759,24 @@ export default init => {
 				})
 				document.querySelector('.threepress').appendChild( modal.ele )			
 				gallery.set_renderer()
+
+				if( gallery.rotate_scene ){
+
+					gallery.animating = true
+					gallery.orbit_controls ? animate_controls() : animate()
+
+				}else{
+
+					console.log('???')
+
+					gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+
+					// window.addEventListener('mousedown', test )
+
+					gallery.canvas.parentElement.addEventListener('pointerdown', start_animation )
+					gallery.canvas.parentElement.addEventListener('pointerup', stop_animation )
+
+				}
 
 			}else{
 
@@ -725,17 +786,7 @@ export default init => {
 		})
 		.catch( err => { console.log( err ) } )
 
-		// modal.close.addEventListener('click', () => {
-		// 	gallery.animating = false
-		// 	previewing = false
-		// 	THREEPRESS.galleries.splice( gallery, 1 )
-		// })
-		// document.querySelector('.threepress').appendChild( modal.ele )
-
 	}
-
-	gallery.scale('rotate')
-	gallery.scale('intensity')
 
 	return gallery
 
