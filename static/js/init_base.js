@@ -41,9 +41,9 @@ for( const set of viewers ){
 	// console.log( scene )
 
 	const gallery = Gallery( scene )
-	gallery.init()
-
-	// console.log( gallery)
+	gallery.init_scene().catch( err => {
+		console.log( err )
+	})
 
 	set.appendChild( gallery.ele )
 	// console.log( scene )

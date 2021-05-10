@@ -222,9 +222,11 @@ export default init => {
 
 
 
-	gallery.init = async() => { // lights camera action
+	gallery.init_scene = async() => { // lights camera action
 
 		if( !galleries.includes( gallery )) galleries.push( gallery )
+
+		if( !gallery.validate( true )) return { msg: 'failed to init scene' }
 
 		// model
 		let model
@@ -286,7 +288,7 @@ export default init => {
 		if( gallery.bg_color )  gallery.ele.style.background = gallery.bg_color
 
 
-		// console.log('init: ', gallery )
+		console.log('init_scene: ', gallery )
 
 
 	}
@@ -301,17 +303,25 @@ export default init => {
 
 		const invalidations = []
 
+
+		// model guid
 		const mc = gallery_form.querySelector('#model-choice .threepress-row')
 		if( mc ){
 			gallery.model = gallery.model || {}
 			gallery.model.guid = mc.querySelector('.url input').value.trim()
 		}
-
 		if( !gallery.model.guid || !gallery.model.guid.match(/\.glb/) ) invalidations.push('invalid or missing model - must be glb format')	
+
+		// NaN's
+		// console.log( gallery.rotate_scene )
+		if( gallery.rotate_scene ){
+			if( isNaN( gallery.rotate_speed ) ) invalidations.push('invalid rotation speed')
+			if( isNaN( gallery.scaled_rotate ) ) invalidations.push('invalid scaled rotate')
+		}
 
 		if( invalidations.length ){
 			if( pop_errors ){
-				for( const msg of invalidations ) hal('error', msg, 5000 )
+				for( const msg of invalidations ) hal('error', msg, 8000 )
 			}
 			return false
 		}
@@ -536,6 +546,8 @@ export default init => {
 
 			case 'rotate':
 				gallery.scaled_rotate = gallery.rotate_speed / 1000
+				// console.log('we do attempt though', gallery.rotate_speed )
+
 				break;
 
 			default: break;
@@ -683,23 +695,42 @@ export default init => {
 
 	gallery.preview = () => {
 
-		if( previewing ) return 
-		previewing = true
+		gallery.init_scene()
+		.then( res => {
+			if( res.success ){
 
-		const modal = new Modal({
-			type: 'gallery-preview'
+				if( previewing ) return 
+				previewing = true
+
+				const modal = new Modal({
+					type: 'gallery-preview'
+				})
+				const viewer = document.createElement('div')
+				viewer.classList.add('threepress-viewer')
+				viewer.appendChild( gallery.ele )
+				modal.content.appendChild( viewer )
+				modal.close.addEventListener('click', () => {
+					gallery.animating = false
+					previewing = false
+					THREEPRESS.galleries.splice( gallery, 1 )
+				})
+				document.querySelector('.threepress').appendChild( modal.ele )			
+				gallery.set_renderer()
+
+			}else{
+
+				hal('error', res.msg || 'failed to init', 4000 )
+
+			}
 		})
-		const viewer = document.createElement('div')
-		viewer.classList.add('threepress-viewer')
-		viewer.appendChild( gallery.ele )
-		modal.content.appendChild( viewer )
-		gallery.init()
-		modal.close.addEventListener('click', () => {
-			gallery.animating = false
-			previewing = false
-			THREEPRESS.galleries.splice( gallery, 1 )
-		})
-		document.querySelector('.threepress').appendChild( modal.ele )
+		.catch( err => { console.log( err ) } )
+
+		// modal.close.addEventListener('click', () => {
+		// 	gallery.animating = false
+		// 	previewing = false
+		// 	THREEPRESS.galleries.splice( gallery, 1 )
+		// })
+		// document.querySelector('.threepress').appendChild( modal.ele )
 
 	}
 

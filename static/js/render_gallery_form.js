@@ -101,8 +101,6 @@ export default ( gallery_content ) => {
 		const gallery = Gallery()
 		gallery.ingest_form( gallery_form )
 
-		if( !gallery.validate( true ) ) return 
-
 		gallery.preview()
 
 	})

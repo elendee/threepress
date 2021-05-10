@@ -268,8 +268,8 @@ const render = type => {
 				})
 				gallery.align()
 				gallery.animating = true
-				gallery.init().catch( err => {
-					log('error', err )
+				gallery.init_scene().catch( err => {
+					console.log( err )
 				})
 				document.body.appendChild( gallery.ele )
 			}else{
@@ -350,7 +350,7 @@ const model_selector = ( callback ) => {
 	model_frame.on( 'select', function() {
 
 		const attachment = model_frame.state().get('selection').first().toJSON()
-		console.log(attachment)
+		console.log('attachment selected: ', attachment)
 		const model = new ModelRow( attachment )
 		const row = model.gen_row()
 		
