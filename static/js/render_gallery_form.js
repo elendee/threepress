@@ -87,10 +87,11 @@ export default ( gallery_content ) => {
 		const gallery = Gallery()
 		gallery.ingest_form( gallery_form )
 
-		if( !gallery.validate( true )) return
+		if( !gallery.validate( true, true, true )) return
 
 		fetch_wrap( ajaxurl, 'post', {
 			action: 'save_shortcode',
+			shortcode_id: form.getAttribute('data-shortcode-id'),
 			name: gallery_form.querySelector('input[name=gallery_name]').value.trim(),
 			shortcode: shortcode.value.trim(),
 		}, false)

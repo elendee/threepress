@@ -46,7 +46,6 @@ const tag = ( key , value ) => { return value ? `${ key }=${ value } ` : '' }
 
 
 const shortcode_values = [
-	'model_id',
 	'name',
 
 	'controls',
@@ -101,7 +100,6 @@ export default init => {
 	gallery.edited = init.edited || defaults.edited
 	// data
 	gallery.model = init.model || {}
-	gallery.model_id = init.model_id || defaults.model_id
 	// rendering
 	gallery.controls = init.controls || defaults.controls
 	gallery.allow_zoom = val_boolean( init.allow_zoom, false )
@@ -287,7 +285,7 @@ export default init => {
 
 	gallery.init_scene = async() => { // lights camera action
 
-		if( !gallery.validate( false, true )) return
+		if( !gallery.validate( false, true, false )) return
 
 		// model
 		if( gallery.model ){
@@ -343,23 +341,29 @@ export default init => {
 
 
 
-	gallery.fill_model_guid = () => {
+	gallery.fill_model_from_form = () => {
 		gallery.model = gallery.model || {}
 		const mc = gallery_form.querySelector('#model-choice .threepress-row')
 		if( mc ){
 			gallery.model.guid = mc.querySelector('.url input').value.trim()
+			gallery.model.id = mc.getAttribute('data-id')
 		}
 	}
 
 
 
 
-	gallery.validate = ( pop_errors, log_errors ) => {
+	gallery.validate = ( pop_errors, log_errors, save ) => {
 
 		const invalidations = []
 
-		// model guid
-		if( !gallery.model.guid || !gallery.model.guid.match(/\.glb/) ) invalidations.push('invalid or missing model - must be glb format')	
+		// model
+		if( !gallery.model ) invalidations.push('missing model')
+		if( save ){ // shortcode needs model.id
+			if( isNaN( gallery.model.id ) ) invalidations.push('invalid model id')
+		}else{ // display needs model.guid
+			if( !gallery.model.guid || !gallery.model.guid.match(/\.glb/) ) invalidations.push('invalid model - must be glb format')	
+		}
 
 		// NaN's
 		if( gallery.rotate_scene ){
@@ -390,6 +394,9 @@ export default init => {
 			}
 		}
 
+		gallery.fill_model_from_form()
+		if( gallery.model.id ) shortcodes += 'model_id=' + gallery.model.id + ' '
+
 		if( shortcodes ){
 			gallery.shortcode = '[threepress ' + shortcodes + ']'.replace(/ \]/, '')
 			return gallery.shortcode
@@ -414,11 +421,8 @@ export default init => {
 		gallery.reset_form( form )
 
 		// chosen model
-		gallery.fill_model_guid()
-		// const model_row = form.querySelector('.threepress-row')
-		// if( model_row ){
-		// 	gallery.model_id = model_row.getAttribute('data-id')
-		// }
+		gallery.fill_model_from_form()
+
 		// gallery name
 		gallery.name = form.querySelector('input[name=gallery_name]').value.trim().replace(/ /g, '%%')
 
@@ -489,13 +493,10 @@ export default init => {
 			escrow[ split[0] ] = split[1].replace(/%%/, ' ')
 		}
 		if( invalid ){
-			hal('error', 'failed to parse shortcode', 5000 )
+			hal('error', 'there was an error parsing shortcode', 5000 )
 			return 
 		}
-		if( isNaN( gallery.model_id ) ){
-			hal('error', 'invalid model id', 5000 )
-			return
-		}
+		if( isNaN( gallery.model.guid ) )  hal('error', 'invalid or missing model', 5000 )
 
 		for( const key in escrow ) gallery[ key ] = escrow[ key ]
 
@@ -509,41 +510,37 @@ export default init => {
 
 	gallery.hydrate_editor = async( form, shortcode, shortcode_id ) => {
 
-		const model_choice = form.querySelector('#model-choice')
-
 		const is_new = !shortcode_id 
-
-		if( !is_new ){
-			form.setAttribute('data-shortcode-id', shortcode_id )
-			form.classList.add('editing')		
-		}else{
-			form.removeAttribute('data-shortcode-id')
-			form.classList.remove('editing')		
-		}
 
 		// validate
 		if( shortcode ) gallery.ingest_shortcode( shortcode )
 
+		// hydrate model
+		const model_choice = form.querySelector('#model-choice')
+
+		if( !is_new ){
+
+			const res = await fetch_wrap( ajaxurl, 'post', {
+				action: 'get_model',
+				id: gallery.model.guid,
+			})
+			if( !res || !res.success ){
+				// hal('error', 'failed to retrieve model', 5000)
+				console.log( res )
+				// return
+			}else{
+				const model = res.model
+				const new_model = new ModelRow( model )
+
+				model_choice.innerHTML = ''			
+				model_choice.appendChild( new_model.gen_row() )				
+			}
+
+		}
+
 		// name
 		const name = gallery.name.replace(/%/g, ' ')
 		form.querySelector('input[name=gallery_name]').value = name
-
-		// hydrate model
-		model_choice.innerHTML = ''
-		if( !is_new ){
-			const res = await fetch_wrap( ajaxurl, 'post', {
-				action: 'get_model',
-				id: gallery.model_id,
-			})
-			if( !res || !res.success ){
-				hal('error', 'failed to retrieve model', 5000)
-				console.log( res )
-				return
-			}
-			const model = res.model
-			const new_model = new ModelRow( model )
-			model_choice.appendChild( new_model.gen_row() )
-		}
 
 		// bg color
 		form.querySelector('input[name=bg_color]').value = gallery.bg_color
@@ -584,6 +581,13 @@ export default init => {
 
 		form.style.display = 'inline-block'
 		// add_gallery.querySelector('div').innerText = '-'
+		if( !is_new ){
+			form.setAttribute('data-shortcode-id', shortcode_id )
+			form.classList.add('editing')		
+		}else{
+			form.removeAttribute('data-shortcode-id')
+			form.classList.remove('editing')		
+		}
 
 		window.scroll({
 			top: window.pageYOffset + form.getBoundingClientRect().top - 50,
@@ -765,9 +769,9 @@ export default init => {
 
 	gallery.preview = () => {
 
-		gallery.fill_model_guid()
+		gallery.fill_model_from_form()
 
-		if( !gallery.validate( true, true ) ) return
+		if( !gallery.validate( true, true, false ) ) return
 
 		gallery.init_scene()
 		.then( success => {
