@@ -36,12 +36,6 @@ require_once( ABSPATH . 'wp-includes/pluggable.php' );
 require_once( __DIR__ . '/inc/gallery-form.php' );
 
 
-if( defined( 'ALLOW_UNFILTERED_UPLOADS' ) ){
-	$allow_unfiltered = ALLOW_UNFILTERED_UPLOADS;
-}else{
-	$allow_unfiltered = false;
-}
-
 
 function _LOG( $msg ){
 
