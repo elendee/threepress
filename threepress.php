@@ -37,22 +37,25 @@ require_once( __DIR__ . '/inc/gallery-form.php' );
 
 
 
-function _LOG( $msg ){
+if( !function_exists( _LOG_threepress ) ){
+	function _LOG_threepress( $msg ){
 
-	if( !file_exists( __DIR__ . '/.threepress-log.txt') ){
-		return;
-	}
+		if( !file_exists( __DIR__ . '/.threepress-log.txt') ){
+			return;
+		}
 
-	$type = gettype( $msg );
-	if( $type  === 'object' || $type === 'array' ){
-		$msg = '(' . $type . ')
-' . json_encode($msg, JSON_PRETTY_PRINT);
-	}
-    $logfile = __DIR__ . '/.threepress-log.txt';
-    file_put_contents($logfile, date('M:D:H:i') . ' _LOG:
-' . $msg . PHP_EOL, FILE_APPEND | LOCK_EX);
+		$type = gettype( $msg );
+		if( $type  === 'object' || $type === 'array' ){
+			$msg = '(' . $type . ')
+	' . json_encode($msg, JSON_PRETTY_PRINT);
+		}
+	    $logfile = __DIR__ . '/.threepress-log.txt';
+	    file_put_contents($logfile, date('M:D:H:i') . ' _LOG:
+	' . $msg . PHP_EOL, FILE_APPEND | LOCK_EX);
 
+	}	
 }
+
 
 
 function threepress_datetime(){
