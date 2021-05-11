@@ -40,7 +40,7 @@ let bound_wheel = false
 let gallery_bound, gallery_top
 
 const gallery_form = document.querySelector('#gallery-form')
-// const add_gallery = document.querySelector('#create-toggle')
+
 
 const tag = ( key , value ) => { return value ? `${ key }=${ value } ` : '' }
 
@@ -79,9 +79,9 @@ const defaults = { // form values, not scaled values
 
 
 const set_scalars = gallery => {
-	gallery.scaled_intensity = ( gallery.intensity / 10 ) * 5
+	gallery.scaled_intensity = gallery.intensity / 3
 	gallery.scaled_rotate = gallery.rotate_speed / 1000
-	gallery.scaled_zoom = gallery.zoom_speed ? gallery.zoom_speed * 2 : defaults.zoom_speed * 2
+	gallery.scaled_zoom = gallery.zoom_speed ? gallery.zoom_speed : defaults.zoom_speed
 }
 
 
@@ -136,6 +136,8 @@ export default init => {
 	})
 	gallery.canvas = gallery.RENDERER.domElement
 	gallery.canvas.height = gallery.canvas.width * gallery.aspect_ratio
+
+	set_scalars( gallery )
 
 	if( gallery.light === 'directional' ){
 		gallery.LIGHT = new DirectionalLight( 0xffffff, gallery.scaled_intensity )
@@ -221,10 +223,7 @@ export default init => {
 	const camera_step = new Vector3()
 	const projection = new Vector3()
 	let projected_dist, buffer_radius, too_close, pass_through
-	// a, b, c, d, e
-	let pass = 0
 	const scroll_canvas = e => {
-		pass++
 		for( const gallery of galleries ){
 			gallery_bound = gallery.canvas.getBoundingClientRect()
 			gallery_top = window.pageYOffset + gallery_bound.top
@@ -251,7 +250,6 @@ export default init => {
 							buffer_radius = gallery.MODELS[0].userData.radius * 1.5
 							too_close = projected_dist < buffer_radius
 							pass_through = gallery.CAMERA.position.distanceTo( projection ) >= gallery.CAMERA.position.distanceTo( gallery.MODELS[0].position ) - buffer_radius
-							// projection.x * gallery.CAMERA.position.x < 0 || projection.y * gallery.CAMERA.position.y < 0 || projection.z * gallery.CAMERA.position.z < 0
 							
 							if( too_close || pass_through ){
 								return
@@ -320,6 +318,7 @@ export default init => {
 
 		}
 
+		// controls
 		if( gallery.controls === 'orbit' ){
 			gallery.orbit_controls = new OrbitControls( gallery.CAMERA, gallery.canvas )
 			gallery.orbit_controls.enableZoom = false // implement this yourself so it doesn't jack scroll
@@ -330,7 +329,10 @@ export default init => {
 			bound_wheel = true
 		}
 
+		// refresh
 		set_scalars( gallery )
+
+		gallery.LIGHT.intensity = gallery.scaled_intensity
 
 		if( gallery.bg_color )  gallery.canvas.style.background = gallery.bg_color
 
@@ -408,17 +410,17 @@ export default init => {
 
 
 
-	gallery.reset_form = ( form ) => {
+	// gallery.reset_form = ( form ) => {
 
-		for( const key of shortcode_values ) gallery[ key ] = defaults[ key ]
+	// 	for( const key of shortcode_values ) gallery[ key ] = defaults[ key ]
 
-	}
+	// }
 
 
 	
 	gallery.ingest_form = form => {
 
-		gallery.reset_form( form )
+		// gallery.reset_form( form )
 
 		// chosen model
 		gallery.fill_model_from_form()
@@ -457,6 +459,7 @@ export default init => {
 		// bg color
 		gallery.bg_color = form.querySelector('input[name=bg_color]').value.replace(/ /g, '')
 
+		set_scalars( gallery )
 
 	}
 
@@ -486,8 +489,10 @@ export default init => {
 				break;
 			}
 			split = val.split('=')
-			if( !shortcode_values.includes( split[0] )){
-				console.log('invalid shortcode value', split[0], arr )
+			if( split[0] === 'model_id' ){
+				gallery.model.id = split[1]
+			}else if( !shortcode_values.includes( split[0] )){
+				if( split[0] ) console.log('invalid shortcode value', split[0], arr )
 				continue
 			}
 			escrow[ split[0] ] = split[1].replace(/%%/, ' ')
@@ -496,7 +501,6 @@ export default init => {
 			hal('error', 'there was an error parsing shortcode', 5000 )
 			return 
 		}
-		if( isNaN( gallery.model.guid ) )  hal('error', 'invalid or missing model', 5000 )
 
 		for( const key in escrow ) gallery[ key ] = escrow[ key ]
 
@@ -517,22 +521,20 @@ export default init => {
 
 		// hydrate model
 		const model_choice = form.querySelector('#model-choice')
+		model_choice.innerHTML = ''			
 
 		if( !is_new ){
 
 			const res = await fetch_wrap( ajaxurl, 'post', {
 				action: 'get_model',
-				id: gallery.model.guid,
+				id: gallery.model.id,
 			})
 			if( !res || !res.success ){
-				// hal('error', 'failed to retrieve model', 5000)
 				console.log( res )
-				// return
 			}else{
 				const model = res.model
 				const new_model = new ModelRow( model )
 
-				model_choice.innerHTML = ''			
 				model_choice.appendChild( new_model.gen_row() )				
 			}
 

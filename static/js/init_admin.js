@@ -170,16 +170,14 @@ add_model.addEventListener('click', () => {
 })
 
 add_gallery.addEventListener('click', () => {
+	const gallery = Gallery()
 	if( !gallery_form.style.display || gallery_form.style.display === 'none' ){
 		gallery_form.style.display = 'inline-block'
-		// add_gallery.querySelector('div').innerText = '-'
+		gallery.hydrate_editor( gallery_form )
 	}else{
 		if( confirm('clear the current form and start anew?')){
-			const gallery = Gallery()
 			gallery.hydrate_editor( gallery_form )
 		}
-		// gallery_form.style.display = 'none'
-		// add_gallery.querySelector('div').innerText = '+'
 	}
 })
 

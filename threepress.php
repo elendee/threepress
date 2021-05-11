@@ -227,18 +227,27 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	$gallery->id = get_current_user_id();
 	    	$gallery->name = $_POST['name'];
 	    	$gallery->shortcode = $_POST['shortcode'];
-	    	$results = $wpdb->insert('threepress_shortcodes', array(
-	    		'author_key' => $gallery->id,
-	    		'name' => $gallery->name,
-	    		'edited' => $gallery->datetime,
-	    		'created' => $gallery->datetime,
-	    		'shortcode' => $gallery->shortcode,
-	    	));
+
+	    	// edit
+	    	if( $_POST['shortcode_id']){
+	    		$sql = $wpdb->prepare('UPDATE threepress_shortcodes VALUES name=%s, edited=%s, shortcode=%s WHERE author_key=%d AND id=%d', $gallery->name, $gallery->datetime, $gallery->shortcode, $gallery->id, $_POST['shortcode_id']);
+	    		$results = $wpdb->query( $sql );
+
+    		// create
+	    	}else{ 
+		    	$results = $wpdb->insert('threepress_shortcodes', array(
+		    		'author_key' => $gallery->id,
+		    		'name' => $gallery->name,
+		    		'edited' => $gallery->datetime,
+		    		'created' => $gallery->datetime,
+		    		'shortcode' => $gallery->shortcode,
+		    	));
+		    	$gallery->created = $gallery->datetime;
+		    	$res->gallery = $gallery;
+	    	}
 
 	    	$res->success = true;
 	    	$gallery->edited = $gallery->datetime;
-	    	$gallery->created = $gallery->datetime;
-	    	$res->gallery = $gallery;
 
 	    	wp_die( json_encode( $res ) );
 
@@ -257,6 +266,8 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	if( $results ){
 	    		$res->success = true;
 	    		$res->model = $results[0];
+	    	}else{
+	    		$res->msg = 'no model found';
 	    	}
 	    	wp_die( json_encode($res) );
 		}

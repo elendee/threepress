@@ -29,13 +29,11 @@ const render_shortcode = () => {
 
 	gallery.gen_shortcode()
 
+		// console.log( gallery.intensity , gallery.scaled_intensity )
+	
 	return gallery.shortcode
 	
 }
-
-
-
-
 
 
 
@@ -73,6 +71,8 @@ export default ( gallery_content ) => {
 		const gallery = Gallery()
 		gallery.ingest_form( gallery_form )
 
+		// console.log( gallery.intensity , gallery.scaled_intensity )
+
 		gallery.preview()
 
 	})
@@ -91,7 +91,7 @@ export default ( gallery_content ) => {
 
 		fetch_wrap( ajaxurl, 'post', {
 			action: 'save_shortcode',
-			shortcode_id: form.getAttribute('data-shortcode-id'),
+			shortcode_id: gallery_form.getAttribute('data-shortcode-id'),
 			name: gallery_form.querySelector('input[name=gallery_name]').value.trim(),
 			shortcode: shortcode.value.trim(),
 		}, false)
@@ -141,17 +141,16 @@ export default ( gallery_content ) => {
 
 	})
 
-
 	gallery_form.querySelector('input[name=bg_color]').addEventListener('keyup', e => {
 		e.target.value = e.target.value.replace(/ /g, '')
 	})
-
-
 
 	color_picker.addEventListener('change', e => {
 		bg_color.value = color_picker.value
 	})
 
+
+	// editing
 	for( const input of attributes ){
 		input.addEventListener('change', e => {
 			shortcode.value = render_shortcode()

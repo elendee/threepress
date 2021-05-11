@@ -21,7 +21,7 @@ function threepress_gallery_form(){
 		
 
 		<div class='gallery-section'>
-			<h4>gallery model</h4>
+			<h4>gallery model (required)</h4>
 	    	<p>
 	    		<div id='model-choice'></div>
 	    		<div id='choose-model' class='button button-primary'>
@@ -82,7 +82,7 @@ function threepress_gallery_form(){
 			    		</div>
 			    		<div class='selection'>
 			    			<label>intensity</label>
-			    			<input type='range' min=1 max=10 name='intensity' value=5 />
+			    			<input type='range' min=1 max=15 name='intensity' value=5 />
 			    		</div>
 		    		</div>
 
@@ -110,7 +110,7 @@ function threepress_gallery_form(){
 			    		</div>
 		    			<div class='selection contingent'>
 			    			<label>rotation speed</label>
-			    			<input type='range' min=1 max=100 name='rotate_speed' value='20'>
+			    			<input type='range' min=1 max=50 name='rotate_speed' value='20'>
 			    		</div>
 		    			<div class='selection contingent'>
 			    			<label>x axis</label>

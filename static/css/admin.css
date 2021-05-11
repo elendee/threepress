@@ -253,7 +253,7 @@
 	cursor: pointer;
 }
 #model-galleries .content .threepress-row:hover{
-    border-left: 2px solid #bd2448;
+    border-left: 4px solid #bd2448;
 }
 
 .threepress-row-icon{
