@@ -224,30 +224,34 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	    	$gallery = new stdClass();
 	    	$gallery->datetime = threepress_datetime();
-	    	$gallery->id = get_current_user_id();
+	    	$gallery->user_id = get_current_user_id();
 	    	$gallery->name = $_POST['name'];
 	    	$gallery->shortcode = $_POST['shortcode'];
 
 	    	// edit
 	    	if( $_POST['shortcode_id']){
-	    		$sql = $wpdb->prepare('UPDATE threepress_shortcodes VALUES name=%s, edited=%s, shortcode=%s WHERE author_key=%d AND id=%d', $gallery->name, $gallery->datetime, $gallery->shortcode, $gallery->id, $_POST['shortcode_id']);
+	    		$sql = $wpdb->prepare('UPDATE threepress_shortcodes SET name=%s, edited=%s, shortcode=%s WHERE author_key=%d AND id=%d', $gallery->name, $gallery->datetime, $gallery->shortcode, $gallery->user_id, $_POST['shortcode_id']);
 	    		$results = $wpdb->query( $sql );
-
+	    		if( $results ) $gallery->id = $_POST['shortcode_id'];
     		// create
 	    	}else{ 
 		    	$results = $wpdb->insert('threepress_shortcodes', array(
-		    		'author_key' => $gallery->id,
+		    		'author_key' => $gallery->user_id,
 		    		'name' => $gallery->name,
 		    		'edited' => $gallery->datetime,
 		    		'created' => $gallery->datetime,
 		    		'shortcode' => $gallery->shortcode,
 		    	));
+
 		    	$gallery->created = $gallery->datetime;
-		    	$res->gallery = $gallery;
+			    $gallery->id = $wpdb->insert_id;
+
 	    	}
 
-	    	$res->success = true;
 	    	$gallery->edited = $gallery->datetime;
+	    	$res->gallery = $gallery;
+
+	    	$res->success = true;
 
 	    	wp_die( json_encode( $res ) );
 

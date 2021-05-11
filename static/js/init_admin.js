@@ -60,22 +60,13 @@ const gallery_content = model_galleries.querySelector('.content')
 
 
 
-const fill = async( type ) => {
+const fill = async( type, scroll_top ) => {
 
 	loaded[ type ] = true
 
 	const res = await fetch_wrap( ajaxurl, 'post', {
 		action: 'fill_' + type,
 	}, false )
-
-	// let object
-	// try{
-	// 	object = JSON.parse( res )
-	// }catch( e ){
-	// 	hal('error', 'error fetching results', 4000 )
-	// 	console.log( e, res )
-	// 	return 
-	// }
 
 	switch( type ){
 
@@ -108,6 +99,8 @@ const fill = async( type ) => {
 			break;
 
 	}
+
+	if( scroll_top ) window.scroll({ top: 0, behavior: 'smooth' })
 
 }
 
@@ -150,9 +143,9 @@ for( const tab of tabs ){
 		const cat = tab.getAttribute('data-section')
 		wrap.querySelector('#' + cat ).style.display = 'initial'
 		if( cat.match(/library/) && !loaded.library ){
-			fill('library').catch( err => { console.log( err )})
+			fill('library', true ).catch( err => { console.log( err )})
 		}else if( cat.match(/galler/) && !loaded.gallery ){
-			fill('gallery').catch( err => { console.log( err )})
+			fill('gallery', true ).catch( err => { console.log( err )})
 		}else{
 			console.log('non-ajax tab: ', cat )
 		}

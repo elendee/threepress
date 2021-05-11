@@ -30,7 +30,7 @@ const render_shortcode = () => {
 	gallery.gen_shortcode()
 
 		// console.log( gallery.intensity , gallery.scaled_intensity )
-	
+
 	return gallery.shortcode
 	
 }
@@ -89,6 +89,8 @@ export default ( gallery_content ) => {
 
 		if( !gallery.validate( true, true, true )) return
 
+		const editing = gallery_form.getAttribute('data-shortcode-id') ? true : false
+
 		fetch_wrap( ajaxurl, 'post', {
 			action: 'save_shortcode',
 			shortcode_id: gallery_form.getAttribute('data-shortcode-id'),
@@ -98,7 +100,12 @@ export default ( gallery_content ) => {
 		.then( res => {
 			if( res.success ){
 				const gallery = Gallery( res.gallery )
-				gallery_content.prepend( gallery.gen_row() )
+				gallery.ingest_shortcode( res.gallery.shortcode )
+				gallery_form.classList.add('editing')
+				gallery_form.setAttribute('data-shortcode-id', res.gallery.id )
+				if( !editing ){
+					gallery_content.prepend( gallery.gen_row() )
+				}
 				hal('success', 'success', 5000 )
 			}else{
 				hal('error', res.msg || 'error saving', 5000 )

@@ -75,6 +75,7 @@ const defaults = { // form values, not scaled values
 	rotate_speed: 1,
 	zoom_speed: 5,
 	bg_color: 'linear-gradient(45deg,white,transparent)',
+	shortcode: '',
 }
 
 
@@ -129,25 +130,6 @@ export default init => {
 
 	// threejs eles
 	gallery.MODELS = []
-	gallery.SCENE = new Scene()
-	gallery.RENDERER = new WebGLRenderer({ 
-		antialias: true,
-		alpha: true
-	})
-	gallery.canvas = gallery.RENDERER.domElement
-	gallery.canvas.height = gallery.canvas.width * gallery.aspect_ratio
-
-	set_scalars( gallery )
-
-	if( gallery.light === 'directional' ){
-		gallery.LIGHT = new DirectionalLight( 0xffffff, gallery.scaled_intensity )
-	}else{
-		//
-	}
-	gallery.CAMERA = new PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, gallery.view )
-
-	gallery.SCENE.add( gallery.LIGHT )
-	gallery.SCENE.add( gallery.CAMERA )
 
 	// dom
 	if( gallery.overlay ){
@@ -172,7 +154,7 @@ export default init => {
 
 	const start_animation = () => { // single frame updates
 		gallery.animating = true
-		animate_controls()
+		gallery.orbit_controls ? animate_controls() : animate()
 	}
 
 	const stop_animation = () => {
@@ -284,6 +266,32 @@ export default init => {
 	gallery.init_scene = async() => { // lights camera action
 
 		if( !gallery.validate( false, true, false )) return
+
+		/// 
+
+		gallery.SCENE = gallery.SCENE || new Scene()
+		gallery.RENDERER = gallery.RENDERER || new WebGLRenderer({ 
+			antialias: true,
+			alpha: true
+		})
+		gallery.canvas = gallery.canvas || gallery.RENDERER.domElement
+		gallery.canvas.height = gallery.canvas.width * gallery.aspect_ratio
+
+		set_scalars( gallery )
+
+		if( !gallery.LIGHT ){
+			if( gallery.light === 'directional' ){
+				gallery.LIGHT = new DirectionalLight( 0xffffff, gallery.scaled_intensity )
+			}else{
+				//
+			}
+		}
+		gallery.CAMERA = gallery.CAMERA || new PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, gallery.view )
+
+		gallery.SCENE.add( gallery.LIGHT )
+		gallery.SCENE.add( gallery.CAMERA )
+
+		///
 
 		// model
 		if( gallery.model ){
@@ -495,14 +503,17 @@ export default init => {
 				if( split[0] ) console.log('invalid shortcode value', split[0], arr )
 				continue
 			}
-			escrow[ split[0] ] = split[1].replace(/%%/, ' ')
+			escrow[ split[0] ] = split[1].replace(/%%/g, ' ')
 		}
+
 		if( invalid ){
 			hal('error', 'there was an error parsing shortcode', 5000 )
 			return 
 		}
 
 		for( const key in escrow ) gallery[ key ] = escrow[ key ]
+
+		if( !gallery.rotate_scene ) delete gallery.orbit_controls
 
 		gallery.shortcode = shortcode
 
@@ -638,7 +649,7 @@ export default init => {
 		content.title = 'shortcode'
 		const shortcode = document.createElement('input')
 		shortcode.setAttribute('readonly', true )// = true
-		shortcode.value = gallery.shortcode
+		shortcode.value = gallery.shortcode || ''
 		content.appendChild( shortcode )
 		row.appendChild( content )
 
