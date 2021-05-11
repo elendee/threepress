@@ -29,8 +29,6 @@ const render_shortcode = () => {
 
 	gallery.gen_shortcode()
 
-		// console.log( gallery.intensity , gallery.scaled_intensity )
-
 	return gallery.shortcode
 	
 }
@@ -70,8 +68,6 @@ export default ( gallery_content ) => {
 
 		const gallery = Gallery()
 		gallery.ingest_form( gallery_form )
-
-		// console.log( gallery.intensity , gallery.scaled_intensity )
 
 		gallery.preview()
 

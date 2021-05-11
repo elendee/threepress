@@ -2,8 +2,11 @@
 /**
  * Plugin Name: Threepress 
  * Plugin URI: https://threepress.shop
- * Plugin Description: Quickly add 3d to parts of your website with the click of a button
+ * Version: 1.0
+ * Description: Generate 3D gallery shortcodes powered by three.js
  * Text Domain: threepress
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 /*
@@ -109,7 +112,6 @@ if ( !class_exists( 'Threepress' ) ) {
 					'plugin_url' => plugins_url() . '/threepress/',
 					'home_url' => home_url(),
 					'ajaxurl' => admin_url( 'global-ajax.php' )
-					// 'is_user_logged_in' => is_user_logged_in()
 				)
 			);
 
@@ -180,7 +182,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    		$id = 'id="threepress-gallery-' . $attr['name'] . '"';
 	    	}
 
-	    	_LOG( $attr );
+	    	// _LOG( $attr );
 
 	    	return '<div ' . $id . ' class="threepress-gallery"><div class="threepress-gallery-data">' . json_encode($attr) . '</div></div>';
 
@@ -262,8 +264,6 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	    	$res = new stdClass();
 	    	$res->success = false;
-
-	    	_LOG('looking for', $_POST['id'] );
 
 	    	$sql = $wpdb->prepare('SELECT * FROM wp_posts WHERE id=%d', $_POST['id'] );
 	    	$results = $wpdb->get_results( $sql );

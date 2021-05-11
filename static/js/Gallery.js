@@ -668,7 +668,6 @@ export default init => {
 						id: gallery.id,
 					}, false)
 					.then( res => {
-						console.log( res )
 						if( res.success ){
 							row.remove()
 						}else{
@@ -709,7 +708,7 @@ export default init => {
 	gallery.align = () => { // for image overlays
 
 		if( !gallery.overlay ){
-			console.log('threepress: invalid align called', this )
+			console.log('invalid align called', this )
 			return
 		}
 		const bounds = gallery.overlay.getBoundingClientRect()
