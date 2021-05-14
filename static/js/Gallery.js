@@ -630,7 +630,7 @@ export default init => {
 		const thumb = document.createElement('div')
 		thumb.classList.add('threepress-row-icon')
 		const thumb_img = document.createElement('img')
-		thumb_img.src = THREEPRESS.plugin_url + 'assets/icon_original.png'
+		thumb_img.src = THREEPRESS.plugin_url + '/assets/icon_original.png'
 		thumb.appendChild( thumb_img )
 		name.prepend( thumb )
 		const edited = document.createElement('div')

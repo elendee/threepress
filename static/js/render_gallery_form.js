@@ -5,6 +5,7 @@ import {
 	fetch_wrap,
 	model_selector,
 	set_contingents,
+	insertAfter,
 } from './lib.js'
 
 
@@ -31,6 +32,15 @@ const render_shortcode = () => {
 
 	return gallery.shortcode
 	
+}
+
+
+
+const get_row = ( container, id ) => {
+	for( const row of container.querySelectorAll('.threepress-row')){
+		if( row.getAttribute('data-id') == id ) return row
+	}
+	return false
 }
 
 
@@ -99,8 +109,13 @@ export default ( gallery_content ) => {
 				gallery.ingest_shortcode( res.gallery.shortcode )
 				gallery_form.classList.add('editing')
 				gallery_form.setAttribute('data-shortcode-id', res.gallery.id )
+				const new_row = gallery.gen_row()
+				const old_row = get_row( document.querySelector('#model-galleries .content'), res.gallery.id )
 				if( !editing ){
-					gallery_content.prepend( gallery.gen_row() )
+					gallery_content.prepend( new_row )
+				}else{
+					insertAfter( new_row, old_row )
+					old_row.remove()
 				}
 				hal('success', 'success', 5000 )
 			}else{

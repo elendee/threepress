@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Threepress 
  * Plugin URI: https://threepress.shop
- * Version: 1.0
+ * Version: 0.1
  * Description: Generate 3D gallery shortcodes powered by three.js
  * Text Domain: threepress
  * License:           GPL v2 or later
@@ -35,32 +35,9 @@ require_once( ABSPATH . 'wp-includes/pluggable.php' );
 
 require_once( __DIR__ . '/inc/gallery-form.php' );
 
+require_once( __DIR__ . '/lib.php' );
 
 
-if( !function_exists( _LOG_threepress ) ){
-	function _LOG_threepress( $msg ){
-
-		if( !file_exists( __DIR__ . '/.threepress-log.txt') ){
-			return;
-		}
-
-		$type = gettype( $msg );
-		if( $type  === 'object' || $type === 'array' ){
-			$msg = '(' . $type . ')
-	' . json_encode($msg, JSON_PRETTY_PRINT);
-		}
-	    $logfile = __DIR__ . '/.threepress-log.txt';
-	    file_put_contents($logfile, date('M:D:H:i') . ' _LOG:
-	' . $msg . PHP_EOL, FILE_APPEND | LOCK_EX);
-
-	}	
-}
-
-
-
-function threepress_datetime(){
-	return gmdate( 'Y-m-d H:i:s', time() );
-}
 
 
 if ( !class_exists( 'Threepress' ) ) {
@@ -69,7 +46,7 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	    public static function activate(){
 			global $wpdb;
-	    	$threepress_local_models = WP_CONTENT_DIR . '/uploads/threepress_models';
+	    	$threepress_local_models = wp_upload_dir() . '/threepress_models'; // WP_CONTENT_DIR . '/uploads
 
 	    	// model upload dir
 			if( !is_dir( $threepress_local_models ) ){
@@ -87,6 +64,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    		shortcode text )');
 	    	$results = $wpdb->get_results( $sql );
 	    }
+
 
  	    public static function global_scripts() {
     		wp_enqueue_style( 
@@ -106,13 +84,14 @@ if ( !class_exists( 'Threepress' ) ) {
 			);
 
 			wp_localize_script( 'threepress-global-js', 'THREEPRESS', array(
-					'plugin_url' => plugins_url() . '/threepress/',
+					'plugin_url' => plugins_url( '', __FILE__ ), //plugins_url(), // '/static/js/global.js', __FILE__
 					'home_url' => home_url(),
-					'ajaxurl' => admin_url( 'global-ajax.php' )
+					'ajaxurl' => admin_url( 'global-ajax.php' ),
 				)
 			);
 
 	    }
+
 
 	    public static function base_scripts() {
     		wp_enqueue_script( 
@@ -121,6 +100,7 @@ if ( !class_exists( 'Threepress' ) ) {
 				array() // 'jquery'
 			);
 	    }
+
 
 	    public static function admin_scripts() {
     		wp_enqueue_style( 
@@ -137,14 +117,16 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	    }
 
+
 	    public static function filter_modules( $tag, $handle, $src ) {
-	    	$modules = ['threepress-admin-js', 'threepress-posts-js', 'threepress-lib-js', 'threepress-base-js'];
-		    if ( !in_array($handle, $modules ) ){
+	    	$defer_modules = ['threepress-admin-js', 'threepress-posts-js', 'threepress-lib-js', 'threepress-base-js'];
+		    if ( !in_array($handle, $defer_modules ) ){
 		        return $tag;		    	
 		    }
-		    $tag = '<script type="module" src="' . esc_url( $src ) . '" defer="defer"></script>';
+		    $tag = '<script type="module" src="' . $src . '" defer="defer"></script>';
 		    return $tag;
 		}
+
 
 	    public static function options_page() {
 			$threepress_page_title = 'Threepress';
@@ -165,21 +147,27 @@ if ( !class_exists( 'Threepress' ) ) {
 
 
 	    public static function shortcode( $attr, $content, $name ){
+
 	    	$model_id = (int)$attr['model_id'];
-	    	if( gettype( $model_id ) != 'integer' ){
+
+	    	if( gettype( $model_id ) !== 'integer' ){
+
 	    		$attr['invalid'] = true;
+
 	    	}else{
+
 	    		global $wpdb;
 	    		$sql = $wpdb->prepare('SELECT * FROM wp_posts WHERE id=%d', $model_id );
 	    		$results = $wpdb->get_results( $sql );
 	    		$attr['model'] = $results[0];
+
 	    	}
+
 	    	$id = '';
+
 	    	if( $attr['name'] ){
 	    		$id = 'id="threepress-gallery-' . $attr['name'] . '"';
 	    	}
-
-	    	// _LOG( $attr );
 
 	    	return '<div ' . $id . ' class="threepress-gallery"><div class="threepress-gallery-data">' . json_encode($attr) . '</div></div>';
 
@@ -194,28 +182,44 @@ if ( !class_exists( 'Threepress' ) ) {
 				WHERE post_type="attachment" AND guid LIKE "%.glb%" ORDER BY id DESC');
 
 			$rows = $wpdb->get_results( $sql );
-			wp_die( json_encode( $rows ) ); 
+			wp_send_json( $rows );
+
 	    }
 
+
 	    public static function fill_gallery(){
+
 			global $wpdb;
-			$id = (int)get_current_user_id();
+			$id = get_current_user_id();
+
 			$sql2 = $wpdb->prepare('SELECT * FROM threepress_shortcodes WHERE author_key=%d ORDER BY edited DESC', $id);
 			$rows = $wpdb->get_results( $sql2 );
-			wp_die( json_encode( $rows ) ); 
+			wp_send_json( $rows ); 
+
 		}
+
 
 		 public static function delete_gallery(){
+
 			global $wpdb;
-			$id = $_POST['id'];
-			$sql = $wpdb->prepare('DELETE FROM threepress_shortcodes WHERE id=%d', $id);
-			$res = $wpdb->query( $sql );
 			$response = new stdClass();
-			$response->success = true;
-			wp_die( json_encode( $response ) );
+			$id = $_POST['id'];
+			if( !is_numeric($id) ){
+				$response->success = false;
+				$response->msg ='invalid id';
+			}else{
+				$sql = $wpdb->prepare('DELETE FROM threepress_shortcodes WHERE id=%d', $id );
+				$res = $wpdb->query( $sql );
+				$response->success = true;				
+			}
+
+			wp_send_json( $response );
+
 		}
 
+
 	    public static function save_shortcode(){
+
 	    	global $wpdb;
 
 	    	$res = new stdClass();
@@ -224,14 +228,18 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	$gallery = new stdClass();
 	    	$gallery->datetime = threepress_datetime();
 	    	$gallery->user_id = get_current_user_id();
-	    	$gallery->name = $_POST['name'];
-	    	$gallery->shortcode = $_POST['shortcode'];
-
+	    	$gallery->name = sanitize_text_field( $_POST['name'] );
+	    	$gallery->shortcode = sanitize_text_field( $_POST['shortcode'] );
 	    	// edit
-	    	if( $_POST['shortcode_id']){
+	    	if( $_POST['shortcode_id'] ){
+
+		    	if( !is_numeric( $_POST['shortcode_id'] ) ) wp_die( json_encode($res) );
+
 	    		$sql = $wpdb->prepare('UPDATE threepress_shortcodes SET name=%s, edited=%s, shortcode=%s WHERE author_key=%d AND id=%d', $gallery->name, $gallery->datetime, $gallery->shortcode, $gallery->user_id, $_POST['shortcode_id']);
 	    		$results = $wpdb->query( $sql );
+	    		
 	    		if( $results ) $gallery->id = $_POST['shortcode_id'];
+    		
     		// create
 	    	}else{ 
 		    	$results = $wpdb->insert('threepress_shortcodes', array(
@@ -252,9 +260,10 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	    	$res->success = true;
 
-	    	wp_die( json_encode( $res ) );
+	    	wp_send_json( $res );
 
 		}
+
 
 	    public static function get_model(){
 	    	global $wpdb;
@@ -262,21 +271,24 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	$res = new stdClass();
 	    	$res->success = false;
 
-	    	$sql = $wpdb->prepare('SELECT * FROM wp_posts WHERE id=%d', $_POST['id'] );
-	    	$results = $wpdb->get_results( $sql );
-	    	if( $results ){
-	    		$res->success = true;
-	    		$res->model = $results[0];
-	    	}else{
-	    		$res->msg = 'no model found';
-	    	}
-	    	wp_die( json_encode($res) );
+			$id = $_POST['id'];
+
+	    	$post = get_post( $id );
+
+	    	$res->success = true;
+	    	$res->model = $post;
+
+	    	wp_send_json( $res );
+
 		}
+
 
 		public static function allow_glb( $mimes ){
 			$mimes['glb'] = 'application/octet-stream';
 			return $mimes;
 		}
+	
+
 
 	}
 
@@ -310,11 +322,6 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	// -------------------------------------------- global init
 
-
-	add_shortcode('threepress', 'Threepress::shortcode');
-
-	
-
 	add_action('init', 'Threepress::global_scripts', 100);
 	add_action('admin_menu', 'Threepress::options_page');
 	if( !$has_module ) add_action('init', 'Threepress::base_scripts', 100);
@@ -322,16 +329,11 @@ if ( !class_exists( 'Threepress' ) ) {
 	add_filter('script_loader_tag', 'Threepress::filter_modules' , 10, 3);
 	add_filter('upload_mimes', 'Threepress::allow_glb');
 
+	add_shortcode('threepress', 'Threepress::shortcode');
+
 	register_activation_hook( __FILE__, 'Threepress::activate' );
 
-
 }
-
-
-
-
-
-
 
 
 

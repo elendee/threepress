@@ -134,7 +134,7 @@ class ModelRow {
 		this.url = init.guid || init.url
 		this.date = init.post_date || init.date
 		this.name = init.post_name || init.name
-		this.thumb_url = init.thumb_img || THREEPRESS.plugin_url + 'assets/helper.png'
+		this.thumb_url = init.thumb_img || THREEPRESS.plugin_url + '/assets/helper.png'
 	}
 
 	gen_row(){
@@ -185,7 +185,7 @@ class ModelRow {
 		const viz = document.createElement('div')
 		viz.classList.add('model-row-preview', 'threepress-button')
 		const eye = document.createElement('img')
-		eye.src = THREEPRESS.plugin_url + 'assets/eye-viz.png'
+		eye.src = THREEPRESS.plugin_url + '/assets/eye-viz.png'
 		viz.appendChild( eye )
 		row.appendChild( viz )
 		viz.addEventListener('click', () => {
@@ -213,9 +213,6 @@ const fetch_wrap = ( url, method, body, no_spinner ) => {
 
 	return new Promise(( resolve, reject ) => {
 
-		body.threepress_post = true
-		body.nonce = THREEPRESS.nonce
-
 		if( !no_spinner ) spinner.show()
 
 		jQuery.ajax({
@@ -224,15 +221,23 @@ const fetch_wrap = ( url, method, body, no_spinner ) => {
 			method : method,
 		})
 		.then( res => {
-
-			try{
-				const r = JSON.parse( res )
-				resolve( r )
-			}catch( e ){
+			if( typeof res === 'string' ){
+				try{
+					const r = JSON.parse( res )
+					resolve( r )
+				}catch( e ){
+					console.log( res )
+					reject( e )
+				}				
+			}else if( typeof res === 'object' ){
+				resolve( res )
+			}else{
 				console.log( res )
-				reject( e )
+				reject()
 			}
+
 			spinner.hide()
+
 		})
 		.catch( err => {
 			spinner.hide()
@@ -375,6 +380,11 @@ const val_boolean = ( ...values ) => {
 
 
 
+const insertAfter = ( newNode, referenceNode ) => {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
+
+
 
 export {
 
@@ -393,6 +403,7 @@ export {
 	origin,
 	set_contingents,
 	model_selector,
+	insertAfter,
 
 	// validations
 	val_boolean,
