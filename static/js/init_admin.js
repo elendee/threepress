@@ -77,6 +77,7 @@ const fill = async( type, scroll_top ) => {
 			}
 				// console.log( res )
 			for( const post of res ){
+				console.log('weird res ? ', res )
 				const model = new ModelRow( post )
 				library_content.appendChild( model.gen_row() )
 			}

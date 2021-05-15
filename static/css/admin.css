@@ -12,6 +12,7 @@
 	cursor: pointer;
 	margin-bottom: -1px;
 	opacity: .7;
+	user-select: none;
 }
 
 .threepress .section{

@@ -35,8 +35,6 @@ require_once( ABSPATH . 'wp-includes/pluggable.php' );
 
 require_once( __DIR__ . '/inc/gallery-form.php' );
 
-require_once( __DIR__ . '/lib.php' );
-
 $threepress_dir = plugins_url( '', __FILE__ );
 
 
@@ -53,7 +51,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	
 	    	if( $has_table ){  // Threepress has been previously activated
 
-				// threepress_LOG('reactivating Threepress; skipping init sequence');
+				// Threepress::LOG('reactivating Threepress; skipping init sequence');
 
 			}else{ // Threepress install procedures
 
@@ -68,33 +66,18 @@ if ( !class_exists( 'Threepress' ) ) {
 		    		shortcode text )');
 		    	$results = $wpdb->query( $sql );	    		
 
-		 		$starter = plugins_url('starter-model.glb', __FILE__ );
+		    	$starters = new stdClass();
+		    	$starters->bmw = [
+		    		'bmw', 
+		    		'Sample BMW for Threepress', 
+		    		'BMW E36 Low Poly by <a target="_blank" href="https://sketchfab.com/marooned3d">Constantine Tvalashvili</a> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>'
+		    	];
 
-				$starter_id = threepress_sideload( $starter, null, 'sample model for Threepress');
-
-				if( gettype( $starter_id ) === 'integer' ){
-					// threepress_LOG( $id );
-					$sql = $wpdb->prepare(
-						'INSERT INTO threepress_shortcodes ( author_key, name, created, edited, shortcode ) 
-						VALUES (%d, "starter model", %s, %s, %s)', 
-						get_current_user_id(), 
-						$now, 
-						$now, 
-						'[threepress model_id=' . $starter_id . ' controls="orbit" light=directional intensity=5 camera_dist=5 zoom_speed=5 rotate_y=true bg_color=linear-gradient(45deg,lightblue,white)]' 
-					);				
-					$res = $wpdb->query($sql);
-
-				}else{
-					threepress_LOG( $id ); // error
-				} 
-
-				// wp_die();
+		    	foreach ($starters as $key => $value) {
+		    		Threepress::load_starter( $value[0], $value[1], $value[2] );
+		    	}
 
 	    	}
-
-			// 	// if( !is_dir( $threepress_local_models ) )  mkdir ( $threepress_local_models , 0755 , true  );
-
-
 
 	    }
 
@@ -123,6 +106,31 @@ if ( !class_exists( 'Threepress' ) ) {
 				)
 			);
 
+	    }
+
+
+	    public static function load_starter( $slug, $title, $caption ) {
+
+	    	// starter model
+	    	global $wpdb;
+	 		$starter = plugins_url( '/starter-models/' . $slug . '.glb', __FILE__ );
+			$starter_id = Threepress::sideload( $starter, null, $title, array( 'post_excerpt' => wp_kses_post( $caption ) ) );
+			if( gettype( $starter_id ) === 'integer' ){
+				$now = Threepress::datetime();
+				$sql = $wpdb->prepare(
+					'INSERT INTO threepress_shortcodes ( author_key, name, created, edited, shortcode ) 
+					VALUES (%d, %s, %s, %s, %s)', 
+					get_current_user_id(), 
+					sanitize_text_field( $title ),
+					$now, 
+					$now, 
+					'[threepress model_id=' . $starter_id . ' controls="orbit" light=directional intensity=5 camera_dist=5 zoom_speed=5 rotate_y=true bg_color=linear-gradient(45deg,lightblue,white)]' 
+				);				
+				$res = $wpdb->query($sql);
+
+			}else{
+				Threepress::LOG( $id ); // error
+			} 
 	    }
 
 
@@ -259,7 +267,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	$res->success = false;
 
 	    	$gallery = new stdClass();
-	    	$gallery->datetime = threepress_datetime();
+	    	$gallery->datetime = Threepress::datetime();
 	    	$gallery->user_id = get_current_user_id();
 	    	$gallery->name = sanitize_text_field( $_POST['name'] );
 	    	$gallery->shortcode = sanitize_text_field( $_POST['shortcode'] );
@@ -319,6 +327,71 @@ if ( !class_exists( 'Threepress' ) ) {
 		public static function allow_glb( $mimes ){
 			$mimes['glb'] = 'application/octet-stream';
 			return $mimes;
+		}
+
+
+
+		public static function LOG( $msg ){
+
+			if( !file_exists( __DIR__ . '/.threepress-log.txt') ){
+				return;
+			}
+
+			$type = gettype( $msg );
+			if( $type  === 'object' || $type === 'array' ){
+				$msg = '(' . $type . ')
+		' . json_encode($msg, JSON_PRETTY_PRINT);
+			}
+		    $logfile = __DIR__ . '/.threepress-log.txt';
+		    file_put_contents($logfile, date('M:D:H:i') . ' LOG:
+		' . $msg . PHP_EOL, FILE_APPEND | LOCK_EX);
+
+		}	
+
+
+		public static function datetime(){
+			return gmdate( 'Y-m-d H:i:s', time() );
+		}
+
+
+		public static function sideload( $file, $post_id = 0, $desc = null, $post_data ){
+
+			if( empty( $file ) ) {
+				return new WP_Error( 'error', 'File is empty' );
+			}
+
+			if( empty( $post_data ) ) $post_data = [];
+
+			$file_array = array();
+
+			// Get filename and store it into $file_array
+			// Add more file types if necessary
+			preg_match( '/[^\?]+\.(glb)\b/i', $file, $matches ); // jpe?g|jpe|gif|png|pdf
+			$file_array['name'] = basename( $matches[0] );
+
+			// Download file into temp location.
+			$file_array['tmp_name'] = download_url( $file );
+
+			// If error storing temporarily, return the error.
+			if ( is_wp_error( $file_array['tmp_name'] ) ) {
+				return new WP_Error( 'error', 'Error while storing file temporarily' );
+			}
+
+			// Store and validate
+			$id = media_handle_sideload( $file_array, $post_id, $desc, $post_data );
+
+			// Unlink if couldn't store permanently
+			if ( is_wp_error( $id ) ) {
+				unlink( $file_array['tmp_name'] );
+				return new WP_Error( 'error', "Couldn't store upload permanently" );
+			}
+
+			if ( empty( $id ) ) {
+				return new WP_Error( 'error', "Upload ID is empty" );
+			}
+
+			return $id;
+
 		}
 	
 

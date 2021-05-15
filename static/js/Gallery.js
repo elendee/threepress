@@ -404,6 +404,14 @@ export default init => {
 			}
 		}
 
+		// --- derived gallery attributes:
+
+		// rotate
+		if( gallery.rotate_scene ){
+			shortcodes += 'rotate_scene=true '
+		}
+		
+		// model
 		gallery.fill_model_from_form()
 		if( gallery.model.id ) shortcodes += 'model_id=' + gallery.model.id + ' '
 

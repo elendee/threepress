@@ -134,6 +134,7 @@ class ModelRow {
 		this.url = init.guid || init.url
 		this.date = init.post_date || init.date
 		this.name = init.post_name || init.name
+		this.caption = init.post_excerpt || init.caption
 		this.thumb_url = init.thumb_img || THREEPRESS.plugin_url + '/assets/helper.png'
 	}
 
@@ -181,6 +182,13 @@ class ModelRow {
 		input.value = this.url
 		url.appendChild( input )
 		row.appendChild( url )
+
+		if( this.caption ){
+			const caption = document.createElement('div')
+			caption.classList.add('column')
+			caption.innerHTML = this.caption
+			row.appendChild( caption )
+		}
 
 		const viz = document.createElement('div')
 		viz.classList.add('model-row-preview', 'threepress-button')
