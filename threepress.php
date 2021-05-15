@@ -37,6 +37,7 @@ require_once( __DIR__ . '/inc/gallery-form.php' );
 
 require_once( __DIR__ . '/lib.php' );
 
+$threepress_dir = plugins_url( '', __FILE__ );
 
 
 
@@ -46,23 +47,55 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	    public static function activate(){
 			global $wpdb;
-	    	$threepress_local_models = wp_upload_dir() . '/threepress_models'; // WP_CONTENT_DIR . '/uploads
 
-	    	// model upload dir
-			if( !is_dir( $threepress_local_models ) ){
-				mkdir ( $threepress_local_models , 0755 , true  );
-			}
+	    	$sql = $wpdb->prepare('SHOW TABLES LIKE "threepress_shortcodes"');
+	    	$has_table = $wpdb->query( $sql );
+	    	
+	    	if( $has_table ){  // Threepress has been previously activated
 
-			// database
-	    	$sql = $wpdb->prepare('
-	    		CREATE TABLE IF NOT EXISTS threepress_shortcodes (
-	    		id int(11) NOT NULL auto_increment PRIMARY KEY,
-	    		author_key int(11),
-	    		name varchar(255),
-	    		created datetime,
-	    		edited datetime,
-	    		shortcode text )');
-	    	$results = $wpdb->get_results( $sql );
+				// threepress_LOG('reactivating Threepress; skipping init sequence');
+
+			}else{ // Threepress install procedures
+
+				// database
+		    	$sql = $wpdb->prepare('
+		    		CREATE TABLE IF NOT EXISTS threepress_shortcodes (
+		    		id int(11) NOT NULL auto_increment PRIMARY KEY,
+		    		author_key int(11),
+		    		name varchar(255),
+		    		created datetime,
+		    		edited datetime,
+		    		shortcode text )');
+		    	$results = $wpdb->query( $sql );	    		
+
+		 		$starter = plugins_url('starter-model.glb', __FILE__ );
+
+				$starter_id = threepress_sideload( $starter, null, 'sample model for Threepress');
+
+				if( gettype( $starter_id ) === 'integer' ){
+					// threepress_LOG( $id );
+					$sql = $wpdb->prepare(
+						'INSERT INTO threepress_shortcodes ( author_key, name, created, edited, shortcode ) 
+						VALUES (%d, "starter model", %s, %s, %s)', 
+						get_current_user_id(), 
+						$now, 
+						$now, 
+						'[threepress model_id=' . $starter_id . ' controls="orbit" light=directional intensity=5 camera_dist=5 zoom_speed=5 rotate_y=true bg_color=linear-gradient(45deg,lightblue,white)]' 
+					);				
+					$res = $wpdb->query($sql);
+
+				}else{
+					threepress_LOG( $id ); // error
+				} 
+
+				// wp_die();
+
+	    	}
+
+			// 	// if( !is_dir( $threepress_local_models ) )  mkdir ( $threepress_local_models , 0755 , true  );
+
+
+
 	    }
 
 

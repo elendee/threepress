@@ -2,12 +2,14 @@
 
 function threepress_gallery_form(){
 
+	global $threepress_dir;
+
 	?>
 
 	<form id='gallery-form' action='create-gallery.php' method='post'>
 
 		<div id='gallery-preview' class='threepress-button' title='gallery preview'>
-			<img src='<?php __DIR__ . '/assets/eye-viz.png' ?>'>
+			<img src='<?php echo $threepress_dir . "/assets/eye-viz.png" ?>'>
 		</div>
 		
 		<div class='gallery-section'>
@@ -134,7 +136,6 @@ function threepress_gallery_form(){
 	    	<h4>gallery shortcode</h4>
 	    	<p>
 	    		<textarea id='shortcode' height=50 placeholder='generated shortcode will appear here' readonly/></textarea>
-	    		<!-- <input id='shortcode' type='text' placeholder='generated shortcode will appear here' readonly/> -->
 	    	</p>
 	    </div>
 
