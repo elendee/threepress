@@ -210,7 +210,12 @@ if ( !class_exists( 'Threepress' ) ) {
 	    		$id = 'id="threepress-gallery-' . $attr['name'] . '"';
 	    	}
 
+	    	Threepress::LOG( $attr );
+
+	    	$attr['model']->post_excerpt = ''; // shim - it can contain values that break JSON.parse - fix later
+
 	    	return '<div ' . $id . ' class="threepress-gallery"><div class="threepress-gallery-data">' . json_encode($attr) . '</div></div>';
+	    	// return '<div ' . $id . ' class="threepress-gallery"><div class="threepress-gallery-data">' . $attr['shortcode'] . '</div></div>';
 
 	    }
 
