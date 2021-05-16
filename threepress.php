@@ -320,11 +320,11 @@ if ( !class_exists( 'Threepress' ) ) {
 			$id = $_POST['id'];
 
 			if( is_numeric($id) ){
-		    	$post = get_post( $id );
-		    	if( $post ){
+				$post = get_post( $id );
+				if( $post ){
 			    	$res->success = true;
 			    	$res->model = $post;
-		    	}
+				}
 			}
 
 	    	wp_send_json( $res );
