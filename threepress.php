@@ -254,9 +254,10 @@ if ( !class_exists( 'Threepress' ) ) {
 				$response->success = false;
 				$response->msg ='invalid id';
 			}else{
+				$id = (int)$id;
 				$sql = $wpdb->prepare('DELETE FROM threepress_shortcodes WHERE id=%d', $id );
 				$res = $wpdb->query( $sql );
-				$response->success = true;				
+				$response->success = true;
 			}
 
 			wp_send_json( $response );
@@ -284,7 +285,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    		$sql = $wpdb->prepare('UPDATE threepress_shortcodes SET name=%s, edited=%s, shortcode=%s WHERE author_key=%d AND id=%d', $gallery->name, $gallery->datetime, $gallery->shortcode, $gallery->user_id, $_POST['shortcode_id']);
 	    		$results = $wpdb->query( $sql );
 	    		
-	    		if( $results ) $gallery->id = $_POST['shortcode_id'];
+	    		if( $results ) $gallery->id = (int)$_POST['shortcode_id'];
     		
     		// create
 	    	}else{ 
@@ -320,6 +321,7 @@ if ( !class_exists( 'Threepress' ) ) {
 			$id = $_POST['id'];
 
 			if( is_numeric($id) ){
+				$id = (int)$id;
 				$post = get_post( $id );
 				if( $post ){
 					$res->success = true;
