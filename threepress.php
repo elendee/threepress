@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Threepress 
  * Plugin URI: https://threepress.shop
- * Version: 0.1
+ * Version: 0.2.5
  * Description: Generate 3D gallery shortcodes powered by three.js
  * Text Domain: threepress
  * License:           GPL v2 or later
@@ -198,7 +198,8 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	}else{
 
 	    		global $wpdb;
-	    		$sql = $wpdb->prepare('SELECT * FROM wp_posts WHERE id=%d', $model_id );
+	    		global $table_prefix;
+	    		$sql = $wpdb->prepare('SELECT * FROM ' . $table_prefix . 'posts WHERE id=%d', $model_id );
 	    		$results = $wpdb->get_results( $sql );
 	    		$attr['model'] = $results[0];
 
@@ -224,7 +225,8 @@ if ( !class_exists( 'Threepress' ) ) {
 	    // ajax
 	    public static function fill_library(){
 			global $wpdb;
-			$sql = $wpdb->prepare('SELECT * FROM wp_posts 
+			global $table_prefix;
+			$sql = $wpdb->prepare('SELECT * FROM ' . $table_prefix . 'posts 
 				WHERE post_type="attachment" AND guid LIKE "%.glb%" ORDER BY id DESC');
 
 			$rows = $wpdb->get_results( $sql );
@@ -254,10 +256,9 @@ if ( !class_exists( 'Threepress' ) ) {
 				$response->success = false;
 				$response->msg ='invalid id';
 			}else{
-				$id = (int)$id;
 				$sql = $wpdb->prepare('DELETE FROM threepress_shortcodes WHERE id=%d', $id );
 				$res = $wpdb->query( $sql );
-				$response->success = true;
+				$response->success = true;				
 			}
 
 			wp_send_json( $response );
@@ -285,7 +286,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    		$sql = $wpdb->prepare('UPDATE threepress_shortcodes SET name=%s, edited=%s, shortcode=%s WHERE author_key=%d AND id=%d', $gallery->name, $gallery->datetime, $gallery->shortcode, $gallery->user_id, $_POST['shortcode_id']);
 	    		$results = $wpdb->query( $sql );
 	    		
-	    		if( $results ) $gallery->id = (int)$_POST['shortcode_id'];
+	    		if( $results ) $gallery->id = $_POST['shortcode_id'];
     		
     		// create
 	    	}else{ 
@@ -321,7 +322,6 @@ if ( !class_exists( 'Threepress' ) ) {
 			$id = $_POST['id'];
 
 			if( is_numeric($id) ){
-				$id = (int)$id;
 				$post = get_post( $id );
 				if( $post ){
 					$res->success = true;
@@ -403,6 +403,22 @@ if ( !class_exists( 'Threepress' ) ) {
 			return $id;
 
 		}
+
+		public static function admin_menu_items(){
+			global $threepress_page_title;
+			echo 
+	        "<h1>" . $threepress_page_title . "</h1>
+	        <div class='nav-tab-wrapper'>
+	    	<a class='nav-tab' data-section='model-library'>
+	    		models
+	    	</a>
+	    	<a class='nav-tab' data-section='model-galleries'>
+	    		galleries
+	    	</a>
+	    	<a class='nav-tab' data-section='guide'>
+	    		guide
+	    	</a>";
+		}
 	
 
 
@@ -440,6 +456,7 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	add_action('init', 'Threepress::global_scripts', 100);
 	add_action('admin_menu', 'Threepress::options_page');
+	add_action('threepress_admin_menu', 'Threepress::admin_menu_items');
 	if( !$has_module ) add_action('init', 'Threepress::base_scripts', 100);
 
 	add_filter('script_loader_tag', 'Threepress::filter_modules' , 10, 3);

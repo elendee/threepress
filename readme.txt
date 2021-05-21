@@ -1,11 +1,11 @@
-=== Test Plugin ===
+=== Threepress ===
 Contributors: kerryoco
-Tags: threejs, 3d, model viewer
+Tags: threejs, 3d, model viewer, 3d model, 3d products, woocommerce, product viewer
 Donate link: http://threepress.shop/
 Requires at least: 4.0
 Tested up to: 5.7.1
 Requires PHP: 5.6
-Stable tag: 0.1
+Stable tag: 0.2.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,13 +30,14 @@ The gallery renderer (three.js object) should adjust to match your given dimensi
 If you want to custom code your own gallery, scroll down to 'javascript devs'.
 
 ## Installation
-standard WP plugin installation - move the plugin folder to `[yoursite.com]/wp-content/plugins/`, and activate from Dashboard.
 
 The plugin will create one database table to store your galleries:
 `threepress_shortcodes`,
 
 It will also create one folder in the file system for uploads: 
 `[yoursite.com]/wp-content/uploads/threepress_models/`
+
+These remain in place upon deactivation, so if you want to remove them you must do so manually.
 
 ## Notes
 
@@ -47,6 +48,14 @@ They are stored in the Media Library like everything else, but can be found easi
 #### For javascript devs:
 All the galleries on a given page will be available in the global variable `THREEPRESS`, in the `galleries` property.  See the `Gallery` class (`static/js/Gallery.js`) for insight on interacting with these.
 
+== Screenshots ==
+1. A GUI for quickly creating scenes, with many features planned to be added
+2. Preview your scene without leaving the editor
+
 == Changelog ==
 = 0.1 =
 * Initial release.
+= 0.2 =
+* server: allow for various db prefixes 
+* client: upgrade http model loads to match location
+

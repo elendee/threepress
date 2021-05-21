@@ -8,17 +8,7 @@
 
     <div class="wrap threepress">
 
-        <h1><?php echo $threepress_page_title; ?></h1>
-        <div class='nav-tab-wrapper'>
-    	<a class='nav-tab' data-section='model-library'>
-    		models
-    	</a>
-    	<a class='nav-tab' data-section='model-galleries'>
-    		galleries
-    	</a>
-    	<a class='nav-tab' data-section='guide'>
-    		guide
-    	</a>
+    	<?php do_action('threepress_admin_menu'); ?>
 
     </div>
 

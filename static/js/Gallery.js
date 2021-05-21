@@ -295,6 +295,9 @@ export default init => {
 
 		// model
 		if( gallery.model ){
+			if( location.href.match(/^https/) && gallery.model.guid.match(/^http:/) ){
+				gallery.model.guid = gallery.model.guid.replace(/^http:/, 'https:')
+			}
 			const model = await (()=>{
 				return new Promise((resolve, reject ) => {
 					loader.load( gallery.model.guid, res => {
