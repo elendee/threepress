@@ -459,7 +459,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	add_action('threepress_admin_menu', 'Threepress::admin_menu_items');
 	if( !$has_module ) add_action('init', 'Threepress::base_scripts', 100);
 
-	add_filter('script_loader_tag', 'Threepress::filter_modules' , 10, 3);
+	add_filter('script_loadear_tag', 'Threepress::filter_modules' , 10, 3);
 	add_filter('upload_mimes', 'Threepress::allow_glb');
 
 	add_shortcode('threepress', 'Threepress::shortcode');
@@ -471,3 +471,4 @@ if ( !class_exists( 'Threepress' ) ) {
 
 
 
+do_action('threepress_loaded');
