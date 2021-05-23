@@ -144,16 +144,22 @@ if ( !class_exists( 'Threepress' ) ) {
 
 
 	    public static function admin_scripts() {
-    		wp_enqueue_style( 
-				'threepress-admin-css', 
-				plugins_url('/static/css/admin.css', __FILE__ ), 
-				array()
-			);
 
     		wp_enqueue_script( 
 				'threepress-admin-js', 
 				plugins_url( '/static/js/init_admin.js', __FILE__ ),
 				array('jquery')
+			);
+
+	    }
+
+
+	    public static function admin_styles() {
+
+			wp_enqueue_style( 
+				'threepress-admin-css', 
+				plugins_url('/static/css/admin.css', __FILE__ ), 
+				array()
 			);
 
 	    }
@@ -350,11 +356,12 @@ if ( !class_exists( 'Threepress' ) ) {
 			$type = gettype( $msg );
 			if( $type  === 'object' || $type === 'array' ){
 				$msg = '(' . $type . ')
-		' . json_encode($msg, JSON_PRETTY_PRINT);
+' . json_encode($msg, JSON_PRETTY_PRINT);
 			}
 		    $logfile = __DIR__ . '/.threepress-log.txt';
-		    file_put_contents($logfile, date('M:D:H:i') . ' LOG:
-		' . $msg . PHP_EOL, FILE_APPEND | LOCK_EX);
+		    // file_put_contents($logfile, date('M:D:H:i') . ':
+// ' . $msg . PHP_EOL, FILE_APPEND | LOCK_EX);
+		    file_put_contents($logfile, $msg . PHP_EOL, FILE_APPEND | LOCK_EX);
 
 		}	
 
@@ -433,20 +440,31 @@ if ( !class_exists( 'Threepress' ) ) {
 		$threepress = strpos( $_SERVER['REQUEST_URI'], 'page=threepress' );
 		$admin_ajax = strpos( $_SERVER['REQUEST_URI'], 'wp-admin/admin-ajax' );		
 		$post_edit = strpos( $_SERVER['REQUEST_URI'], 'wp-admin/post.php');
+		$admin_any = strpos( $_SERVER['REQUEST_URI'], 'wp-admin/');
 
-		if( $threepress ){ // _____ admin page
-
-			add_action( 'admin_enqueue_scripts', 'Threepress::admin_scripts', 100 );
-			add_action( 'threepress_gallery_form', 'threepress_gallery_form');
-			$has_module = true;
-
-		}else if( $admin_ajax ){ // _____ ajax requests
+		if( $admin_ajax ){ // _____ ajax requests
 
 			add_action( 'wp_ajax_fill_library', 'Threepress::fill_library' );
 			add_action( 'wp_ajax_fill_gallery', 'Threepress::fill_gallery' );
 			add_action( 'wp_ajax_save_shortcode', 'Threepress::save_shortcode' );
 			add_action( 'wp_ajax_delete_gallery', 'Threepress::delete_gallery' );
 			add_action( 'wp_ajax_get_model', 'Threepress::get_model' );
+
+		}else{
+
+			if( $admin_any ){
+
+				add_action( 'admin_enqueue_scripts', 'Threepress::admin_styles', 100 );
+
+			}
+
+			if( $threepress ){ // _____ admin page
+
+				add_action( 'admin_enqueue_scripts', 'Threepress::admin_scripts', 100 );
+				add_action( 'threepress_gallery_form', 'threepress_gallery_form');
+				$has_module = true;
+
+			}
 
 		}
 

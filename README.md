@@ -21,9 +21,6 @@ standard WP plugin installation - move the plugin folder to `[yoursite.com]/wp-c
 The plugin will create one database table to store your galleries:
 `threepress_shortcodes`,
 
-It will also create one folder in the file system for uploads: 
-`[yoursite.com]/wp-content/uploads/threepress_models/`
-
 
 ## Notes
 
