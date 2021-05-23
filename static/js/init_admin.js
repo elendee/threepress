@@ -2,7 +2,6 @@ import Gallery from './Gallery.js'
 
 import {
 	ModelRow,
-	// hal,
 	fetch_wrap,
 } from './lib.js'
 

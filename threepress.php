@@ -166,7 +166,7 @@ if ( !class_exists( 'Threepress' ) ) {
 
 
 	    public static function filter_modules( $tag, $handle, $src ) {
-	    	$defer_modules = ['threepress-admin-js', 'threepress-posts-js', 'threepress-lib-js', 'threepress-base-js'];
+	    	$defer_modules = ['threepress-base-js', 'threepress-admin-js', 'threepress-posts-js', 'threepress-lib-js'];
 		    if ( !in_array($handle, $defer_modules ) ){
 		        return $tag;		    	
 		    }
@@ -421,10 +421,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	</a>
 	    	<a class='nav-tab' data-section='model-galleries'>
 	    		galleries
-	    	</a>
-	    	<a class='nav-tab' data-section='guide'>
-	    		guide
-	    	</a>";
+ 	    	</a>";
 		}
 	
 
@@ -477,7 +474,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	add_action('threepress_admin_menu', 'Threepress::admin_menu_items');
 	if( !$has_module ) add_action('init', 'Threepress::base_scripts', 100);
 
-	add_filter('script_loadear_tag', 'Threepress::filter_modules' , 10, 3);
+	add_filter('script_loader_tag', 'Threepress::filter_modules' , 10, 3);
 	add_filter('upload_mimes', 'Threepress::allow_glb');
 
 	add_shortcode('threepress', 'Threepress::shortcode');
