@@ -1,6 +1,6 @@
 === Threepress ===
 Contributors: kerryoco
-Tags: threejs, 3d, model viewer, 3d model, 3d products, woocommerce, product viewer
+Tags: threejs, 3d, models, glb, gltf, viewer, ecommerce
 Donate link: http://threepress.shop/
 Requires at least: 4.0
 Tested up to: 5.7.1
@@ -34,10 +34,7 @@ If you want to custom code your own gallery, scroll down to 'javascript devs'.
 The plugin will create one database table to store your galleries:
 `threepress_shortcodes`,
 
-It will also create one folder in the file system for uploads: 
-`[yoursite.com]/wp-content/uploads/threepress_models/`
-
-These remain in place upon deactivation, so if you want to remove them you must do so manually.
+This remains in place upon deactivation, so if you want to remove it you must do so manually.
 
 ## Notes
 
