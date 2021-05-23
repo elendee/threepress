@@ -529,6 +529,18 @@ export default init => {
 		gallery.shortcode = shortcode
 
 		return arr
+
+	}
+
+
+
+
+	gallery.ingest_data = data => {
+
+		// if( data.post_id ) gallery.model.id = Number( data.post_id )
+		if( data.post_id ) gallery.model.id = Number( data.ID )
+		if( data.guid ) gallery.model.guid = data.guid
+
 	}
 
 

@@ -90,6 +90,16 @@
 
 
 
+    <div id='model-help' class='section'>
+    	<p>
+    		<a target='_blank' rel='nofollow' href='https://discord.gg/pR4EEUU6Ca'>Discord</a>
+    	</p>
+    	<p>
+			<a target='_blank' rel='nofollow' href='https://wordpress.org/plugins/threepress/'>README and forums</a>
+		</p>
+    </div>
+
+
 
 
 </div>

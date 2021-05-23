@@ -421,6 +421,9 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	</a>
 	    	<a class='nav-tab' data-section='model-galleries'>
 	    		galleries
+ 	    	</a>
+	    	<a class='nav-tab' data-section='model-help'>
+	    		help
  	    	</a>";
 		}
 	
