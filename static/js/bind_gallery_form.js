@@ -14,16 +14,14 @@ import {
 // value DOM holders
 let model_choice, shortcode, color_picker, bg_color
 
-const gallery_form = document.querySelector('#gallery-form')
-
-const attributes = gallery_form.querySelectorAll('input')
+// const gallery_form = document.querySelector('#gallery-form')
 
 
 
 
 
 
-const render_shortcode = () => {
+const render_shortcode = gallery_form => {
 
 	const gallery = Gallery()
 	gallery.ingest_form( gallery_form )
@@ -53,7 +51,9 @@ const get_row = ( container, id ) => {
 
 
 
-export default ( gallery_content ) => {
+export default ( gallery_form, gallery_content ) => {
+
+	const attributes = gallery_form.querySelectorAll('input')
 
 	model_choice = gallery_form.querySelector('#model-choice')
 	shortcode = gallery_form.querySelector('#shortcode')
@@ -144,7 +144,7 @@ export default ( gallery_content ) => {
 			model_selector(( id, row ) => {
 				model_choice.innerHTML = ''
 				model_choice.appendChild( row )
-				shortcode.value = render_shortcode()
+				shortcode.value = render_shortcode( gallery_form )
 			})
 
 		}else if( e.target.name === 'rotate_scene'){
@@ -171,7 +171,7 @@ export default ( gallery_content ) => {
 	// editing
 	for( const input of attributes ){
 		input.addEventListener('change', e => {
-			shortcode.value = render_shortcode()
+			shortcode.value = render_shortcode( gallery_form )
 		})
 	}
 

@@ -5,7 +5,9 @@ import {
 	fetch_wrap,
 } from './lib.js'
 
-import render_gallery_form from './render_gallery_form.js'
+import build_form from './build_form.js'
+
+import bind_gallery_form from './bind_gallery_form.js'
 
 
 
@@ -25,7 +27,6 @@ const tabs = wrap.querySelectorAll('.nav-tab')
 const add_model = wrap.querySelector('#add-toggle')
 const upload_types = wrap.querySelector('#threepress-upload-types')
 const add_gallery = wrap.querySelector('#create-toggle')
-const gallery_form = wrap.querySelector('form#gallery-form')
 
 // action buttons
 const model_upload = wrap.querySelector('form#upload-model')
@@ -161,18 +162,6 @@ add_model.addEventListener('click', () => {
 	}
 })
 
-add_gallery.addEventListener('click', () => {
-	const gallery = Gallery()
-	if( !gallery_form.style.display || gallery_form.style.display === 'none' ){
-		gallery_form.style.display = 'inline-block'
-		gallery.hydrate_editor( gallery_form )
-	}else{
-		if( confirm('clear the current form and start anew?')){
-			gallery.hydrate_editor( gallery_form )
-		}
-	}
-})
-
 model_upload.addEventListener('submit', e => {
 	e.preventDefault()
 	window.location.assign( THREEPRESS.home_url + '/wp-admin/media-new.php')
@@ -219,7 +208,23 @@ browse_threepress.addEventListener('submit', e => {
 // 	return false
 // }
 
-render_gallery_form( gallery_content )
+const gallery_form = build_form()
+
+model_galleries.appendChild( gallery_form )
+
+bind_gallery_form( gallery_form, gallery_content )
+
+add_gallery.addEventListener('click', () => {
+	const gallery = Gallery()
+	if( !gallery_form.style.display || gallery_form.style.display === 'none' ){
+		gallery_form.style.display = 'inline-block'
+		gallery.hydrate_editor( gallery_form )
+	}else{
+		if( confirm('clear the current form and start anew?')){
+			gallery.hydrate_editor( gallery_form )
+		}
+	}
+})
 
 
 
@@ -228,10 +233,11 @@ switch( localStorage.getItem('threepress-dev-view') ){
 	case 'galleries':
 		tabs[1].click()
 		break;
-	case 'create':
+	case 'editor':
 		tabs[1].click()
-		add_gallery.click()
-		document.querySelector('#choose-model').click()
+		setTimeout(()=>{
+			add_gallery.click()	
+		}, 50)
 		break;
 	default: 
 		tabs[0].click()

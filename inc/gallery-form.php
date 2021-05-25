@@ -14,10 +14,13 @@ function threepress_gallery_form(){
 		
 		<div class='gallery-section'>
 			<h4>gallery name</h4>
+			<p>
 	    		<input name='gallery_name' type='text' placeholder='<?php  __('gallery name (not displayed publicly)', 'textdomain') ?>'/>
 	    	</p>
 			<p>
-				<div class='clarification'>This will also append an <code>id</code> to the gallery element of form <code>#threepress-gallery-[name]</code></div>
+				<div class='clarification'>
+					This will also append an <code>id</code> to the gallery element of form <code>#threepress-gallery-[name]</code>
+				</div>
 			<p>
 	    </div>
 		
@@ -35,7 +38,7 @@ function threepress_gallery_form(){
 		<div class='gallery-section'>
 	    	<h4>gallery options</h4>
 	    	<div id='gallery-options'>
-	    		<div class='gallery-option'>
+	    		<!-- <div class='gallery-option'> -->
 
 		    		<div class='threepress-options-category'>
 		    			<h4>background</h4>
@@ -128,7 +131,7 @@ function threepress_gallery_form(){
 			    		</div>
 		    		</div>
 
-	    		</div>
+	    		<!-- </div> -->
 	    	</div>
 	    </div>
 		

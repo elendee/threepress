@@ -461,7 +461,7 @@ if ( !class_exists( 'Threepress' ) ) {
 			if( $threepress ){ // _____ admin page
 
 				add_action( 'admin_enqueue_scripts', 'Threepress::admin_scripts', 100 );
-				add_action( 'threepress_gallery_form', 'threepress_gallery_form');
+				// add_action( 'threepress_gallery_form', 'threepress_gallery_form');
 				$has_module = true;
 
 			}
