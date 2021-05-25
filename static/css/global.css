@@ -4,8 +4,7 @@
 /*#threepress-data{
 	display: none;
 }*/
-
-.threepress div{
+.threepress *{
 	box-sizing: border-box;
 }
 

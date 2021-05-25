@@ -1,3 +1,17 @@
+import { DynamicBufferAttribute } from '../inc/three.module.js'
+import Gallery from './Gallery.js'
+import {
+	model_selector,
+	set_contingents,
+	hal,
+	fetch_wrap,
+	get_row,
+	insertAfter,
+} from './lib.js'
+
+
+
+
 const build_section = ( name ) => {
 	const section = document.createElement('div')
 	section.classList.add('gallery-section')
@@ -16,14 +30,17 @@ const build_category = name => {
 	return category
 }
 
-const build_option = ( type, name, label, placeholder, contingent, attrs, checked ) => {
+const build_option = ( type, name, value, label, placeholder, contingent, attrs, checked ) => {
 	const selection = document.createElement('div')
 	selection.classList.add('selection')
+	if( contingent ) selection.classList.add('contingent')
 	const label_ele = document.createElement('label')
-	label_ele.innerHTML = label || name.replace(/_/g, ' ')
+	label_ele.innerHTML = label || ( name ? name.replace(/_/g, ' ' ) : '' )
 	const input = document.createElement('input')
-	input.type = type
-	input.name = name
+	if( placeholder ) input.placeholder = placeholder
+	if( type ) input.type = type
+	if( name ) input.name = name
+	if( value ) input.value = value
 	for( const key in attrs ){
 		input[ key ] = attrs[ key ]
 	}
@@ -35,7 +52,11 @@ const build_option = ( type, name, label, placeholder, contingent, attrs, checke
 
 
 
-export default ( gallery ) => {
+
+
+export default ( gallery, output_container ) => {
+
+	//////////////////////////////////////////////// build
 
 	const form = document.createElement('div')
 	form.id = 'gallery-form'
@@ -56,6 +77,7 @@ export default ( gallery ) => {
 	const name = build_section('gallery name')
 	const input_name = document.createElement('input')
 	input_name.name = 'gallery_name'
+	input_name.type = 'text'
 	input_name.placeholder = 'gallery name (not displayed publicly)'
 	name.appendChild( input_name )
 	const clar_name = document.createElement('div')
@@ -67,9 +89,9 @@ export default ( gallery ) => {
 	// gallery model choose
 	const model = build_section('gallery model (required)')
 	const p_model = document.createElement('p')
-	const choice = document.createElement('div')
-	choice.id = 'model-choice'
-	p_model.appendChild( choice )
+	const model_choice = document.createElement('div')
+	model_choice.id = 'model-choice'
+	p_model.appendChild( model_choice )
 	model.appendChild( p_model )
 	const choose = document.createElement('div')
 	choose.id = 'choose-model'
@@ -89,13 +111,13 @@ export default ( gallery ) => {
 	options_content.append( controls )
 	const controls_options = ['none', 'orbit', 'first', 'flight']
 	for( let i = 0; i < controls_options.length; i++ ){
-		controls.appendChild( build_option( 'radio', controls_options[i], false, false, {}, i === 0 ) )
+		controls.appendChild( build_option( 'radio', 'options_controls', controls_options[i], controls_options[i], false, false, {}, i === 0 ) )
 	}
 
 	// option - bg
 	const bg = build_category('background')
-	const options_picker = build_option('color', 'bg_color_selector' )
-	const options_bg = build_option('text', 'bg_color', 'use picker or any valid css' )
+	const options_picker = build_option('color', 'bg_color_selector', false, ' ' )
+	const options_bg = build_option('text', 'bg_color', false, 'use picker or any valid css' )
 	bg.appendChild( options_picker )
 	bg.appendChild( options_bg )
 	options_content.appendChild( bg )
@@ -104,9 +126,9 @@ export default ( gallery ) => {
 	const light = build_category('light')
 	const light_options = ['directional', 'sun', 'hemispherical']
 	for( let i = 0; i < light_options.length; i++ ){
-		light.appendChild( build_option('radio', light_options[i], false, false, {}, i === 0 ) )
+		light.appendChild( build_option('radio', 'options_light', light_options[i], light_options[i], false, {}, i === 0 ) )
 	}
-	const intensity = build_option('range', 'intensity', false, false, false, {
+	const intensity = build_option('range', 'intensity', 5, false, false, false, {
 		min: 1,
 		max: 15,
 	})
@@ -116,9 +138,9 @@ export default ( gallery ) => {
 	// option - camera
 	const camera = build_category('camera')
 	// allow zoom, zoom speed, initial zoom
-	const zoom = build_option('checkbox', 'allow_zoom', 'allow zoom', false, false )
-	const zoom_speed = build_option('range', 'zoom_speed', false, false, { min: 1, max: 12, })
-	const initial_zoom = build_option('range', 'camera_dist', 'initial zoom', false, false, { min: 1, max: 20 })
+	const zoom = build_option('checkbox', 'allow_zoom', false, 'allow zoom', false, false )
+	const zoom_speed = build_option('range', 'zoom_speed', false, false, false, { min: 1, max: 12, })
+	const initial_zoom = build_option('range', 'camera_dist', 10, 'initial zoom', false, false, { min: 1, max: 20 })
 	camera.appendChild( zoom )
 	camera.appendChild( zoom_speed )
 	camera.appendChild( initial_zoom )
@@ -127,13 +149,13 @@ export default ( gallery ) => {
 
 	// option - rotation
 	const rotation = build_category('rotation')
-	const auto = build_option('checkbox', 'rotate_scene', 'auto rotate', false, false)
+	const auto = build_option('checkbox', 'rotate_scene', false, 'auto rotate', false, false)
 	rotation.appendChild( auto )
-	const rotate_speed = build_option('range', 'rotate_speed', 'rotation speed', false, true, { min: 1, max: 50 })
+	const rotate_speed = build_option('range', 'rotate_speed', 20, 'rotation speed', false, true, { min: 1, max: 50 })
 	rotation.appendChild( rotate_speed )
-	const rot_x = build_option('checkbox', 'rotate_x')
-	const rot_y = build_option('checkbox', 'rotate_y')
-	const rot_z = build_option('checkbox', 'rotate_z')
+	const rot_x = build_option('checkbox', 'rotate_x', false, false, false, true)
+	const rot_y = build_option('checkbox', 'rotate_y', false, false, false, true)
+	const rot_z = build_option('checkbox', 'rotate_z', false, false, false, true)
 	rotation.appendChild( rot_x )
 	rotation.appendChild( rot_y )
 	rotation.appendChild( rot_z )
@@ -142,25 +164,26 @@ export default ( gallery ) => {
 	form.appendChild( options )
 
 	// gallery shortcode
-	const code = build_section('gallery shortcode')
+	const shortcode = build_section('gallery shortcode')
 	const p_code = document.createElement('p')
-	code.appendChild( p_code )
+	shortcode.appendChild( p_code )
 	const text = document.createElement('textarea')
 	text.id = 'shortcode'
 	text.placeholder = 'generated shortcode will appear here'
 	text.readonly = true
 	p_code.appendChild( text )
-	code.appendChild( p_code )
-	options_content.appendChild( code )
+	shortcode.appendChild( p_code )
+	form.appendChild( shortcode )
 
 	// gallery save / close
-	// type, value, label, placeholder, contingent, attrs, checked
 	const manage = document.createElement('p')
-	const save = build_option('submit', 'save')
+	const save = document.createElement('button')
+	save.innerText = 'save'
 	save.id = 'create-gallery'
 	save.classList.add('button', 'button-primary')
-	const close = build_option('button', 'close')
+	const close = document.createElement('button')
 	close.id = 'close-gallery'
+	close.innerText = 'close'
 	close.classList.add('button', 'button-primary')
 	const menu_clar = document.createElement('div')
 	menu_clar.innerHTML = 'you do not have to save a shortcode to use it - saving is just for reference'
@@ -168,8 +191,145 @@ export default ( gallery ) => {
 	manage.appendChild( save )
 	manage.appendChild( close )
 	manage.appendChild( menu_clar )
-	options_content.appendChild( manage )
+	form.appendChild( manage )
+
+
+
+
+	//////////////////////////////////////////////// bind
+
+
+	// general updates
+
+	form.addEventListener('click', e => {
+
+		// console.log( e.target.id, e.target.name )
+
+		let contingents
+
+		if( e.target.id === 'choose-model'){
+
+			model_selector(( id, row ) => {
+				model_choice.innerHTML = ''
+				model_choice.appendChild( row )
+				shortcode.value = gallery.render_shortcode() //  form 
+			})
+
+		}else if( e.target.name === 'rotate_scene'){
+
+			contingents = e.target.parentElement.parentElement.querySelectorAll('.contingent')
+
+			set_contingents( contingents, e.target.checked )
+
+		}else if( e.target.name === 'allow_zoom' ){
+
+			contingents = [form.querySelector('input[name=zoom_speed]')]
+
+			set_contingents( contingents, e.target.checked )
+
+		}
+
+	})
+
+
+	for( const input of form.querySelectorAll('input') ){
+		input.addEventListener('change', e => {
+			shortcode.value = gallery.render_shortcode() // gallery.form
+		})
+	}
+
+
+	// custom updates
+
+	const label_selections = form.querySelectorAll('.threepress-options-category .selection label')
+	for( const label of label_selections ){
+		label.addEventListener('click', () => {
+			const input = label.parentElement.querySelector('input')
+			if( input.type === 'radio' || input.type === 'checkbox') input.click()
+		})
+	}
+
+	form.querySelector('input[name=bg_color]').addEventListener('keyup', e => {
+		e.target.value = e.target.value.replace(/ /g, '')
+	})
+
+	const color_picker = form.querySelector("#gallery-options input[type=color]")
+	const bg_color = form.querySelector('input[name=bg_color]')
+	color_picker.addEventListener('change', e => {
+		bg_color.value = color_picker.value
+	})
+
+
+	// form preview
+
+	form.querySelector('#gallery-preview').addEventListener('click', () => {
+
+		// const gallery = Gallery()
+		gallery.ingest_form( form )
+
+		gallery.preview()
+
+	})
+
+
+	// saving
+
+	save.addEventListener('click', () => {
+
+		// const gallery = Gallery()
+		gallery.ingest_form()
+
+		if( !gallery.validate( true, true, true )) return
+
+		const editing = gallery.form.getAttribute('data-shortcode-id') ? true : false
+
+		const shortcode_id = gallery.form.getAttribute('data-shortcode-id')
+		console.log('saving:', shortcode_id )
+
+		fetch_wrap( ajaxurl, 'post', {
+			action: 'save_shortcode',
+			shortcode_id: shortcode_id,
+			name: gallery.form.querySelector('input[name=gallery_name]').value.trim(),
+			shortcode: shortcode.value.trim(),
+		}, false)
+		.then( res => {
+			if( res.success ){
+				// gallery = Gallery( res.gallery )
+				// debugger
+				// Object.assign( gallery, Gallery( res.gallery ) )
+				gallery.ingest_shortcode( res.gallery.shortcode )
+				gallery.edited = res.gallery.edited
+				gallery.created = res.gallery.created
+				gallery.id = res.gallery.id 
+				gallery.form.classList.add('editing')
+				gallery.form.setAttribute('data-shortcode-id', res.gallery.id )
+				const new_row = gallery.gen_row()
+				const old_row = get_row( document.querySelector('#model-galleries .content'), res.gallery.id )
+				if( !editing ){
+					if( output_container ) output_container.prepend( new_row )
+				}else{
+					insertAfter( new_row, old_row )
+					old_row.remove()
+				}
+				hal('success', 'success', 5000 )
+			}else{
+				hal('error', res.msg || 'error saving', 5000 )
+				console.log( res )
+			}
+		})
+		.catch( err => {
+			hal('error', err.msg || 'error saving', 5000 )
+			console.log( err )
+		})
+
+	})
+
+
+	gallery.form = form
 
 	return form
 
 }
+
+
+

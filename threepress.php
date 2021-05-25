@@ -33,7 +33,7 @@ if ( !defined('DS') ) { define( 'DS', DIRECTORY_SEPARATOR ); }
 
 require_once( ABSPATH . 'wp-includes/pluggable.php' );
 
-require_once( __DIR__ . '/inc/gallery-form.php' );
+// require_once( __DIR__ . '/inc/gallery-form.php' );
 
 $threepress_dir = plugins_url( '', __FILE__ );
 
@@ -287,7 +287,10 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	// edit
 	    	if( $_POST['shortcode_id'] ){
 
-		    	if( !is_numeric( $_POST['shortcode_id'] ) ) wp_die( json_encode($res) );
+		    	if( !is_numeric( $_POST['shortcode_id'] ) ){
+		    		Threepress::LOG( $_POST['shortcode_id'] );
+		    		wp_die( json_encode($res) );
+		    	}
 
 	    		$sql = $wpdb->prepare('UPDATE threepress_shortcodes SET name=%s, edited=%s, shortcode=%s WHERE author_key=%d AND id=%d', $gallery->name, $gallery->datetime, $gallery->shortcode, $gallery->user_id, $_POST['shortcode_id']);
 	    		$results = $wpdb->query( $sql );
@@ -296,6 +299,7 @@ if ( !class_exists( 'Threepress' ) ) {
     		
     		// create
 	    	}else{ 
+
 		    	$results = $wpdb->insert('threepress_shortcodes', array(
 		    		'author_key' => $gallery->user_id,
 		    		'name' => $gallery->name,

@@ -79,7 +79,7 @@
 	        </div>
 	    </h4>
 
-		<?php do_action('threepress_gallery_form'); ?>
+	    <div id='gallery-container'></div>
 
     	<h4>galleries</h4>
     	<div class='clarification'>click row to edit</div>

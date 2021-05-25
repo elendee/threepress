@@ -393,6 +393,15 @@ const insertAfter = ( newNode, referenceNode ) => {
 }
 
 
+const get_row = ( container, id ) => {
+	for( const row of container.querySelectorAll('.threepress-row')){
+		if( row.getAttribute('data-id') == id ) return row
+	}
+	return false
+}
+
+
+
 
 export {
 
@@ -415,6 +424,7 @@ export {
 
 	// validations
 	val_boolean,
-
+	get_row,
+	
 }
 

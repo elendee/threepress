@@ -7,7 +7,7 @@ import {
 
 import build_form from './build_form.js'
 
-import bind_gallery_form from './bind_gallery_form.js'
+// import bind_gallery_form from './bind_gallery_form.js'
 
 
 
@@ -36,10 +36,9 @@ const browse_threepress = wrap.querySelector('form#browse-threepress')
 const model_library = wrap.querySelector('#model-library')
 const library_content = model_library.querySelector('.content')
 const model_galleries = wrap.querySelector('#model-galleries')
-const gallery_content = model_galleries.querySelector('.content')
+const galleries_content = model_galleries.querySelector('.content')
 
-
-
+const gallery_container = document.querySelector('#gallery-container')
 
 
 
@@ -75,7 +74,8 @@ const fill = async( type, scroll_top ) => {
 				library_content.innerHTML = 'no models uploaded - only glb files supported'
 				return
 			}
-				// console.log( res )
+
+			// console.log( res )
 			for( const post of res ){
 				const model = new ModelRow( post )
 				library_content.appendChild( model.gen_row() )
@@ -84,13 +84,14 @@ const fill = async( type, scroll_top ) => {
 
 		case 'gallery':
 			if( !res || !res.length ){
-				gallery_content.innerHTML = 'no galleries yet'
+				galleries_content.innerHTML = 'no galleries yet'
 				return
 			}
 			for( const g of res ){
 				const gallery = Gallery( g )
+				gallery.form = document.querySelector('#gallery-form')
 				const row = gallery.gen_row()
-				gallery_content.appendChild( row )
+				galleries_content.appendChild( row )
 			}
 			break;
 
@@ -131,26 +132,7 @@ const loaded = {
 	gallery: false
 }
 
-for( const tab of tabs ){
-	tab.addEventListener('click', () => {
-		for( const section of sections ){
-			section.style.display = 'none'
-		}
-		for( const t of tabs ){
-			t.classList.remove('selected')
-		}
-		tab.classList.add('selected')
-		const cat = tab.getAttribute('data-section')
-		wrap.querySelector('#' + cat ).style.display = 'initial'
-		if( cat.match(/library/) && !loaded.library ){
-			fill('library', true ).catch( err => { console.log( err )})
-		}else if( cat.match(/galler/) && !loaded.gallery ){
-			fill('gallery', true ).catch( err => { console.log( err )})
-		}else{
-			console.log('non-ajax tab: ', cat )
-		}
-	})
-}
+
 
 add_model.addEventListener('click', () => {
 	if( !upload_types.style.display || upload_types.style.display === 'none' ){
@@ -173,7 +155,19 @@ browse_threepress.addEventListener('submit', e => {
 })
 
 
-
+add_gallery.addEventListener('click', () => {
+	if( !gallery.form.style.display || gallery.form.style.display === 'none' ){
+		gallery.form.style.display = 'inline-block'
+		gallery.hydrate_editor( gallery.form )
+	}else{
+		if( confirm('clear the current form and start anew?')){
+			const new_gallery = Gallery({
+				form: gallery.form,
+			})
+			new_gallery.hydrate_editor( gallery.form )
+		}
+	}
+})
 
 
 
@@ -207,24 +201,34 @@ browse_threepress.addEventListener('submit', e => {
 // 	THREEPRESS.hal('error', 'threepress requires that jquery be enabled')
 // 	return false
 // }
+const gallery = Gallery()
+build_form( gallery, galleries_content )
+gallery_container.appendChild( gallery.form )
 
-const gallery_form = build_form()
 
-model_galleries.appendChild( gallery_form )
-
-bind_gallery_form( gallery_form, gallery_content )
-
-add_gallery.addEventListener('click', () => {
-	const gallery = Gallery()
-	if( !gallery_form.style.display || gallery_form.style.display === 'none' ){
-		gallery_form.style.display = 'inline-block'
-		gallery.hydrate_editor( gallery_form )
-	}else{
-		if( confirm('clear the current form and start anew?')){
-			gallery.hydrate_editor( gallery_form )
+for( const tab of tabs ){
+	tab.addEventListener('click', () => {
+		for( const section of sections ){
+			section.style.display = 'none'
 		}
-	}
-})
+		for( const t of tabs ){
+			t.classList.remove('selected')
+		}
+		tab.classList.add('selected')
+		const cat = tab.getAttribute('data-section')
+		wrap.querySelector('#' + cat ).style.display = 'initial'
+		if( cat.match(/library/) && !loaded.library ){
+			fill('library', true ).catch( err => { console.log( err )})
+		}else if( cat.match(/galler/) && !loaded.gallery ){
+			fill('gallery', true ).catch( err => { console.log( err )})
+		}else{
+			console.log('non-ajax tab: ', cat )
+		}
+	})
+}
+
+
+
 
 
 

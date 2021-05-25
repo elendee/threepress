@@ -1,8 +1,4 @@
 
-
-.threepress *{
-	box-sizing: border-box;
-}
 .threepress img{
 	max-width: 100%;
 	max-height: 100%;
@@ -131,7 +127,6 @@
 	margin-top: 10px;
 }
 
-/* 	display: inline-block; */
 #gallery-form{
 	padding: 10px;
 	display: none;
@@ -142,8 +137,17 @@
 	position: relative;
 	box-shadow: 0px 0px 20px;
 }
+
 #gallery-form.editing{
     border: 3px solid #bd2448; 
+}
+
+#gallery-form label{
+    margin-right: 5px;
+}
+
+#gallery-form .clarification{
+	margin-top: 15px;
 }
 
 #gallery-form input[type=text]{
@@ -190,11 +194,11 @@
 
 #create-gallery{
 	font-size: 1rem;
-    margin-left: 43%;
+    margin-left: 40%;
+    margin-right: 15px;
 }
 #close-gallery{
 	font-size: 1rem;
-	width: 62px;;
 }
 
 .model-row-preview{
@@ -246,6 +250,7 @@
 .dropped.threepress-options-category input{
     display: inline-block;
 } */
+
 .gallery-section>h4{
 	color: #bd2448;
 }
@@ -264,7 +269,6 @@
 	max-width: 30px;
 }
 
-form.editing
 
 @media screen and (max-width: 800px){
 	.threepress-options-category .selection{

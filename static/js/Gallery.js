@@ -25,7 +25,10 @@ import {
 import { Modal } from './helpers/Modal.js'
 
 
-
+const logging = true
+const stack = msg => {
+	if( logging ) console.log( 'gallery stack: ', msg )
+}
 
 
 const overlays = THREEPRESS.overlays = []
@@ -38,8 +41,6 @@ const loader = new GLTFLoader()
 let previewing = false
 let bound_wheel = false
 let gallery_bound, gallery_top
-
-const gallery_form = document.querySelector('#gallery-form')
 
 
 const tag = ( key , value ) => { return value ? `${ key }=${ value } ` : '' }
@@ -102,6 +103,7 @@ export default init => {
 	// data
 	gallery.model = init.model || {}
 	// rendering
+	gallery.form = init.form || gallery.form
 	gallery.controls = init.controls || defaults.controls
 	gallery.allow_zoom = val_boolean( init.allow_zoom, false )
 	gallery.zoom_speed = init.zoom_speed || defaults.zoom_speed
@@ -356,7 +358,7 @@ export default init => {
 
 	gallery.fill_model_from_form = () => {
 		gallery.model = gallery.model || {}
-		const mc = gallery_form.querySelector('#model-choice .threepress-row')
+		const mc = gallery.form.querySelector('#model-choice .threepress-row')
 		if( mc ){
 			gallery.model.guid = mc.querySelector('.url input').value.trim()
 			gallery.model.id = mc.getAttribute('data-id')
@@ -399,6 +401,7 @@ export default init => {
 
 
 	gallery.gen_shortcode = () => {
+		stack( 'gen_shortcode')
 
 		let shortcodes = ''
 		for( const key of shortcode_values ){
@@ -428,18 +431,13 @@ export default init => {
 	}
 
 
-
-	// gallery.reset_form = ( form ) => {
-
-	// 	for( const key of shortcode_values ) gallery[ key ] = defaults[ key ]
-
-	// }
-
-
 	
 	gallery.ingest_form = form => {
+		stack( 'ingest_form')
 
 		// gallery.reset_form( form )
+
+		form = form || gallery.form
 
 		// chosen model
 		gallery.fill_model_from_form()
@@ -486,8 +484,8 @@ export default init => {
 
 
 
-
 	gallery.ingest_shortcode = shortcode => {
+		stack( 'ingest_shortcode')
 
 		const arr = shortcode.replace(']', '').split(' ')
 
@@ -534,8 +532,23 @@ export default init => {
 
 
 
+	gallery.render_shortcode = () => {
+		stack('render shortcode')
+
+		gallery.ingest_form()
+
+		gallery.gen_shortcode()
+
+		gallery.form.querySelector('#shortcode').value = gallery.shortcode
+
+		return gallery.shortcode
+	}
+
+
+
 
 	gallery.ingest_data = data => {
+		stack( 'ingest_data')
 
 		// if( data.post_id ) gallery.model.id = Number( data.post_id )
 		if( data.post_id ) gallery.model.id = Number( data.ID )
@@ -547,6 +560,7 @@ export default init => {
 
 
 	gallery.hydrate_editor = async( form, shortcode, shortcode_id ) => {
+		stack( 'hydrate_editor')
 
 		const is_new = !shortcode_id 
 
@@ -554,7 +568,7 @@ export default init => {
 		if( shortcode ) gallery.ingest_shortcode( shortcode )
 
 		// hydrate model
-		const model_choice = form.querySelector('#model-choice')
+		const model_choice = ( form || gallery.form ).querySelector('#model-choice')
 		model_choice.innerHTML = ''			
 
 		if( !is_new ){
@@ -613,7 +627,7 @@ export default init => {
 		set_contingents( rot_contingents, rotate_scene.checked )
 
 		// shortcode
-		form.querySelector('#shortcode').value = gallery.shortcode// render_shortcode()
+		// form.querySelector('#shortcode').value = gallery.shortcode// 
 
 		form.style.display = 'inline-block'
 		// add_gallery.querySelector('div').innerText = '-'
@@ -624,6 +638,8 @@ export default init => {
 			form.removeAttribute('data-shortcode-id')
 			form.classList.remove('editing')		
 		}
+
+		gallery.render_shortcode()
 
 		window.scroll({
 			top: window.pageYOffset + form.getBoundingClientRect().top - 50,
@@ -641,6 +657,7 @@ export default init => {
 
 
 	gallery.gen_row = () => {
+		stack('gen_row ')
 
 		const row = document.createElement('div')
 		row.classList.add('row', 'threepress-row', 'threepress-gallery-row')
@@ -709,7 +726,7 @@ export default init => {
 
 			}else{
 
-				gallery.hydrate_editor( gallery_form, shortcode.value.trim(), gallery.id )
+				gallery.hydrate_editor( gallery.form, shortcode.value.trim(), gallery.id )
 				.catch( err => {
 					console.log( err )
 				})
@@ -729,6 +746,7 @@ export default init => {
 
 
 	gallery.align = () => { // for image overlays
+		stack('align')
 
 		if( !gallery.overlay ){
 			console.log('invalid align called', this )
@@ -743,6 +761,7 @@ export default init => {
 	}
 
 	gallery.make_visible = target => {
+		stack('make_visible')
 
 		if( target ){
 			gallery.canvas.style.opacity = 0
@@ -767,6 +786,7 @@ export default init => {
 	}
 
 	gallery.display = viewer => {
+		stack('display')
 
 		gallery.init_scene()
 		.then( success => {
@@ -803,6 +823,7 @@ export default init => {
 	}
 
 	gallery.preview = () => {
+		stack('preview')
 
 		gallery.fill_model_from_form()
 

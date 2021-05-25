@@ -56,4 +56,4 @@ All the galleries on a given page will be available in the global variable `THRE
 * server: allow for various db prefixes 
 * client: upgrade http model loads to match location
 = 0.3 =
-* switch to js generated form
+* switch to js generated gallery form for portability

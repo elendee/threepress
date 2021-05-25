@@ -14,32 +14,24 @@ import {
 // value DOM holders
 let model_choice, shortcode, color_picker, bg_color
 
-// const gallery_form = document.querySelector('#gallery-form')
 
 
 
 
 
+// const render_shortcode = gallery_form => {
 
-const render_shortcode = gallery_form => {
+// 	const gallery = Gallery({
+// 		form: gallery_form,
+// 	})
+// 	gallery.ingest_form()
 
-	const gallery = Gallery()
-	gallery.ingest_form( gallery_form )
+// 	gallery.gen_shortcode()
 
-	gallery.gen_shortcode()
-
-	return gallery.shortcode
+// 	return gallery.shortcode
 	
-}
+// }
 
-
-
-const get_row = ( container, id ) => {
-	for( const row of container.querySelectorAll('.threepress-row')){
-		if( row.getAttribute('data-id') == id ) return row
-	}
-	return false
-}
 
 
 
@@ -53,7 +45,7 @@ const get_row = ( container, id ) => {
 
 export default ( gallery_form, gallery_content ) => {
 
-	const attributes = gallery_form.querySelectorAll('input')
+	// const attributes = gallery_form.querySelectorAll('input')
 
 	model_choice = gallery_form.querySelector('#model-choice')
 	shortcode = gallery_form.querySelector('#shortcode')
@@ -137,27 +129,27 @@ export default ( gallery_form, gallery_content ) => {
 
 
 	// custom form behaviors
-	gallery_form.addEventListener('click', e => {
+	// gallery_form.addEventListener('click', e => {
 
-		if( e.target.id === 'choose-model'){
+	// 	if( e.target.id === 'choose-model'){
 
-			model_selector(( id, row ) => {
-				model_choice.innerHTML = ''
-				model_choice.appendChild( row )
-				shortcode.value = render_shortcode( gallery_form )
-			})
+	// 		model_selector(( id, row ) => {
+	// 			model_choice.innerHTML = ''
+	// 			model_choice.appendChild( row )
+	// 			shortcode.value = render_shortcode( gallery_form )
+	// 		})
 
-		}else if( e.target.name === 'rotate_scene'){
+	// 	}else if( e.target.name === 'rotate_scene'){
 
-			set_contingents( e.target.parentElement.parentElement.querySelectorAll('.contingent'), e.target.checked )
+	// 		set_contingents( e.target.parentElement.parentElement.querySelectorAll('.contingent'), e.target.checked )
 
-		}else if( e.target.name === 'allow_zoom' ){
+	// 	}else if( e.target.name === 'allow_zoom' ){
 
-			set_contingents( [gallery_form.querySelector('input[name=zoom_speed]')], e.target.checked )
+	// 		set_contingents( [gallery_form.querySelector('input[name=zoom_speed]')], e.target.checked )
 
-		}
+	// 	}
 
-	})
+	// })
 
 	gallery_form.querySelector('input[name=bg_color]').addEventListener('keyup', e => {
 		e.target.value = e.target.value.replace(/ /g, '')
@@ -169,11 +161,11 @@ export default ( gallery_form, gallery_content ) => {
 
 
 	// editing
-	for( const input of attributes ){
-		input.addEventListener('change', e => {
-			shortcode.value = render_shortcode( gallery_form )
-		})
-	}
+	// for( const input of attributes ){
+	// 	input.addEventListener('change', e => {
+	// 		shortcode.value = render_shortcode( gallery_form )
+	// 	})
+	// }
 
 
 }
