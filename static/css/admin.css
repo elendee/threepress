@@ -156,11 +156,11 @@
 }
 
 
-#toplevel_page_threepress-inc-admin .wp-menu-name{
+#toplevel_page_threepress-inc-admin.current .wp-menu-name{
  	background: linear-gradient(45deg, #99ffff, #f0f0f1); 
+	color: black;
 }
 #toplevel_page_threepress-inc-admin *{
-	color: black;
 }
 
 .gallery-section{
