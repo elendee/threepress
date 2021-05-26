@@ -56,6 +56,8 @@ const build_option = ( type, name, value, label, placeholder, contingent, attrs,
 
 export default ( gallery, output_container ) => {
 
+	console.log('buririrld')
+
 	//////////////////////////////////////////////// build
 
 	const form = document.createElement('div')
@@ -177,14 +179,16 @@ export default ( gallery, output_container ) => {
 
 	// gallery save / close
 	const manage = document.createElement('p')
-	const save = document.createElement('button')
+	const save = document.createElement('div')
 	save.innerText = 'save'
 	save.id = 'create-gallery'
 	save.classList.add('button', 'button-primary')
-	const close = document.createElement('button')
+
+	const close = document.createElement('div')
 	close.id = 'close-gallery'
 	close.innerText = 'close'
 	close.classList.add('button', 'button-primary')
+
 	const menu_clar = document.createElement('div')
 	menu_clar.innerHTML = 'you do not have to save a shortcode to use it - saving is just for reference'
 	menu_clar.classList.add('clarification')
@@ -274,7 +278,9 @@ export default ( gallery, output_container ) => {
 
 	// saving
 
-	save.addEventListener('click', () => {
+	save.addEventListener('click', e => {
+
+		e.preventDefault()
 
 		// const gallery = Gallery()
 		gallery.ingest_form()
@@ -322,6 +328,21 @@ export default ( gallery, output_container ) => {
 			console.log( err )
 		})
 
+	})
+
+
+	// closing
+	close.addEventListener('click', e => {
+		e.preventDefault()
+		const target = gallery.form.parentElement
+		gallery.form.style.display = 'none'
+		setTimeout( () => {
+			const top = window.pageYOffset + target.getBoundingClientRect().top - 150
+			window.scroll({
+				top: top,
+				behavior: 'smooth',
+			})
+		}, 100)
 	})
 
 
