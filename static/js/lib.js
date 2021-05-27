@@ -136,9 +136,12 @@ class ModelRow {
 		this.name = init.post_name || init.name
 		this.caption = init.post_excerpt || init.caption
 		this.thumb_url = init.thumb_img || THREEPRESS.plugin_url + '/assets/helper.png'
+		this.form = init.form
 	}
 
 	gen_row(){
+
+		const obj = this
 
 		const row = document.createElement('div')
 		row.classList.add('row', 'threepress-row', 'threepress-model-row')
@@ -205,6 +208,7 @@ class ModelRow {
 				rotate_y: 1,
 				bg_color: 'linear-gradient(45deg, white, transparent)',
 				controls: 'orbit',
+				form: obj.form,
 			})
 			gallery.preview()
 		})
@@ -365,10 +369,10 @@ const model_selector = ( callback ) => {
 
 		const attachment = model_frame.state().get('selection').first().toJSON()
 		console.log('attachment selected: ', attachment)
-		const model = new ModelRow( attachment )
-		const row = model.gen_row()
+		const model_row = new ModelRow( attachment )
+		// const row = model.gen_row()
 		
-		callback( attachment.id, row )
+		callback( attachment.id, model_row )
 
 	});
 

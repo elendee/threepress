@@ -1,5 +1,5 @@
-import { DynamicBufferAttribute } from '../inc/three.module.js'
-import Gallery from './Gallery.js'
+// import { DynamicBufferAttribute } from '../inc/three.module.js'
+// import Gallery from './Gallery.js'
 import {
 	model_selector,
 	set_contingents,
@@ -56,14 +56,14 @@ const build_option = ( type, name, value, label, placeholder, contingent, attrs,
 
 export default ( gallery, output_container ) => {
 
-	console.log('buririrld')
-
 	//////////////////////////////////////////////// build
 
 	const form = document.createElement('div')
 	form.id = 'gallery-form'
 	// form.action = 'create-gallery.php'
 	form.method = 'post'
+
+	gallery.form = form
 
 	// preview toggle
 	const preview = document.createElement('div')
@@ -112,8 +112,12 @@ export default ( gallery, output_container ) => {
 	const controls = build_category('controls')
 	options_content.append( controls )
 	const controls_options = ['none', 'orbit', 'first', 'flight']
+	const disabled_opt = ['first', 'flight']
+	let opt
 	for( let i = 0; i < controls_options.length; i++ ){
-		controls.appendChild( build_option( 'radio', 'options_controls', controls_options[i], controls_options[i], false, false, {}, i === 0 ) )
+		opt = build_option( 'radio', 'options_controls', controls_options[i], controls_options[i], false, false, {}, i === 0 )
+		if( disabled_opt.includes( controls_options[i] ) ) opt.classList.add('threepress-disabled')
+		controls.appendChild( opt )
 	}
 
 	// option - bg
@@ -127,8 +131,12 @@ export default ( gallery, output_container ) => {
 	// option - light
 	const light = build_category('light')
 	const light_options = ['directional', 'sun', 'hemispherical']
+	const disabled_light = ['hemispherical', 'sun']
+	let light_opt
 	for( let i = 0; i < light_options.length; i++ ){
-		light.appendChild( build_option('radio', 'options_light', light_options[i], light_options[i], false, {}, i === 0 ) )
+		opt = build_option('radio', 'options_light', light_options[i], light_options[i], false, false, {}, i === 0 )
+		if( disabled_light.includes( light_options[i] ) ) opt.classList.add('threepress-disabled')
+		light.appendChild( opt )
 	}
 	const intensity = build_option('range', 'intensity', 5, false, false, false, {
 		min: 1,
@@ -213,9 +221,10 @@ export default ( gallery, output_container ) => {
 
 		if( e.target.id === 'choose-model'){
 
-			model_selector(( id, row ) => {
+			model_selector(( id, model_row ) => {
 				model_choice.innerHTML = ''
-				model_choice.appendChild( row )
+				model_row.form = form
+				model_choice.appendChild( model_row.gen_row() )
 				shortcode.value = gallery.render_shortcode() //  form 
 			})
 
@@ -232,6 +241,11 @@ export default ( gallery, output_container ) => {
 			set_contingents( contingents, e.target.checked )
 
 		}
+		// else if( e.target.name === 'options_controls'){
+
+		// 	contingents = form.querySelectorAll('')
+
+		// }
 
 	})
 
@@ -268,7 +282,6 @@ export default ( gallery, output_container ) => {
 
 	form.querySelector('#gallery-preview').addEventListener('click', () => {
 
-		// const gallery = Gallery()
 		gallery.ingest_form( form )
 
 		gallery.preview()
@@ -282,7 +295,6 @@ export default ( gallery, output_container ) => {
 
 		e.preventDefault()
 
-		// const gallery = Gallery()
 		gallery.ingest_form()
 
 		if( !gallery.validate( true, true, true )) return
@@ -292,6 +304,11 @@ export default ( gallery, output_container ) => {
 		const shortcode_id = gallery.form.getAttribute('data-shortcode-id')
 		console.log('saving:', shortcode_id )
 
+		// just set gallery.location from the get go, use that for all conditionals
+		// dont ajax save product galleries; set up save_all_values to save shortcode
+		// 
+		debugger
+
 		fetch_wrap( ajaxurl, 'post', {
 			action: 'save_shortcode',
 			shortcode_id: shortcode_id,
@@ -299,25 +316,36 @@ export default ( gallery, output_container ) => {
 			shortcode: shortcode.value.trim(),
 		}, false)
 		.then( res => {
+
 			if( res.success ){
-				// gallery = Gallery( res.gallery )
-				// debugger
-				// Object.assign( gallery, Gallery( res.gallery ) )
+
 				gallery.ingest_shortcode( res.gallery.shortcode )
 				gallery.edited = res.gallery.edited
 				gallery.created = res.gallery.created
 				gallery.id = res.gallery.id 
 				gallery.form.classList.add('editing')
 				gallery.form.setAttribute('data-shortcode-id', res.gallery.id )
-				const new_row = gallery.gen_row()
-				const old_row = get_row( document.querySelector('#model-galleries .content'), res.gallery.id )
-				if( !editing ){
-					if( output_container ) output_container.prepend( new_row )
-				}else{
-					insertAfter( new_row, old_row )
-					old_row.remove()
+				if( output_container ){
+					const new_row = gallery.gen_row()
+					if( !output_container.getAttribute('data-stackable') ){ // product pages
+						output_container.innerHTML = ''
+						output_container.prepend( new_row )
+						gallery.form.style.display = 'none'
+					}else{ // admin pages
+						const old_row = get_row( document.querySelector('#model-galleries .content'), res.gallery.id )
+						if( editing ){
+							insertAfter( new_row, old_row )
+							old_row.remove()
+						}else{
+							output_container.prepend( new_row )
+						}
+
+					}
+
 				}
+
 				hal('success', 'success', 5000 )
+
 			}else{
 				hal('error', res.msg || 'error saving', 5000 )
 				console.log( res )
@@ -344,9 +372,6 @@ export default ( gallery, output_container ) => {
 			})
 		}, 100)
 	})
-
-
-	gallery.form = form
 
 	return form
 

@@ -54,7 +54,7 @@
         </div>
 
     	<h4>library</h4>
-    	<div class='content'>
+    	<div class='content' data-stackable=true>
     	</div>
 
     </div>
@@ -83,7 +83,7 @@
 
     	<h4>galleries</h4>
     	<div class='clarification'>click row to edit</div>
-	   	<div class='content'>
+	   	<div class='content' data-stackable=true>
     	</div>
 
     </div>

@@ -78,6 +78,7 @@ const fill = async( type, scroll_top ) => {
 			// console.log( res )
 			for( const post of res ){
 				const model = new ModelRow( post )
+				model.form = gallery.form
 				library_content.appendChild( model.gen_row() )
 			}
 			break;

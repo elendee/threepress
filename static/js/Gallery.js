@@ -261,7 +261,19 @@ export default init => {
 
 
 
+	gallery.clear_scene = () => {
 
+		gallery.SCENE = gallery.SCENE || new Scene()
+
+		let cap = 0
+		while( gallery.SCENE.children.length > 0 && cap < 1999999 ){ 
+			if( gallery.SCENE.children[0].material ) gallery.SCENE.children[0].material.dispose()
+			if( gallery.SCENE.children[0].geometry ) gallery.SCENE.children[0].geometry.dispose()
+		    gallery.SCENE.remove( gallery.SCENE.children[0] )
+		    cap++
+		}
+
+	}
 
 
 
@@ -357,6 +369,7 @@ export default init => {
 
 
 	gallery.fill_model_from_form = () => {
+		stack('fill_model_from_form')
 		gallery.model = gallery.model || {}
 		const mc = gallery.form.querySelector('#model-choice .threepress-row')
 		if( mc ){
@@ -582,6 +595,7 @@ export default init => {
 			}else{
 				const model = res.model
 				const new_model = new ModelRow( model )
+				new_model.form = form || gallery.form
 
 				model_choice.appendChild( new_model.gen_row() )				
 			}
@@ -828,6 +842,8 @@ export default init => {
 		gallery.fill_model_from_form()
 
 		if( !gallery.validate( true, true, false ) ) return
+
+		gallery.clear_scene()
 
 		gallery.init_scene()
 		.then( success => {
