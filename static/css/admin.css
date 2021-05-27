@@ -255,10 +255,10 @@
 	color: #bd2448;
 }
 
-#model-galleries .content .threepress-row{
+.threepress-row{
 	cursor: pointer;
 }
-#model-galleries .content .threepress-row:hover{
+.threepress-row:hover{
     border-left: 4px solid #bd2448;
 }
 

@@ -3,6 +3,7 @@ import Gallery from './Gallery.js'
 import {
 	ModelRow,
 	fetch_wrap,
+	tstack,
 } from './lib.js'
 
 import build_form from './build_form.js'
@@ -10,7 +11,7 @@ import build_form from './build_form.js'
 // import bind_gallery_form from './bind_gallery_form.js'
 
 
-
+tstack('init_admin')
 
 
 
@@ -202,9 +203,9 @@ add_gallery.addEventListener('click', () => {
 // 	THREEPRESS.hal('error', 'threepress requires that jquery be enabled')
 // 	return false
 // }
-const gallery = Gallery()
-build_form( gallery, galleries_content )
-gallery_container.appendChild( gallery.form )
+const gallery_admin = Gallery()
+build_form( gallery_admin, galleries_content )
+gallery_container.appendChild( gallery_admin.form )
 
 
 for( const tab of tabs ){

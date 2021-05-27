@@ -188,7 +188,7 @@ export default ( gallery, output_container ) => {
 	// gallery save / close
 	const manage = document.createElement('p')
 	const save = document.createElement('div')
-	save.innerText = 'save'
+	save.innerText = gallery.location === 'product' ? 'set' : 'save'
 	save.id = 'create-gallery'
 	save.classList.add('button', 'button-primary')
 
@@ -304,10 +304,13 @@ export default ( gallery, output_container ) => {
 		const shortcode_id = gallery.form.getAttribute('data-shortcode-id')
 		console.log('saving:', shortcode_id )
 
-		// just set gallery.location from the get go, use that for all conditionals
-		// dont ajax save product galleries; set up save_all_values to save shortcode
-		// 
-		debugger
+		if( gallery.location === 'product' ){
+			output_container.innerHTML = ''
+			const new_row = gallery.gen_row()
+			output_container.appendChild( new_row )
+			gallery.form.style.display = 'none'
+			return
+		}
 
 		fetch_wrap( ajaxurl, 'post', {
 			action: 'save_shortcode',

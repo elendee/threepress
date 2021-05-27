@@ -1,8 +1,9 @@
-// import {
+import {
 // 	hal,
-// 	render,
-// 	// log,
-// } from './lib.js'
+	tstack,
+} from './lib.js'
+
+tstack('init_base')
 
 import Gallery from './Gallery.js'
 
@@ -10,13 +11,6 @@ import Gallery from './Gallery.js'
 // ------------------------------------------------------------ declarations
 
 const viewers = document.querySelectorAll('.threepress-gallery')
-
-
-
-
-
-
-
 
 
 
@@ -41,11 +35,11 @@ for( const viewer of viewers ){
 	}
 
 	// console.log( scene )
-	const gallery = Gallery( scene )
+	const gallery_front = Gallery( scene )
 	// const gallery = Gallery()
 	// gallery.ingest_shortcode( shortcode )
 	// console.log( gallery, gallery.allow_zoom )
-	gallery.display( viewer )
+	gallery_front.display( viewer )
 
 }	
 

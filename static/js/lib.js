@@ -198,9 +198,8 @@ class ModelRow {
 		const eye = document.createElement('img')
 		eye.src = THREEPRESS.plugin_url + '/assets/eye-viz.png'
 		viz.appendChild( eye )
-		row.appendChild( viz )
 		viz.addEventListener('click', () => {
-			const gallery = Gallery({
+			const gallery_preview = Gallery({
 				preview_type: 'model',
 				model: { guid: input.value.trim() },
 				name: '',
@@ -210,8 +209,9 @@ class ModelRow {
 				controls: 'orbit',
 				form: obj.form,
 			})
-			gallery.preview()
+			gallery_preview.preview()
 		})
+		row.appendChild( viz )
 
 		return row
 	}
@@ -406,6 +406,11 @@ const get_row = ( container, id ) => {
 
 
 
+const logging = true
+const tstack = file => {
+	if( logging ) console.log('threepress stack: ', file )
+}
+
 
 export {
 
@@ -429,6 +434,7 @@ export {
 	// validations
 	val_boolean,
 	get_row,
+	tstack,
 	
 }
 

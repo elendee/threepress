@@ -102,6 +102,10 @@ export default init => {
 	gallery.edited = init.edited || defaults.edited
 	// data
 	gallery.model = init.model || {}
+	gallery.location = init.location
+	setTimeout(()=>{
+		console.log('new Gallery: ', gallery.location)
+	}, 50)
 	// rendering
 	gallery.form = init.form || gallery.form
 	gallery.controls = init.controls || defaults.controls
@@ -744,6 +748,10 @@ export default init => {
 				.catch( err => {
 					console.log( err )
 				})
+
+				if( gallery.location === 'product' ){
+					row.remove()
+				}
 
 			}
 		})
