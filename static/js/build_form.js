@@ -169,6 +169,7 @@ export default ( gallery, output_container ) => {
 
 	// gallery save / close
 	const manage = document.createElement('p')
+	manage.classList.add('threepress-form-controls')
 	const save = document.createElement('div')
 	save.innerText = gallery.location === 'product' ? 'set' : 'save'
 	save.id = 'create-gallery'
@@ -176,14 +177,14 @@ export default ( gallery, output_container ) => {
 
 	const close = document.createElement('div')
 	close.id = 'close-gallery'
-	close.innerText = 'close'
+	close.innerText = gallery.location === 'product' ? 'cancel' : 'close'
 	close.classList.add('button', 'button-primary')
 
 	const menu_clar = document.createElement('div')
 	menu_clar.innerHTML = 'you do not have to save a shortcode to use it - saving is just for reference'
 	menu_clar.classList.add('clarification')
-	manage.appendChild( save )
 	manage.appendChild( close )
+	manage.appendChild( save )
 	manage.appendChild( menu_clar )
 	form.appendChild( manage )
 
@@ -235,6 +236,7 @@ export default ( gallery, output_container ) => {
 	for( const input of form.querySelectorAll('input') ){
 		input.addEventListener('change', e => {
 			shortcode.value = gallery.render_shortcode() // gallery.form
+			// debugger
 		})
 	}
 

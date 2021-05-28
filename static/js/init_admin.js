@@ -79,7 +79,7 @@ const fill = async( type, scroll_top ) => {
 			// console.log( res )
 			for( const post of res ){
 				const model = new ModelRow( post )
-				model.form = gallery.form
+				model.form = gallery_admin.form
 				library_content.appendChild( model.gen_row() )
 			}
 			break;
@@ -91,7 +91,7 @@ const fill = async( type, scroll_top ) => {
 			}
 			for( const g of res ){
 				const gallery = Gallery( g )
-				gallery.form = document.querySelector('#gallery-form')
+				gallery_admin.form = document.querySelector('#gallery-form')
 				const row = gallery.gen_row()
 				galleries_content.appendChild( row )
 			}
@@ -158,15 +158,15 @@ browse_threepress.addEventListener('submit', e => {
 
 
 add_gallery.addEventListener('click', () => {
-	if( !gallery.form.style.display || gallery.form.style.display === 'none' ){
-		gallery.form.style.display = 'inline-block'
-		gallery.hydrate_editor( gallery.form )
+	if( !gallery_admin.form.style.display || gallery_admin.form.style.display === 'none' ){
+		gallery_admin.form.style.display = 'inline-block'
+		gallery.hydrate_editor( gallery_admin.form )
 	}else{
 		if( confirm('clear the current form and start anew?')){
 			const new_gallery = Gallery({
-				form: gallery.form,
+				form: gallery_admin.form,
 			})
-			new_gallery.hydrate_editor( gallery.form )
+			new_gallery.hydrate_editor( gallery_admin.form )
 		}
 	}
 })

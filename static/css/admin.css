@@ -192,13 +192,23 @@
 	max-width: 50px;
 }
 
+.threepress-form-controls{
+/* 	display: flex; */
+/* 	width: 100%; */
+    text-align: right;
+}
+
 #create-gallery{
 	font-size: 1rem;
-    margin-left: 40%;
+/*     margin-left: 40%; */
     margin-right: 15px;
+/*     background: #167116; */
+	border: 0px;
 }
 #close-gallery{
 	font-size: 1rem;
+	background: #b16b6b;
+	border: 0px;
 }
 
 .model-row-preview{

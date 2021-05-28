@@ -57,6 +57,8 @@ const shortcode_values = [
 	'camera_dist',
 	'allow_zoom',
 	'zoom_speed',
+	'rotate_scene',
+	'rotate_speed',
 	'rotate_x',
 	'rotate_y',
 	'rotate_z',
@@ -82,7 +84,7 @@ const defaults = { // form values, not scaled values
 
 const set_scalars = gallery => {
 	gallery.scaled_intensity = gallery.intensity / 3
-	gallery.scaled_rotate = gallery.rotate_speed / 1000
+	gallery.scaled_rotate = Number( gallery.rotate_speed ) / 1000
 	gallery.scaled_zoom = gallery.zoom_speed ? gallery.zoom_speed : defaults.zoom_speed
 }
 
@@ -426,6 +428,8 @@ export default init => {
 				shortcodes += tag( key, gallery[ key ] )
 			}
 		}
+
+		// debugger
 
 		// --- derived gallery attributes:
 
