@@ -7,6 +7,7 @@ import {
 	fetch_wrap,
 	get_row,
 	insertAfter,
+	build_option,
 } from './lib.js'
 
 
@@ -30,25 +31,6 @@ const build_category = name => {
 	return category
 }
 
-const build_option = ( type, name, value, label, placeholder, contingent, attrs, checked ) => {
-	const selection = document.createElement('div')
-	selection.classList.add('selection')
-	if( contingent ) selection.classList.add('contingent')
-	const label_ele = document.createElement('label')
-	label_ele.innerHTML = label || ( name ? name.replace(/_/g, ' ' ) : '' )
-	const input = document.createElement('input')
-	if( placeholder ) input.placeholder = placeholder
-	if( type ) input.type = type
-	if( name ) input.name = name
-	if( value ) input.value = value
-	for( const key in attrs ){
-		input[ key ] = attrs[ key ]
-	}
-	if( type === 'checkbox' || type === 'radio') if( checked ) input.checked = true
-	selection.appendChild( label_ele )
-	selection.appendChild( input )
-	return selection
-}
 
 
 
@@ -305,10 +287,17 @@ export default ( gallery, output_container ) => {
 		console.log('saving:', shortcode_id )
 
 		if( gallery.location === 'product' ){
+			const metabox = output_container.parentElement.parentElement // document.querySelector('#threepress-product-options')
 			output_container.innerHTML = ''
 			const new_row = gallery.gen_row()
 			output_container.appendChild( new_row )
 			gallery.form.style.display = 'none'
+			window.scroll({
+				top: window.pageYOffset + metabox.getBoundingClientRect().top - 120,
+				behavior: 'smooth',
+			})
+			const toggle = document.querySelector('#threepress-product-options .inside>.button')
+			if( toggle ) toggle.innerHTML = '+'
 			return
 		}
 
@@ -367,6 +356,11 @@ export default ( gallery, output_container ) => {
 		e.preventDefault()
 		const target = gallery.form.parentElement
 		gallery.form.style.display = 'none'
+		const toggle = document.querySelector('#threepress-product-options .inside>.button')
+		if( toggle ){
+			toggle.innerHTML = '+'
+			toggle.style.display = 'inline-block'
+		}
 		setTimeout( () => {
 			const top = window.pageYOffset + target.getBoundingClientRect().top - 150
 			window.scroll({

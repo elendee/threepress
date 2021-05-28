@@ -262,7 +262,7 @@ if ( !class_exists( 'Threepress' ) ) {
 				$response->success = false;
 				$response->msg ='invalid id';
 			}else{
-				$sql = $wpdb->prepare('DELETE FROM threepress_shortcodes WHERE id=%d', $id );
+				$sql = $wpdb->prepare('DELETE FROM threepress_shortcodes WHERE id=%d', (int)$id );
 				$res = $wpdb->query( $sql );
 				$response->success = true;				
 			}
@@ -323,23 +323,33 @@ if ( !class_exists( 'Threepress' ) ) {
 		}
 
 
-	    public static function get_model(){
+	    public static function get_model( $direct_id ){
 			global $wpdb;
 
 			$res = new stdClass();
 			$res->success = false;
 
-			$id = $_POST['id'];
+			if( isset( $direct_id )){
+				$id = $direct_id;
+			}else{
+				$id = $_POST['id'];
+			}
+
+			Threepress::LOG('checking: ' . $id );
 
 			if( is_numeric($id) ){
-				$post = get_post( $id );
+				$post = get_post( (int)$id );
 				if( $post ){
 					$res->success = true;
 					$res->model = $post;
 				}
 			}
 
-			wp_send_json( $res );
+			if( isset( $direct_id )){
+				return $res;
+			}else{
+				wp_send_json( $res );
+			}
 
 		}
 

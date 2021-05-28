@@ -411,6 +411,26 @@ const tstack = file => {
 	if( logging ) console.log('threepress stack: ', file )
 }
 
+const build_option = ( type, name, value, label, placeholder, contingent, attrs, checked ) => {
+	const selection = document.createElement('div')
+	selection.classList.add('selection')
+	if( contingent ) selection.classList.add('contingent')
+	const label_ele = document.createElement('label')
+	label_ele.innerHTML = label || ( name ? name.replace(/_/g, ' ' ) : '' )
+	const input = document.createElement('input')
+	if( placeholder ) input.placeholder = placeholder
+	if( type ) input.type = type
+	if( name ) input.name = name
+	if( value ) input.value = value
+	for( const key in attrs ){
+		input[ key ] = attrs[ key ]
+	}
+	if( type === 'checkbox' || type === 'radio') if( checked ) input.checked = true
+	selection.appendChild( label_ele )
+	selection.appendChild( input )
+	return selection
+}
+
 
 export {
 
@@ -435,6 +455,8 @@ export {
 	val_boolean,
 	get_row,
 	tstack,
+
+	build_option,
 	
 }
 

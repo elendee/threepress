@@ -283,7 +283,7 @@ export default init => {
 
 	gallery.init_scene = async() => { // lights camera action
 
-		if( !gallery.validate( false, true, false )) return
+		if( !gallery.validate( false, true, false ) ) return
 
 		/// 
 
@@ -501,7 +501,7 @@ export default init => {
 
 
 
-	gallery.ingest_shortcode = shortcode => {
+	gallery.ingest_shortcode = shortcode => { // deep // async( 
 		stack( 'ingest_shortcode')
 
 		const arr = shortcode.replace(']', '').split(' ')
@@ -538,6 +538,14 @@ export default init => {
 		}
 
 		for( const key in escrow ) gallery[ key ] = escrow[ key ]
+
+		// if( deep && gallery.model.id ){
+		// 	const res = await fetch_wrap( THREEPRESS.ajaxurl, 'post', {
+		// 		action: 'get_model',
+		// 		id: gallery.model.id,
+		// 	})
+		// 	debugger
+		// }
 
 		if( !gallery.rotate_scene ) delete gallery.orbit_controls
 
@@ -706,6 +714,7 @@ export default init => {
 		content.classList.add('column')
 		content.title = 'shortcode'
 		const shortcode = document.createElement('input')
+		shortcode.name = 'threepress_shortcode'
 		shortcode.setAttribute('readonly', true )// = true
 		shortcode.value = gallery.shortcode || ''
 		content.appendChild( shortcode )
@@ -718,24 +727,35 @@ export default init => {
 
 		row.addEventListener('click', e => {
 
+			const toggle = document.querySelector('#threepress-product-options .inside>.button')
+
 			if( e.target.classList.contains('delete')){
 
-				if( confirm('delete gallery? (models will not be deleted)')){
-					fetch_wrap( ajaxurl, 'post', {
-						action: 'delete_gallery',
-						id: gallery.id,
-					}, false)
-					.then( res => {
-						if( res.success ){
-							row.remove()
-						}else{
-							hal('error', res.msg || 'error deleting row', 5000 )
-						}
-					})	
-					.catch( err => {
-						console.log( err )
-						hal('error', err.msg || 'error deleting row', 5000 )
-					})
+				if( gallery.location === 'product'){
+					row.remove()
+					if( toggle ){
+						toggle.innerHTML = '+'
+						toggle.style.display = 'inline-block'
+					}
+
+				}else{
+					if( confirm('delete gallery? (models will not be deleted)') ){
+						fetch_wrap( ajaxurl, 'post', {
+							action: 'delete_gallery',
+							id: gallery.id,
+						}, false)
+						.then( res => {
+							if( res.success ){
+								row.remove()
+							}else{
+								hal('error', res.msg || 'error deleting row', 5000 )
+							}
+						})	
+						.catch( err => {
+							console.log( err )
+							hal('error', err.msg || 'error deleting row', 5000 )
+						})
+					}
 				}
 
 			}else if( e.target.getAttribute('readonly') || e.target.title === 'shortcode' ){
@@ -751,6 +771,7 @@ export default init => {
 
 				if( gallery.location === 'product' ){
 					row.remove()
+					if( toggle ) toggle.style.display = 'none'
 				}
 
 			}
