@@ -782,6 +782,7 @@ var OrbitControls = function ( object, domElement ) {
 
 			case 'mouse':
 			case 'pen':
+			case 'custom':
 				onMouseDown( event );
 				break;
 
@@ -790,6 +791,10 @@ var OrbitControls = function ( object, domElement ) {
 		}
 
 	}
+
+
+	this.onPointerDown = onPointerDown
+
 
 	function onPointerMove( event ) {
 
@@ -825,10 +830,15 @@ var OrbitControls = function ( object, domElement ) {
 
 	}
 
+	this.onPointerUp = onPointerUp
+
 	function onMouseDown( event ) {
 
 		// Prevent the browser from scrolling.
 		event.preventDefault();
+
+		console.log( 'gets to mouse?')
+
 
 		// Manually set the focus since calling preventDefault above
 		// prevents the browser from setting it automatically.

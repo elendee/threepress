@@ -161,6 +161,7 @@ export default init => {
 	// let then = 0
 
 	const start_animation = () => { // single frame updates
+		if( gallery.animating ) return 
 		gallery.animating = true
 		gallery.orbit_controls ? animate_controls() : animate()
 	}
@@ -169,9 +170,9 @@ export default init => {
 		gallery.animating = false
 	}
 
-	gallery.anim_wrapper = state => {
-		console.log('wrap: ', state )
-		if( state ){
+	gallery.anim_state = () => { // state
+		console.log('wrap: ', gallery.animating )
+		if( gallery.animating ){
 			start_animation()
 		}else{
 			stop_animation()
