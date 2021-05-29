@@ -831,12 +831,14 @@ export default init => {
 
 	gallery.set_renderer = () => {
 
-		gallery.CAMERA.aspect = gallery.canvas.getBoundingClientRect().width / gallery.canvas.getBoundingClientRect().height
+		const bound = gallery.canvas.getBoundingClientRect()
+
+		gallery.CAMERA.aspect = bound.width / bound.height
 		gallery.CAMERA.updateProjectionMatrix()
 
 		gallery.RENDERER.setSize( 
-			gallery.canvas.getBoundingClientRect().width / resolutions[ gallery.res_key ],
-			gallery.canvas.getBoundingClientRect().height / resolutions[ gallery.res_key ],
+			bound.width / resolutions[ gallery.res_key ],
+			bound.height / resolutions[ gallery.res_key ],
 			false 
 		)
 	}
