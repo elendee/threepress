@@ -169,6 +169,15 @@ export default init => {
 		gallery.animating = false
 	}
 
+	gallery.anim_wrapper = state => {
+		console.log('wrap: ', state )
+		if( state ){
+			start_animation()
+		}else{
+			stop_animation()
+		}
+	}
+
 	const animate = () => { // no controls gallery
 
 		if( !gallery.animating ) return
@@ -842,7 +851,9 @@ export default init => {
 
 				viewer.appendChild( gallery.canvas )
 
-				gallery.set_renderer()
+				// debugger
+
+				// debugger
 
 				if( gallery.rotate_scene ){
 
@@ -858,6 +869,12 @@ export default init => {
 
 				}
 
+				
+				gallery.set_renderer()
+
+
+				// debugger
+
 				if( !galleries.includes( gallery )) galleries.push( gallery )
 
 			}else{
@@ -868,6 +885,8 @@ export default init => {
 			console.log( err )
 		})	
 	}
+
+
 
 	gallery.preview = () => {
 		stack('preview')

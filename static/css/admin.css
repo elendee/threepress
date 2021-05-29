@@ -200,15 +200,21 @@
 
 #create-gallery{
 	font-size: 1rem;
-/*     margin-left: 40%; */
     margin-right: 15px;
-/*     background: #167116; */
 	border: 0px;
+	margin-left: 20px;
+	padding: 0 20px;
 }
 #close-gallery{
 	font-size: 1rem;
-	background: #b16b6b;
+
 	border: 0px;
+}
+.button.threepress-cancel{
+	background: #b16b6b;
+}
+.button.threepress-cancel:hover{
+	background: #864d4d
 }
 
 .model-row-preview{

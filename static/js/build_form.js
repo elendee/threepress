@@ -177,6 +177,7 @@ export default ( gallery, output_container ) => {
 
 	const close = document.createElement('div')
 	close.id = 'close-gallery'
+	close.classList.add('threepress-cancel')
 	close.innerText = gallery.location === 'product' ? 'cancel' : 'close'
 	close.classList.add('button', 'button-primary')
 
