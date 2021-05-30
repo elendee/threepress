@@ -1,4 +1,4 @@
-// import BROKER from './helpers/EventBroker.js'
+// import BROKER from './helpers/EventBroker.js?v=0.3.5'
 
 import {
 	// Color,
@@ -7,10 +7,10 @@ import {
 	Scene,
 	PerspectiveCamera,
 	Vector3,
-} from '../inc/three.module.js'
+} from '../inc/three.module.js?v=0.3.5'
 
-import { GLTFLoader } from '../inc/GLTFLoader.js'
-import { OrbitControls } from '../inc/OrbitControls.js'
+import { GLTFLoader } from '../inc/GLTFLoader.js?v=0.3.5'
+import { OrbitControls } from '../inc/OrbitControls.js?v=0.3.5'
 
 import {
 	fill_dimensions,
@@ -20,9 +20,9 @@ import {
 	hal,
 	val_boolean,
 	origin,
-} from './lib.js'
+} from './lib.js?v=0.3.5'
 
-import { Modal } from './helpers/Modal.js'
+import { Modal } from './helpers/Modal.js?v=0.3.5'
 
 
 const logging = false

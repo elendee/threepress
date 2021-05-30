@@ -1,11 +1,11 @@
 import {
 // 	hal,
 	tstack,
-} from './lib.js'
+} from './lib.js?v=0.3.5'
 
 tstack('init_base')
 
-import Gallery from './Gallery.js'
+import Gallery from './Gallery.js?v=0.3.5'
 
 
 // ------------------------------------------------------------ declarations

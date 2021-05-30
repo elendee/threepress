@@ -1,5 +1,5 @@
-// import { DynamicBufferAttribute } from '../inc/three.module.js'
-// import Gallery from './Gallery.js'
+// import { DynamicBufferAttribute } from '../inc/three.module.js?v=0.3.5'
+// import Gallery from './Gallery.js?v=0.3.5'
 import {
 	model_selector,
 	set_contingents,
@@ -8,7 +8,7 @@ import {
 	get_row,
 	insertAfter,
 	build_option,
-} from './lib.js'
+} from './lib.js?v=0.3.5'
 
 
 

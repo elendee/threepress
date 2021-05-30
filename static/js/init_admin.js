@@ -1,14 +1,14 @@
-import Gallery from './Gallery.js'
+import Gallery from './Gallery.js?v=0.3.5'
 
 import {
 	ModelRow,
 	fetch_wrap,
 	tstack,
-} from './lib.js'
+} from './lib.js?v=0.3.5'
 
-import build_form from './build_form.js'
+import build_form from './build_form.js?v=0.3.5'
 
-// import bind_gallery_form from './bind_gallery_form.js'
+// import bind_gallery_form from './bind_gallery_form.js?v=0.3.5'
 
 
 tstack('init_admin')

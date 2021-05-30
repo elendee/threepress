@@ -2,7 +2,7 @@
 import { 
 	Lensflare, 
 	LensflareElement 
-} from './Lensflare.js'
+} from './Lensflare.js?v=0.3.5'
 
 import { 
 	DirectionalLight, 
@@ -12,7 +12,7 @@ import {
 	Color,
 	Group,
 	Vector3,
-} from '../../inc/three.module.js'
+} from '../../inc/three.module.js?v=0.3.5'
 
 
 const textureLoader = new TextureLoader()

@@ -1,10 +1,10 @@
-import Gallery from './Gallery.js'
-// import BROKER from './helpers/EventBroker.js'
+import Gallery from './Gallery.js?v=0.3.5'
+// import BROKER from './helpers/EventBroker.js?v=0.3.5'
 
 import {
 	Box3,
 	Vector3,
-} from '../inc/three.module.js'
+} from '../inc/three.module.js?v=0.3.5'
 
 
 // ------------------------------------------------------------ declarations
