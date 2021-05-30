@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Threepress 
  * Plugin URI: https://threepress.shop
- * Version: 0.3
+ * Version: 0.3.5
  * Description: Generate 3D gallery shortcodes powered by three.js
  * Text Domain: threepress
  * License:           GPL v2 or later
@@ -37,6 +37,7 @@ require_once( ABSPATH . 'wp-includes/pluggable.php' );
 
 $threepress_dir = plugins_url( '', __FILE__ );
 
+$threepress_version = '0.3.5';
 
 
 if ( !class_exists( 'Threepress' ) ) {
@@ -83,19 +84,20 @@ if ( !class_exists( 'Threepress' ) ) {
 
 
  	    public static function global_scripts() {
+ 	    	global $threepress_version;
     		wp_enqueue_style( 
 				'threepress-global-css', 
-				plugins_url('/static/css/global.css', __FILE__ ), 
+				plugins_url('/static/css/global.css?v=' . $threepress_version, __FILE__ ), 
 				array()
 			);
 			wp_enqueue_style( 
 				'threepress-modal-css', 
-				plugins_url('/static/css/modal.css', __FILE__ ), 
+				plugins_url('/static/css/modal.css?v=' . $threepress_version, __FILE__ ), 
 				array()
 			);	    	
     		wp_enqueue_script( 
 				'threepress-global-js', 
-				plugins_url( '/static/js/global.js', __FILE__ ),
+				plugins_url( '/static/js/global.js?v=' . $threepress_version, __FILE__ ),
 				array('jquery')
 			);
 
@@ -137,7 +139,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    public static function base_scripts() {
     		wp_enqueue_script( 
 				'threepress-base-js', 
-				plugins_url( '/static/js/init_base.js', __FILE__ ),
+				plugins_url( '/static/js/init_base.js?v=' . $threepress_version, __FILE__ ),
 				array() // 'jquery'
 			);
 	    }
@@ -147,7 +149,7 @@ if ( !class_exists( 'Threepress' ) ) {
 
     		wp_enqueue_script( 
 				'threepress-admin-js', 
-				plugins_url( '/static/js/init_admin.js', __FILE__ ),
+				plugins_url( '/static/js/init_admin.js?v=' . $threepress_version, __FILE__ ),
 				array('jquery')
 			);
 
@@ -155,10 +157,10 @@ if ( !class_exists( 'Threepress' ) ) {
 
 
 	    public static function admin_styles() {
-
+	    	global $threepress_version;
 			wp_enqueue_style( 
 				'threepress-admin-css', 
-				plugins_url('/static/css/admin.css', __FILE__ ), 
+				plugins_url('/static/css/admin.css?v=' . $threepress_version, __FILE__ ), 
 				array()
 			);
 
@@ -217,12 +219,9 @@ if ( !class_exists( 'Threepress' ) ) {
 	    		$id = 'id="threepress-gallery-' . $attr['name'] . '"';
 	    	}
 
-	    	Threepress::LOG( $attr );
-
 	    	$attr['model']->post_excerpt = ''; // shim - it can contain values that break JSON.parse - fix later
 
 	    	return '<div ' . $id . ' class="threepress-gallery"><div class="threepress-gallery-data">' . json_encode($attr) . '</div></div>';
-	    	// return '<div ' . $id . ' class="threepress-gallery"><div class="threepress-gallery-data">' . $attr['shortcode'] . '</div></div>';
 
 	    }
 
@@ -284,11 +283,11 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	$gallery->user_id = get_current_user_id();
 	    	$gallery->name = sanitize_text_field( $_POST['name'] );
 	    	$gallery->shortcode = sanitize_text_field( $_POST['shortcode'] );
+
 	    	// edit
 	    	if( $_POST['shortcode_id'] ){
 
 		    	if( !is_numeric( $_POST['shortcode_id'] ) ){
-		    		Threepress::LOG( $_POST['shortcode_id'] );
 		    		wp_die( json_encode($res) );
 		    	}
 
@@ -329,13 +328,13 @@ if ( !class_exists( 'Threepress' ) ) {
 			$res = new stdClass();
 			$res->success = false;
 
-			if( isset( $direct_id )){
+			$direct = isset( $direct_id ) && is_numeric( $direct_id );
+
+			if( $direct  ){
 				$id = $direct_id;
 			}else{
 				$id = $_POST['id'];
 			}
-
-			Threepress::LOG('checking: ' . $id );
 
 			if( is_numeric($id) ){
 				$post = get_post( (int)$id );
@@ -345,7 +344,7 @@ if ( !class_exists( 'Threepress' ) ) {
 				}
 			}
 
-			if( isset( $direct_id )){
+			if( $direct ){
 				return $res;
 			}else{
 				wp_send_json( $res );

@@ -27,7 +27,7 @@ let raw, scene //, shortcode
 for( const viewer of viewers ){
 	raw = viewer.querySelector('.threepress-gallery-data')
 	// shortcode = viewer.querySelector('.threepress-gallery-data').innerHTML
-	console.log( raw )
+	// console.log( raw )
 	try{
 		scene = JSON.parse( raw.innerHTML )
 	}catch( e ){

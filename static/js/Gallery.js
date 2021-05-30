@@ -25,7 +25,7 @@ import {
 import { Modal } from './helpers/Modal.js'
 
 
-const logging = true
+const logging = false
 const stack = msg => {
 	if( logging ) console.log( 'gallery stack: ', msg )
 }
@@ -170,9 +170,9 @@ export default init => {
 		gallery.animating = false
 	}
 
-	gallery.anim_state = () => { // state
-		console.log('wrap: ', gallery.animating )
-		if( gallery.animating ){
+	gallery.anim_state = state => { // state
+		console.log('anim_state: ', state, gallery.animating )
+		if( state ){
 			start_animation()
 		}else{
 			stop_animation()
@@ -360,9 +360,16 @@ export default init => {
 		}
 
 		// controls
-		if( gallery.controls === 'orbit' ){
+		if( !gallery.controls || gallery.controls === 'none' ) {
+
+			if( gallery.orbit_controls ) gallery.orbit_controls.dispose()
+			delete gallery.orbit_controls
+
+		}if( gallery.controls === 'orbit' ){
+
 			gallery.orbit_controls = new OrbitControls( gallery.CAMERA, gallery.canvas )
 			gallery.orbit_controls.enableZoom = false // implement this yourself so it doesn't jack scroll
+
 		}
 
 		if( !bound_wheel ){
@@ -844,8 +851,8 @@ export default init => {
 		)
 	}
 
-	gallery.display = viewer => {
-		stack('display')
+	gallery.display = viewer => {	
+	stack('display')
 
 		gallery.init_scene()
 		.then( success => {
@@ -854,29 +861,16 @@ export default init => {
 
 				viewer.appendChild( gallery.canvas )
 
-				// debugger
-
-				// debugger
-
-				if( gallery.rotate_scene ){
-
-					gallery.animating = true
-					gallery.orbit_controls ? animate_controls() : animate()
-
-				}else{
-
-					gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
-
+				if( gallery.controls && gallery.controls !== 'none' ){ 
+					// ignored by pointer-events in woo:
 					gallery.canvas.parentElement.addEventListener('pointerdown', start_animation )
 					gallery.canvas.parentElement.addEventListener('pointerup', stop_animation )
-
 				}
-
 				
 				gallery.set_renderer()
 
-
-				// debugger
+				gallery.anim_state( true )
+				if( !gallery.rotate_scene ) gallery.anim_state( false )					
 
 				if( !galleries.includes( gallery )) galleries.push( gallery )
 
@@ -894,11 +888,11 @@ export default init => {
 	gallery.preview = () => {
 		stack('preview')
 
-		gallery.fill_model_from_form()
-
 		if( !gallery.validate( true, true, false ) ) return
 
 		gallery.clear_scene()
+
+		gallery.ingest_form()
 
 		gallery.init_scene()
 		.then( success => {
@@ -921,7 +915,9 @@ export default init => {
 					previewing = false
 					THREEPRESS.galleries.splice( gallery, 1 )
 				})
+
 				document.querySelector('.threepress').appendChild( modal.ele )			
+
 				gallery.set_renderer()
 
 				if( gallery.rotate_scene ){

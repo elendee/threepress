@@ -5,7 +5,7 @@ Donate link: http://threepress.shop/
 Requires at least: 4.0
 Tested up to: 5.7.1
 Requires PHP: 5.6
-Stable tag: 0.3
+Stable tag: 0.3.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,3 +57,6 @@ All the galleries on a given page will be available in the global variable `THRE
 * client: upgrade http model loads to match location
 = 0.3 =
 * switch to js generated gallery form for portability
+= 0.3.1 =
+* support integration with Threepress for Woocommerce
+

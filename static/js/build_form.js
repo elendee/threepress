@@ -304,11 +304,13 @@ export default ( gallery, output_container ) => {
 			return
 		}
 
+		// console.log( shortcode )
+
 		fetch_wrap( ajaxurl, 'post', {
 			action: 'save_shortcode',
 			shortcode_id: shortcode_id,
 			name: gallery.form.querySelector('input[name=gallery_name]').value.trim(),
-			shortcode: shortcode.value.trim(),
+			shortcode: shortcode.querySelector('textarea').value.trim(),
 		}, false)
 		.then( res => {
 
