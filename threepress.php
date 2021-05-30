@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Threepress 
  * Plugin URI: https://threepress.shop
- * Version: 0.3.5
+ * Version: 0.3.7
  * Description: Generate 3D gallery shortcodes powered by three.js
  * Text Domain: threepress
  * License:           GPL v2 or later
@@ -37,7 +37,7 @@ require_once( ABSPATH . 'wp-includes/pluggable.php' );
 
 $threepress_dir = plugins_url( '', __FILE__ );
 
-$threepress_version = '0.3.5';
+$threepress_version = '0.3.7';
 
 
 if ( !class_exists( 'Threepress' ) ) {
@@ -137,6 +137,7 @@ if ( !class_exists( 'Threepress' ) ) {
 
 
 	    public static function base_scripts() {
+	    	global $threepress_version;
     		wp_enqueue_script( 
 				'threepress-base-js', 
 				plugins_url( '/static/js/init_base.js?v=' . $threepress_version, __FILE__ ),
@@ -146,7 +147,7 @@ if ( !class_exists( 'Threepress' ) ) {
 
 
 	    public static function admin_scripts() {
-
+	    	global $threepress_version;
     		wp_enqueue_script( 
 				'threepress-admin-js', 
 				plugins_url( '/static/js/init_admin.js?v=' . $threepress_version, __FILE__ ),
