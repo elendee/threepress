@@ -5,7 +5,7 @@ import {
 
 tstack('init_base')
 
-import Gallery from './Gallery.js?v=0.3.5'
+import ThreepressGallery from './ThreepressGallery.js?v=0.3.5'
 
 
 // ------------------------------------------------------------ declarations
@@ -35,7 +35,7 @@ for( const viewer of viewers ){
 	}
 
 	// console.log( scene )
-	const gallery_front = Gallery( scene )
+	const gallery_front = ThreepressGallery( scene )
 	// const gallery = Gallery()
 	// gallery.ingest_shortcode( shortcode )
 	// console.log( gallery, gallery.allow_zoom )

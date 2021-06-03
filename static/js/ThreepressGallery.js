@@ -20,6 +20,9 @@ import {
 	hal,
 	val_boolean,
 	origin,
+	set_scalars,
+	resolutions,
+	defaults,
 } from './lib.js?v=0.3.5'
 
 import { Modal } from './helpers/Modal.js?v=0.3.5'
@@ -33,8 +36,6 @@ const stack = msg => {
 
 const overlays = THREEPRESS.overlays = []
 const galleries = THREEPRESS.galleries = []
-
-const resolutions = [4, 2, 1.5, 1]
 
 const loader = new GLTFLoader()
 
@@ -69,24 +70,8 @@ const shortcode_values = [
 
 
 
-const defaults = { // form values, not scaled values
-	name: 'new gallery',
-	light: 'directional',
-	intensity: 5,
-	camera_dist: 5,
-	aspect_ratio: .7,
-	rotate_speed: 1,
-	zoom_speed: 5,
-	bg_color: 'linear-gradient(45deg,white,transparent)',
-	shortcode: '',
-}
 
 
-const set_scalars = gallery => {
-	gallery.scaled_intensity = gallery.intensity / 3
-	gallery.scaled_rotate = Number( gallery.rotate_speed ) / 1000
-	gallery.scaled_zoom = gallery.zoom_speed ? gallery.zoom_speed : defaults.zoom_speed
-}
 
 
 
@@ -365,7 +350,7 @@ export default init => {
 			if( gallery.orbit_controls ) gallery.orbit_controls.dispose()
 			delete gallery.orbit_controls
 
-		}if( gallery.controls === 'orbit' ){
+		}else if( gallery.controls === 'orbit' ){
 
 			gallery.orbit_controls = new OrbitControls( gallery.CAMERA, gallery.canvas )
 			gallery.orbit_controls.enableZoom = false // implement this yourself so it doesn't jack scroll

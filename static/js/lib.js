@@ -1,4 +1,4 @@
-import Gallery from './Gallery.js?v=0.3.5'
+import ThreepressGallery from './ThreepressGallery.js?v=0.3.5'
 // import BROKER from './helpers/EventBroker.js?v=0.3.5'
 
 import {
@@ -199,7 +199,7 @@ class ModelRow {
 		eye.src = THREEPRESS.plugin_url + '/assets/eye-viz.png'
 		viz.appendChild( eye )
 		viz.addEventListener('click', () => {
-			const gallery_preview = Gallery({
+			const gallery_preview = ThreepressGallery({
 				preview_type: 'model',
 				model: { guid: input.value.trim() },
 				name: '',
@@ -281,7 +281,7 @@ const render = type => {
 					log('invalid model init')
 					return
 				}
-				const gallery = Gallery({
+				const gallery = ThreepressGallery({
 					overlay: ftd_img,
 				})
 				gallery.align()
@@ -653,6 +653,46 @@ const get_radio_val = elements => {
 }
 
 
+const set_scalars = gallery => {
+	gallery.scaled_intensity = gallery.intensity / 3
+	gallery.scaled_rotate = Number( gallery.rotate_speed ) / 1000
+	gallery.scaled_zoom = gallery.zoom_speed ? gallery.zoom_speed : defaults.zoom_speed
+}
+
+const defaults = { // form values, not scaled values
+	name: 'new gallery',
+	light: 'directional',
+	intensity: 5,
+	camera_dist: 5,
+	aspect_ratio: .7,
+	rotate_speed: 1,
+	zoom_speed: 5,
+	bg_color: 'linear-gradient(45deg,white,transparent)',
+	shortcode: '',
+}
+
+const resolutions = [4, 2, 1.5, 1]
+
+
+const set_radio = result => {
+	for( const input of document.querySelectorAll('input[type=radio][name=' + result.option_name.replace('threepress_',  '' ) ) ){
+		if( input.value === result.option_value ){
+			input.checked = true
+		}
+	}
+}
+
+
+const random_hex = ( len ) => {
+	//	let r = '#' + Math.floor( Math.random() * 16777215 ).toString(16)
+	let s = ''
+	for( let i = 0; i < len; i++){
+		s += Math.floor( Math.random() * 16 ).toString( 16 )
+	}
+	return s
+}
+
+
 export {
 
 	// base ui functions
@@ -663,7 +703,7 @@ export {
 	// base app classes
 	ModelRow,
 	Spinner,
-	Gallery,
+	ThreepressGallery,
 
 	// builders
 	build_option,
@@ -677,11 +717,18 @@ export {
 	get_radio_val,
 	get_html_translation_table,
 	htmlspecialchars_decode,
+	set_scalars,
+	set_radio,
+	random_hex,
 
 	// validations
 	val_boolean,
 	get_row,
 	tstack,
+
+	// canvas defaults
+	defaults,
+	resolutions,
 
 }
 

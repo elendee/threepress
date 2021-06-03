@@ -1,4 +1,4 @@
-import Gallery from './Gallery.js?v=0.3.5'
+import ThreepressGallery from './ThreepressGallery.js?v=0.3.5'
 
 import {
 	ModelRow,
@@ -93,7 +93,7 @@ const fill = async( type, scroll_top ) => {
 				return
 			}
 			for( const g of res ){
-				const gallery = Gallery( g )
+				const gallery = ThreepressGallery( g )
 				gallery.form = gallery_admin.form
 				const row = gallery.gen_row()
 				galleries_content.appendChild( row )
@@ -166,7 +166,7 @@ add_gallery.addEventListener('click', () => {
 		gallery_admin.hydrate_editor( gallery_admin.form )
 	}else{
 		if( confirm('clear the current form and start anew?')){
-			const new_gallery = Gallery({
+			const new_gallery = ThreepressGallery({
 				form: gallery_admin.form,
 			})
 			new_gallery.hydrate_editor( gallery_admin.form )
@@ -206,7 +206,7 @@ add_gallery.addEventListener('click', () => {
 // 	THREEPRESS.hal('error', 'threepress requires that jquery be enabled')
 // 	return false
 // }
-const gallery_admin = Gallery()
+const gallery_admin = ThreepressGallery()
 build_form( gallery_admin, galleries_content )
 gallery_container.appendChild( gallery_admin.form )
 
