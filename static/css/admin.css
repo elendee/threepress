@@ -4,14 +4,16 @@
 	max-height: 100%;
 }
 
-.nav-tab{
+.nav-tab,
+.ext-nav-tab{
 	cursor: pointer;
 	margin-bottom: -1px;
 	opacity: .7;
 	user-select: none;
 }
 
-.threepress .section{
+.threepress .section,
+.threepress .ext-section{
 	display: none;
 }
 .threepress .content{
@@ -142,7 +144,7 @@
     border: 3px solid #bd2448; 
 }
 
-#gallery-form label{
+.selection label{
     margin-right: 5px;
 }
 
@@ -283,6 +285,14 @@
 	vertical-align: middle;
 	margin-right: 10px;
 	max-width: 30px;
+}
+
+#extension-menu{
+	width: 100%;
+}
+#extension-content .selection{
+/* 	border: 2px solid; */
+    margin: 10px 0;
 }
 
 @media screen and (max-width: 800px){

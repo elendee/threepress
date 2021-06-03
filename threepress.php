@@ -39,6 +39,7 @@ $threepress_dir = plugins_url( '', __FILE__ );
 
 $threepress_version = '0.3.7';
 
+$threepress_settings = [];
 
 if ( !class_exists( 'Threepress' ) ) {
 
@@ -430,17 +431,52 @@ if ( !class_exists( 'Threepress' ) ) {
 			echo 
 	        "<h1>" . $threepress_page_title . "</h1>
 	        <div class='nav-tab-wrapper'>
-	    	<a class='nav-tab' data-section='model-library'>
+	    	<a class='nav-tab main-tab' data-section='model-library'>
 	    		models
 	    	</a>
-	    	<a class='nav-tab' data-section='model-galleries'>
+	    	<a class='nav-tab main-tab' data-section='model-galleries'>
 	    		galleries
  	    	</a>
-	    	<a class='nav-tab' data-section='model-help'>
+	    	<a class='nav-tab main-tab' data-section='model-extensions'>
+	    		extensions
+ 	    	</a>
+	    	<a class='nav-tab main-tab' data-section='model-help'>
 	    		help
  	    	</a>";
 		}
-	
+
+	    public static function get_settings(){
+	    	global $wpdb;
+	    	global $table_prefix;
+	    	$res = new stdClass();
+	    	$sql = $wpdb->prepare('SELECT * FROM ' . $table_prefix . 'options WHERE option_name LIKE "%threepress%"');
+	    	$results = $wpdb->get_results( $sql );
+	    	Threepress::LOG( $results );
+
+	    	$res->success = true;
+	    	$res->results = $results;
+	    	wp_send_json( json_encode( $res ) );
+	    }
+
+	    // public static function save_settings(){
+	    // 	global $threepress_settings;
+	    // 	$res = new  stdClass();
+	    // 	$res->success = false;
+	    // 	foreach( $_POST as $key => $value ){
+		   //  	if( array_key_exists( $key, $threepress_settings ) ){
+		   //  		Threepress::LOG('saveveve ' . $key . ' ' . $value );
+		   //  		if( gettype( $value ) !== $threepress_settings[ $key ] ){
+		   //  			Threepress::LOG('invalid type option: ' . $key . ' ' . $value );
+		   //  			continue;
+		   //  		}
+		   //  		// Threepress::LOG('saving ' . $key . ' ' . $value );
+		   //  		update_option( 'threepress_' . $key, $value );
+		   //  	}
+	    // 	}
+	    // 	$res->success = true;
+	    // 	wp_send_json( json_encode( $res ) );
+	    // }
+
 
 
 	}
@@ -460,9 +496,12 @@ if ( !class_exists( 'Threepress' ) ) {
 
 			add_action( 'wp_ajax_fill_library', 'Threepress::fill_library' );
 			add_action( 'wp_ajax_fill_gallery', 'Threepress::fill_gallery' );
-			add_action( 'wp_ajax_save_shortcode', 'Threepress::save_shortcode' );
-			add_action( 'wp_ajax_delete_gallery', 'Threepress::delete_gallery' );
-			add_action( 'wp_ajax_get_model', 'Threepress::get_model' );
+			add_action( 'wp_ajax_threepress_save_shortcode', 'Threepress::save_shortcode' );
+			// add_action( 'wp_ajax_threepress_save_settings', 'Threepress::save_settings' );
+			add_action( 'wp_ajax_threepress_delete_gallery', 'Threepress::delete_gallery' );
+			add_action( 'wp_ajax_threepress_get_model', 'Threepress::get_model' );
+			add_action( 'wp_ajax_threepress_settings', 'Threepress::get_settings', 100 );
+
 
 		}else{
 
@@ -489,6 +528,8 @@ if ( !class_exists( 'Threepress' ) ) {
 	add_action('init', 'Threepress::global_scripts', 100);
 	add_action('admin_menu', 'Threepress::options_page');
 	add_action('threepress_admin_menu', 'Threepress::admin_menu_items');
+
+
 	if( !$has_module ) add_action('init', 'Threepress::base_scripts', 100);
 
 	add_filter('script_loader_tag', 'Threepress::filter_modules' , 10, 3);

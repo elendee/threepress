@@ -106,7 +106,7 @@ export default init => {
 	gallery.model = init.model || {}
 	gallery.location = init.location
 	setTimeout(()=>{
-		console.log('new Gallery: ', gallery.location)
+		console.log('new Gallery, location: ', gallery.location)
 	}, 50)
 	// rendering
 	gallery.form = init.form || gallery.form
@@ -171,7 +171,7 @@ export default init => {
 	}
 
 	gallery.anim_state = state => { // state
-		console.log('anim_state: ', state, gallery.animating )
+		// console.log('anim_state: ', state, gallery.animating )
 		if( state ){
 			start_animation()
 		}else{
@@ -481,7 +481,7 @@ export default init => {
 		gallery.fill_model_from_form()
 
 		// gallery name
-		gallery.name = form.querySelector('input[name=gallery_name]').value.trim().replace(/ /g, '%%')
+		gallery.name = form.querySelector('input[name=gallery_name]').value.trim().replace(/ /g, '___')
 
 		// radios: controls & light
 		const radios = {
@@ -550,7 +550,7 @@ export default init => {
 				if( split[0] ) console.log('invalid shortcode value', split[0], arr )
 				continue
 			}
-			escrow[ split[0] ] = split[1].replace(/%%/g, ' ')
+			escrow[ split[0] ] = split[1].replace(/___/g, ' ').replace(/%%/g, ' ')
 		}
 
 		if( invalid ){
@@ -620,7 +620,7 @@ export default init => {
 		if( !is_new ){
 
 			const res = await fetch_wrap( ajaxurl, 'post', {
-				action: 'get_model',
+				action: 'threepress_get_model',
 				id: gallery.model.id,
 			})
 			if( !res || !res.success ){
@@ -762,7 +762,7 @@ export default init => {
 				}else{
 					if( confirm('delete gallery? (models will not be deleted)') ){
 						fetch_wrap( ajaxurl, 'post', {
-							action: 'delete_gallery',
+							action: 'threepress_delete_gallery',
 							id: gallery.id,
 						}, false)
 						.then( res => {

@@ -22,7 +22,9 @@ tstack('init_admin')
 const wrap = document.querySelector('.wrap.threepress')
 
 const sections = wrap.querySelectorAll('.threepress .section')
-const tabs = wrap.querySelectorAll('.nav-tab')
+const ext_sections = wrap.querySelectorAll('.threepress .ext-section')
+const tabs = wrap.querySelectorAll('.nav-tab.main-tab')
+const ext_tabs = wrap.querySelectorAll('.ext-nav-tab')
 
 // toggle action areas
 const add_model = wrap.querySelector('#add-toggle')
@@ -78,7 +80,7 @@ const fill = async( type, scroll_top ) => {
 
 			// console.log( res )
 			for( const post of res ){
-				console.log('model row: ', post )
+				// console.log('model row: ', post )
 				const model = new ModelRow( post )
 				model.form = gallery_admin.form
 				library_content.appendChild( model.gen_row() )
@@ -230,6 +232,21 @@ for( const tab of tabs ){
 	})
 }
 
+for( const tab of ext_tabs ){
+	tab.addEventListener('click', () => {
+		for( const section of ext_sections ){
+			section.style.display = 'none'
+		}
+		for( const t of ext_tabs ){
+			t.classList.remove('selected')
+		}
+		tab.classList.add('selected')
+		const cat = tab.getAttribute('data-section')
+		wrap.querySelector('#' + cat ).style.display = 'initial'
+	})
+}
+if( ext_tabs[0] ) ext_tabs[0].click()
+
 
 
 
@@ -260,3 +277,12 @@ document.addEventListener('keyup', e => {
 })
 
 
+
+
+// const label_selections = document.querySelectorAll('.threepress-options-category .selection label')
+// for( const label of label_selections ){
+// 	label.addEventListener('click', () => {
+// 		const input = label.parentElement.querySelector('input')
+// 		if( input.type === 'radio' || input.type === 'checkbox') input.click()
+// 	})
+// }

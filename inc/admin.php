@@ -21,7 +21,7 @@
 
     <div id='model-library' class='section'>
     	
-    	<h4>
+    	<h3>
     		add a model
     		<div class='threepress-toggle-wrapper'>
 	        	<div id='add-toggle' class='threepress-toggle'>
@@ -30,7 +30,7 @@
 	        		</div>
 	        	</div>
 	        </div>
-    	</h4>
+    	</h3>
 
     	<div id='threepress-upload-types'>
 
@@ -53,7 +53,7 @@
 	        </div>
         </div>
 
-    	<h4>library</h4>
+    	<h3>library</h3>
     	<div class='content' data-stackable=true>
     	</div>
 
@@ -68,7 +68,7 @@
 
     <div id='model-galleries' class='section'>
 
-    	<h4>
+    	<h3>
     		create gallery shortcode
     		<div class='threepress-toggle-wrapper'>
 	        	<div id='create-toggle' class='threepress-toggle'>
@@ -77,15 +77,30 @@
 	        		</div>
 	        	</div>
 	        </div>
-	    </h4>
+	    </h3>
 
 	    <div id='gallery-container'></div>
 
-    	<h4>galleries</h4>
+    	<h3>galleries</h3>
     	<div class='clarification'>click row to edit</div>
 	   	<div class='content' data-stackable=true>
     	</div>
 
+    </div>
+
+
+    <div id='model-extensions' class='section'>
+    	<h3>
+    		Extensions: <a href="https://threepress.shop/product-category/extension/" target="_blank">https://threepress.shop/extensions</a>
+    	</h3>
+    	<h4>Your installed extensions:</h4>
+    	<div id='extension-menu' class='nav-tab-wrapper'>
+	    	<?php do_action('threepress_list_ext_menu'); ?>
+	    	<div class='clearfloat'></div>
+	    </div>
+	    <div id='extension-content'>
+	    	<?php do_action('threepress_list_ext_content'); ?>
+	    </div>
     </div>
 
 

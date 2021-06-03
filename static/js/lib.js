@@ -425,7 +425,13 @@ const build_option = ( type, name, value, label, placeholder, contingent, attrs,
 	for( const key in attrs ){
 		input[ key ] = attrs[ key ]
 	}
-	if( type === 'checkbox' || type === 'radio') if( checked ) input.checked = true
+	if( type === 'checkbox' || type === 'radio'){
+		if( checked ) input.checked = true
+		label_ele.addEventListener('click', () => {
+			const input = label_ele.parentElement.querySelector('input')
+			if( input.type === 'radio' || input.type === 'checkbox') input.click()
+		})
+	}
 	selection.appendChild( label_ele )
 	selection.appendChild( input )
 	return selection
@@ -639,6 +645,13 @@ const htmlspecialchars_decode = (string, quote_style) => {
 }  
 
 
+const get_radio_val = elements => {
+	for( const ele of elements ){
+		if( ele.checked ) return ele.value
+	}
+	return undefined 
+}
+
 
 export {
 
@@ -652,22 +665,23 @@ export {
 	Spinner,
 	Gallery,
 
+	// builders
+	build_option,
+
 	// helper functions
 	fill_dimensions,
 	origin,
 	set_contingents,
 	model_selector,
 	insertAfter,
+	get_radio_val,
+	get_html_translation_table,
+	htmlspecialchars_decode,
 
 	// validations
 	val_boolean,
 	get_row,
 	tstack,
 
-	build_option,
-
-	get_html_translation_table,
-	htmlspecialchars_decode,
-	
 }
 

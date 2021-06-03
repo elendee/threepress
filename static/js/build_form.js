@@ -244,14 +244,6 @@ export default ( gallery, output_container ) => {
 
 	// custom updates
 
-	const label_selections = form.querySelectorAll('.threepress-options-category .selection label')
-	for( const label of label_selections ){
-		label.addEventListener('click', () => {
-			const input = label.parentElement.querySelector('input')
-			if( input.type === 'radio' || input.type === 'checkbox') input.click()
-		})
-	}
-
 	form.querySelector('input[name=bg_color]').addEventListener('keyup', e => {
 		e.target.value = e.target.value.replace(/ /g, '')
 	})
@@ -307,7 +299,7 @@ export default ( gallery, output_container ) => {
 		// console.log( shortcode )
 
 		fetch_wrap( ajaxurl, 'post', {
-			action: 'save_shortcode',
+			action: 'threepress_save_shortcode',
 			shortcode_id: shortcode_id,
 			name: gallery.form.querySelector('input[name=gallery_name]').value.trim(),
 			shortcode: shortcode.querySelector('textarea').value.trim(),

@@ -1,6 +1,6 @@
 === Threepress ===
 Contributors: kerryoco
-Tags: threejs, 3d, models, glb, gltf, viewer, ecommerce
+Tags: threejs, 3d, gltf, woocommerce, ecommerce
 Donate link: http://threepress.shop/
 Requires at least: 4.0
 Tested up to: 5.7.1
