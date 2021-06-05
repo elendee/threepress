@@ -1,5 +1,4 @@
-// import { DynamicBufferAttribute } from '../inc/three.module.js?v=0.3.5'
-// import Gallery from './Gallery.js?v=0.3.5'
+
 import {
 	model_selector,
 	set_contingents,

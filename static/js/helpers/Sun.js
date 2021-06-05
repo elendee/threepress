@@ -12,7 +12,7 @@ import {
 	Color,
 	Group,
 	Vector3,
-} from '../../inc/three.module.js?v=0.3.5'
+} from '../../inc/three.module.js'
 
 
 const textureLoader = new TextureLoader()

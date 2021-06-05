@@ -4,7 +4,7 @@ import ThreepressGallery from './ThreepressGallery.js?v=0.3.5'
 import {
 	Box3,
 	Vector3,
-} from '../inc/three.module.js?v=0.3.5'
+} from '../inc/three.module.js'
 
 
 // ------------------------------------------------------------ declarations
@@ -693,6 +693,24 @@ const random_hex = ( len ) => {
 }
 
 
+const imageToDataURI = (img, width, height) => {
+
+    // create an off-screen canvas
+    const offscreen_canvas = document.createElement('canvas')
+    const ctx = offscreen_canvas.getContext('2d')
+
+    // set its dimension to target size
+    offscreen_canvas.width = width
+    offscreen_canvas.height = height
+
+    // draw source image into the off-screen canvas:
+    ctx.drawImage(img, 0, 0, width, height)
+
+    // encode image to data-uri with base64 version of compressed image
+    return offscreen_canvas.toDataURL()
+}
+
+
 export {
 
 	// base ui functions
@@ -729,6 +747,8 @@ export {
 	// canvas defaults
 	defaults,
 	resolutions,
+
+	imageToDataURI,
 
 }
 

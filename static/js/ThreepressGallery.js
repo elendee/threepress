@@ -7,7 +7,7 @@ import {
 	Scene,
 	PerspectiveCamera,
 	Vector3,
-} from '../inc/three.module.js?v=0.3.5'
+} from '../inc/three.module.js'
 
 import { GLTFLoader } from '../inc/GLTFLoader.js?v=0.3.5'
 import { OrbitControls } from '../inc/OrbitControls.js?v=0.3.5'

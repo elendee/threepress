@@ -9,6 +9,7 @@ import {
 	PlaneGeometry,
 	DirectionalLight,
 	SpotLight,
+	PointLight,
 	WebGLRenderer,
 	Scene,
 	PerspectiveCamera,
@@ -17,7 +18,7 @@ import {
 	Raycaster,
 	MeshLambertMaterial,
 	// PCFSoftShadowMap,
-} from '../inc/three.module.js?v=0.3.5'
+} from '../inc/three.module.js'
 
 
 const groundgeo = new PlaneGeometry( 100, 100 )
@@ -43,8 +44,10 @@ export default function ThreePressScene( init ){
 	// scene.RENDERER.shadowMap.enabled = true
 	// scene.RENDERER.shadowMap.type = PCFSoftShadowMap
 	scene.LIGHT = new DirectionalLight()
+	// scene.LIGHT = new PointLight()
 	// scene.LIGHT.position.set( 1, 1, 1 )
 	// scene.LIGHT.position.set( 0, 20, 10 )
+	// scene.LIGHT.lookAt( new Vector3( 0, 0, 0 ))
 	// scene.SCENE.add( scene.LIGHT.target )
 	// scene.LIGHT.target.position.set( 0, 0, 0 )
 	// scene.LIGHT.castShadow = true
