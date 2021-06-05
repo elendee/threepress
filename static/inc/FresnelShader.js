@@ -4,13 +4,14 @@
  */
 
 const FresnelShader = {
+	// 2.0
 
 	uniforms: {
 
-		'mRefractionRatio': { value: 1.02 },
-		'mFresnelBias': { value: 0.1 },
-		'mFresnelPower': { value: 2.0 },
-		'mFresnelScale': { value: 1.0 },
+		'mRefractionRatio': { value: 1.02 }, // 1.02
+		'mFresnelBias': { value: 0.1 }, // 0.1
+		'mFresnelPower': { value: 2.0 }, // 2.0
+		'mFresnelScale': { value: 1.1 }, // 1.0
 		'tCube': { value: null }
 
 	},

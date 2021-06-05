@@ -693,18 +693,18 @@ const random_hex = ( len ) => {
 }
 
 
-const imageToDataURI = (img, width, height) => {
+const imageToDataURI = ( img, initX, initY, initWidth, initHeight, targetX, targetY, targetWidth, targetHeight ) => {
 
     // create an off-screen canvas
     const offscreen_canvas = document.createElement('canvas')
     const ctx = offscreen_canvas.getContext('2d')
 
     // set its dimension to target size
-    offscreen_canvas.width = width
-    offscreen_canvas.height = height
+    offscreen_canvas.width = targetWidth
+    offscreen_canvas.height = targetHeight
 
     // draw source image into the off-screen canvas:
-    ctx.drawImage(img, 0, 0, width, height)
+    ctx.drawImage( img, initX, initY, initWidth, initHeight, targetX, targetY, targetWidth, targetHeight )
 
     // encode image to data-uri with base64 version of compressed image
     return offscreen_canvas.toDataURL()
