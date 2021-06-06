@@ -4,20 +4,18 @@ import {
 } from './lib.js?v=0.3.5'
 
 import {
-	// Color,
 	DoubleSide,
 	PlaneGeometry,
 	DirectionalLight,
-	SpotLight,
-	PointLight,
+	// SpotLight,
+	// PointLight,
 	WebGLRenderer,
 	Scene,
 	PerspectiveCamera,
-	Vector3,
+	// Vector3,
 	Mesh,
 	Raycaster,
 	MeshLambertMaterial,
-	// PCFSoftShadowMap,
 } from '../inc/three.module.js'
 
 
@@ -27,34 +25,25 @@ const groundmat = new MeshLambertMaterial({
 	transparent: true,
 	depthTest: false,
 	side: DoubleSide,
-	// color: 'yellow'
 })
+
+const scenes = window.scenes = []
 
 export default function ThreePressScene( init ){
 
 	init = init || {}
 
-	const scene = window.scene = {}
+	const scene = {}
+	window.scenes.push( scene )
+
+	scene.type = init.type
 
 	scene.SCENE = new Scene()
 	scene.RENDERER = new WebGLRenderer({ 
 		antialias: true,
 		alpha: true,
 	})
-	// scene.RENDERER.shadowMap.enabled = true
-	// scene.RENDERER.shadowMap.type = PCFSoftShadowMap
 	scene.LIGHT = new DirectionalLight()
-	// scene.LIGHT = new PointLight()
-	// scene.LIGHT.position.set( 1, 1, 1 )
-	// scene.LIGHT.position.set( 0, 20, 10 )
-	// scene.LIGHT.lookAt( new Vector3( 0, 0, 0 ))
-	// scene.SCENE.add( scene.LIGHT.target )
-	// scene.LIGHT.target.position.set( 0, 0, 0 )
-	// scene.LIGHT.castShadow = true
-	// scene.LIGHT.shadow.mapSize.width = 512
-	// scene.LIGHT.shadow.mapSize.height = 512
-	// scene.LIGHT.shadow.camera.near = 0.5
-	// scene.LIGHT.shadow.camera.far = 500
 	scene.CAMERA = new PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, scene.view )
 	scene.GROUND = new Mesh( groundgeo, groundmat )
 	scene.GROUND.receiveShadow = true
@@ -66,7 +55,7 @@ export default function ThreePressScene( init ){
 	scene.canvas = scene.RENDERER.domElement
 	scene.wrapper = document.createElement('div')
 	scene.wrapper.appendChild( scene.canvas )
-	scene.wrapper.classList.add('threepress-scene')
+	scene.wrapper.classList.add('threepress-scene', 'threepress-' + scene.type + '-canvas')
 
 	scene.fullscreen = true
 
@@ -100,6 +89,9 @@ export default function ThreePressScene( init ){
 		// DOM
 		if( scene.fullscreen ){
 			scene.aspect_ratio = window.innerWidth / window.innerHeight 
+		}else{
+			const bounds = scene.getBoundingClientRect()
+			scene.aspect_ratio = bounds.width / bounds.height
 		}
 		scene.canvas.height = scene.canvas.width / scene.aspect_ratio
 		// RENDERER
@@ -107,25 +99,16 @@ export default function ThreePressScene( init ){
 	}
 
 
-	let now, then
+	// let now, then
 
 	const animate = () => {
 
 		if( !scene.animating ) return
 
-		now = performance.now()
+		// now = performance.now()
 		// delta = now - then
 		// delta_seconds = delta / 1000 
 		scene.RENDERER.render( scene.SCENE, scene.CAMERA )
-
-		// for( const child of scene.SCENE.children ){
-		// 	if( child.userData.subject && scene.rotate_scene ){
-		// 		if( scene.rotate_x ) child.rotation.x += scene.scaled_rotate
-		// 		if( scene.rotate_y ) child.rotation.y += scene.scaled_rotate
-		// 		if( scene.rotate_z ) child.rotation.z += scene.scaled_rotate
-		// 	}
-		// }
-		// console.log('frame')
 
 		requestAnimationFrame( animate )
 	}
@@ -136,18 +119,11 @@ export default function ThreePressScene( init ){
 
 	const animate_controls = () => { // animation with controls
 		if( !scene.animating ) return
-		now = performance.now()
+		// now = performance.now()
 		// delta = now - then
 		// delta_seconds = delta / 1000 
 		scene.RENDERER.render( scene.SCENE, scene.CAMERA )
 
-		// for( const child of scene.SCENE.children ){
-		// 	if( child.userData.subject && scene.rotate_scene ){
-		// 		if( scene.rotate_x ) child.rotation.x += scene.scaled_rotate
-		// 		if( scene.rotate_y ) child.rotation.y += scene.scaled_rotate
-		// 		if( scene.rotate_z ) child.rotation.z += scene.scaled_rotate
-		// 	}
-		// }
 		scene.orbit_controls.update()
 		requestAnimationFrame( animate_controls )
 

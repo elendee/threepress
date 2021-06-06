@@ -332,9 +332,13 @@ const origin = new Vector3( 0, 0, 0 )
 
 
 
-const set_contingents = ( contingents, enabled ) => {
+const set_contingents = ( contingents, enabled, hide ) => {
 	for( const ele of contingents ){
-		enabled ? ele.classList.remove('threepress-disabled') : ele.classList.add('threepress-disabled')
+		if( hide ){
+			enabled ? ele.style.display = 'inline-block' : ele.style.display = 'none'
+		}else{
+			enabled ? ele.classList.remove('threepress-disabled') : ele.classList.add('threepress-disabled')
+		}
 	}
 }
 

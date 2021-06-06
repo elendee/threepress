@@ -295,6 +295,10 @@
     margin: 10px 0;
 }
 
+.contingent-category{
+	margin-left: 20px;
+}
+
 @media screen and (max-width: 800px){
 	.threepress-options-category .selection{
 		margin: 10px 0;

@@ -99,7 +99,7 @@ if ( !class_exists( 'Threepress' ) ) {
     		wp_enqueue_script( 
 				'threepress-global-js', 
 				plugins_url( '/static/js/global.js?v=' . $threepress_version, __FILE__ ),
-				array('jquery')
+				array()
 			);
 
 			wp_localize_script( 'threepress-global-js', 'THREEPRESS', array(
@@ -142,7 +142,7 @@ if ( !class_exists( 'Threepress' ) ) {
     		wp_enqueue_script( 
 				'threepress-base-js', 
 				plugins_url( '/static/js/init_base.js?v=' . $threepress_version, __FILE__ ),
-				array() // 'jquery'
+				array() 
 			);
 	    }
 
@@ -152,7 +152,7 @@ if ( !class_exists( 'Threepress' ) ) {
     		wp_enqueue_script( 
 				'threepress-admin-js', 
 				plugins_url( '/static/js/init_admin.js?v=' . $threepress_version, __FILE__ ),
-				array('jquery')
+				array()
 			);
 
 	    }
