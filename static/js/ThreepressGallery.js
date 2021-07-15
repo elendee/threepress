@@ -12,6 +12,8 @@ import {
 import { GLTFLoader } from '../inc/GLTFLoader.js?v=0.3.5'
 import { OrbitControls } from '../inc/OrbitControls.js?v=0.3.5'
 
+import Sun from './helpers/Sun.js'
+
 import {
 	fill_dimensions,
 	fetch_wrap,
@@ -295,10 +297,16 @@ export default init => {
 		set_scalars( gallery )
 
 		if( !gallery.LIGHT ){
-			if( gallery.light === 'directional' ){
+			if( gallery.light === 'directional' || gallery.light === 'sun' ){
 				gallery.LIGHT = new DirectionalLight( 0xffffff, gallery.scaled_intensity )
 			}else{
-				//
+				// 
+			}
+			if( gallery.light === 'sun'){
+				// sun stuffs...
+				gallery.SUN = new Sun({
+					
+				})
 			}
 		}
 		gallery.CAMERA = gallery.CAMERA || new PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, gallery.view )
