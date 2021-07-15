@@ -1,5 +1,5 @@
-import ThreepressGallery from './ThreepressGallery.js?v=0.3.5'
-// import BROKER from './helpers/EventBroker.js?v=0.3.5'
+import ThreepressGallery from './ThreepressGallery.js?v=0.4.0'
+// import BROKER from './helpers/EventBroker.js?v=0.4.0'
 
 import {
 	Box3,
@@ -351,6 +351,11 @@ const model_selector = ( callback ) => {
 	if( model_frame ){
 		model_frame.open()
 		return
+	}
+
+	if( !wp.media ){
+		console.error('wp.media not enabled')
+		return false
 	}
 
 	model_frame = new wp.media.view.MediaFrame.Select({

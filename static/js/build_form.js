@@ -7,7 +7,7 @@ import {
 	get_row,
 	insertAfter,
 	build_option,
-} from './lib.js?v=0.3.5'
+} from './lib.js?v=0.4.0'
 
 
 
@@ -112,7 +112,7 @@ export default ( gallery, output_container ) => {
 	// option - light
 	const light = build_category('light')
 	const light_options = ['directional', 'sun', 'hemispherical']
-	const disabled_light = ['hemispherical', 'sun']
+	const disabled_light = ['hemispherical']
 	let light_opt
 	for( let i = 0; i < light_options.length; i++ ){
 		opt = build_option('radio', 'options_light', light_options[i], light_options[i], false, false, {}, i === 0 )

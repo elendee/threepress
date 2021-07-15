@@ -1,4 +1,4 @@
-// import BROKER from './helpers/EventBroker.js?v=0.3.5'
+// import BROKER from './helpers/EventBroker.js?v=0.4.0'
 
 import {
 	// Color,
@@ -9,8 +9,8 @@ import {
 	Vector3,
 } from '../inc/three.module.js'
 
-import { GLTFLoader } from '../inc/GLTFLoader.js?v=0.3.5'
-import { OrbitControls } from '../inc/OrbitControls.js?v=0.3.5'
+import { GLTFLoader } from '../inc/GLTFLoader.js?v=0.4.0'
+import { OrbitControls } from '../inc/OrbitControls.js?v=0.4.0'
 
 import Sun from './helpers/Sun.js'
 
@@ -25,9 +25,9 @@ import {
 	set_scalars,
 	resolutions,
 	defaults,
-} from './lib.js?v=0.3.5'
+} from './lib.js?v=0.4.0'
 
-import { Modal } from './helpers/Modal.js?v=0.3.5'
+import { Modal } from './helpers/Modal.js?v=0.4.0'
 
 
 const logging = false
@@ -297,17 +297,20 @@ export default init => {
 		set_scalars( gallery )
 
 		if( !gallery.LIGHT ){
-			if( gallery.light === 'directional' || gallery.light === 'sun' ){
+
+			if( gallery.light === 'directional' ){ // || gallery.light === 'sun'
+
 				gallery.LIGHT = new DirectionalLight( 0xffffff, gallery.scaled_intensity )
-			}else{
-				// 
-			}
-			if( gallery.light === 'sun'){
+
+			}else if( gallery.light === 'sun'){
+
 				// sun stuffs...
 				gallery.SUN = new Sun({
 					
 				})
+				gallery.LIGHT = gallery.SUN.directional
 			}
+
 		}
 		gallery.CAMERA = gallery.CAMERA || new PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, gallery.view )
 
@@ -346,9 +349,19 @@ export default init => {
 			gallery.CAMERA.far = radius * 100
 
 			gallery.CAMERA.position.set( 0, radius, radius * gallery.camera_dist )
-			gallery.LIGHT.position.set( diam, diam, diam )
 			gallery.CAMERA.lookAt( model.position )
+			gallery.LIGHT.position.set( diam, diam, diam )
 			gallery.LIGHT.lookAt( model.position )
+			if( gallery.SUN && gallery.MODELS && gallery.MODELS[0] ){
+				gallery.SUN.ele.position.set( gallery.MODELS[0].userData.dimensions.x, 10, 0 )
+				gallery.SCENE.add( gallery.SUN.ele )
+				gallery.MODELS[0].traverse( child => {
+					console.log( child.material )
+					// child.receiveShadow = true
+				})
+				// .receiveShadow = true
+
+			}
 
 		}
 

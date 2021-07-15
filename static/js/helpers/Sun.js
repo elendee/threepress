@@ -2,7 +2,7 @@
 import { 
 	Lensflare, 
 	LensflareElement 
-} from './Lensflare.js?v=0.3.5'
+} from '../../inc/Lensflare.js?v=0.4.0'
 
 import { 
 	DirectionalLight, 
@@ -47,7 +47,7 @@ export default class Sun {
 
 		//////////////// sun / flare
 		sun.color = new Color( init.color || 'rgb(255, 255, 255)' )
-		sun.scale = init.scale || 7000
+		sun.scale = init.scale || 100
 
 		sun.texture = sun_tex
 		sun.material = new SpriteMaterial({

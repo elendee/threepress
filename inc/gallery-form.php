@@ -61,11 +61,11 @@ function threepress_gallery_form(){
 			    			<label>orbit</label>
 			    			<input name='options_controls' type='radio' value='orbit' checked='true'>
 			    		</div>
-		    			<div class='selection threepress-disabled'>
+		    			<div class='selection'>
 			    			<label>first person</label>
 			    			<input name='options_controls' type='radio' value='first'>
 			    		</div>
-		    			<div class='selection threepress-disabled'>
+		    			<div class='selection'>
 			    			<label>flight</label>
 			    			<input name='options_controls' type='radio' value='flight'>
 			    		</div>
@@ -73,7 +73,7 @@ function threepress_gallery_form(){
 	    			
 		    		<div class='threepress-options-category'>
 		    			<h4>light</h4>
-		    			<div class='selection threepress-disabled'>
+		    			<div class='selection'>
 			    			<label>sun</label>
 			    			<input name='options_light' type='radio' value='sun'>
 			    		</div>
@@ -81,7 +81,7 @@ function threepress_gallery_form(){
 			    			<label>directional</label>
 			    			<input name='options_light' type='radio' value='directional' checked="true">
 			    		</div>
-		    			<div class='selection threepress-disabled'>
+		    			<div class='selection'>
 			    			<label>hemispherical</label>
 			    			<input name='options_light' type='radio' value='hemispherical'>
 			    		</div>

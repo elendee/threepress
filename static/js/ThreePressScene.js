@@ -1,7 +1,7 @@
 import {
 	set_scalars,
 	resolutions,
-} from './lib.js?v=0.3.5'
+} from './lib.js?v=0.4.0'
 
 import {
 	DoubleSide,
