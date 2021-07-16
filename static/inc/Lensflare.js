@@ -14,7 +14,7 @@ import {
 	RawShaderMaterial,
 	Vector2,
 	Vector3,
-	Vector4
+	Vector4,
 } from './three.module.js';
 
 var Lensflare = function () {

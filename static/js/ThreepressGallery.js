@@ -210,11 +210,15 @@ export default init => {
 	const camera_step = new Vector3()
 	const projection = new Vector3()
 	let projected_dist, buffer_radius, too_close, pass_through
+	let last_scroll = performance.now()
+	let delta_seconds
 	const scroll_canvas = e => {
+		delta_seconds = Math.min( ( performance.now() - last_scroll ) / 1000, .5 )
+		last_scroll = performance.now()
 		for( const gallery of galleries ){
 			gallery_bound = gallery.canvas.getBoundingClientRect()
 			gallery_top = window.pageYOffset + gallery_bound.top
-			if( gallery.orbit_controls && gallery.allow_zoom ){
+			if( gallery.orbit_controls || gallery.allow_zoom ){
 				if( e.clientX > gallery_bound.left && e.clientX < gallery_bound.left + gallery_bound.width ){
 					if( e.clientY > gallery_top && e.clientY < gallery_top + gallery_bound.height ){
 
@@ -222,9 +226,13 @@ export default init => {
 
 						camera_step.subVectors( gallery.CAMERA.position, origin )
 						.normalize()
-						.multiplyScalar( gallery.scaled_zoom )
+						.multiplyScalar( gallery.scaled_zoom * delta_seconds )
 						
 						projection.copy( gallery.CAMERA.position )
+
+						if( Math.abs( gallery.CAMERA.position.length() - projection.length() ) > 20 ){
+							return
+						}
 
 						if( e.deltaY > 0 ){ // out
 							
@@ -233,11 +241,11 @@ export default init => {
 						}else{ // in
 
 							projection.sub( camera_step )
-							projected_dist = projection.distanceTo( gallery.MODELS[0].position )
+							projected_dist = projection.distanceTo( gallery.MODELS[0].position ) // single model shim
 							buffer_radius = gallery.MODELS[0].userData.radius * 1.5
 							too_close = projected_dist < buffer_radius
 							pass_through = gallery.CAMERA.position.distanceTo( projection ) >= gallery.CAMERA.position.distanceTo( gallery.MODELS[0].position ) - buffer_radius
-							
+
 							if( too_close || pass_through ){
 								return
 							}else{
@@ -256,6 +264,8 @@ export default init => {
 					}
 				}
 			}
+			if( gallery.orbit_controls ) gallery.orbit_controls.update()
+			gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 		}
 	}
 
@@ -309,6 +319,7 @@ export default init => {
 					intensity: gallery.scaled_intensity,
 				})
 				gallery.LIGHT = gallery.SUN.directional
+				gallery.SCENE.add( gallery.SUN.ele )
 			}
 
 		}
@@ -357,7 +368,6 @@ export default init => {
 				gallery.camera_zpos, 
 			)
 			gallery.CAMERA.lookAt( model.position )
-			gallery.LIGHT.position.set( diam, diam, diam )
 			gallery.LIGHT.lookAt( model.position )
 			if( gallery.SUN && gallery.MODELS && gallery.MODELS[0] ){
 				gallery.SUN.ele.position.set( 
@@ -365,14 +375,17 @@ export default init => {
 					gallery.MODELS[0].userData.dimensions.y * 2,
 					-gallery.MODELS[0].userData.dimensions.z * 10,
 				)
-				gallery.SCENE.add( gallery.SUN.ele )
 				gallery.SUN.directional.position.copy( gallery.SUN.ele.position )
+				gallery.LIGHT.position.copy( gallery.SUN.ele.position )
+
 				// gallery.MODELS[0].traverse( child => {
 				// 	console.log( child.material )
 				// 	// child.receiveShadow = true
 				// })
 				// .receiveShadow = true
 
+			}else{
+				gallery.LIGHT.position.set( diam, diam, diam )
 			}
 
 		}
@@ -387,7 +400,7 @@ export default init => {
 
 			gallery.orbit_controls = new OrbitControls( gallery.CAMERA, gallery.canvas )
 			gallery.orbit_controls.enableZoom = false // implement this yourself so it doesn't jack scroll
-
+			// ( it will preventDefault scroll events entirely otherwise )
 		}
 
 		if( !bound_wheel ){
@@ -852,6 +865,15 @@ export default init => {
 			contingents = target_ele.parentElement.parentElement.querySelectorAll('.contingent')
 
 			set_contingents( contingents, target_ele.checked )
+
+			const no_controls = document.querySelector('input[name=options_controls][value=none]')
+			const orbit = document.querySelector('input[name=options_controls][value=orbit]')
+			if( target_ele.checked ){
+				no_controls.checked = true
+				orbit.parentElement.classList.add('threepress-disabled')
+			}else{
+				orbit.parentElement.classList.remove('threepress-disabled')
+			}
 
 		}else if( target_ele.name === 'allow_zoom' ){
 
