@@ -1,6 +1,5 @@
 
 import {
-	model_selector,
 	set_contingents,
 	hal,
 	fetch_wrap,
@@ -131,7 +130,8 @@ export default ( gallery, output_container ) => {
 	// allow zoom, zoom speed, initial zoom
 	const zoom = build_option('checkbox', 'allow_zoom', false, 'allow zoom', false, false )
 	const zoom_speed = build_option('range', 'zoom_speed', false, false, false, { min: 1, max: 12, })
-	const initial_zoom = build_option('range', 'camera_dist', 10, 'initial zoom', false, false, { min: 1, max: 20 })
+	// const initial_zoom = build_option('range', 'camera_dist', 10, 'initial zoom', false, false, { min: 1, max: 20 })
+	const initial_zoom = build_option('range', 'camera_dist', 10, 'initial zoom', false,  true, { min: 1, max: 20 })
 	camera.appendChild( zoom )
 	camera.appendChild( zoom_speed )
 	camera.appendChild( initial_zoom )
@@ -202,33 +202,7 @@ export default ( gallery, output_container ) => {
 
 		let contingents
 
-		if( e.target.id === 'choose-model'){
-
-			model_selector(( id, model_row ) => {
-				model_choice.innerHTML = ''
-				model_row.form = form
-				model_choice.appendChild( model_row.gen_row() )
-				shortcode.value = gallery.render_shortcode() //  form 
-			})
-
-		}else if( e.target.name === 'rotate_scene'){
-
-			contingents = e.target.parentElement.parentElement.querySelectorAll('.contingent')
-
-			set_contingents( contingents, e.target.checked )
-
-		}else if( e.target.name === 'allow_zoom' ){
-
-			contingents = [form.querySelector('input[name=zoom_speed]')]
-
-			set_contingents( contingents, e.target.checked )
-
-		}
-		// else if( e.target.name === 'options_controls'){
-
-		// 	contingents = form.querySelectorAll('')
-
-		// }
+		gallery.render_contingent( form, e.target, model_choice, shortcode )
 
 	})
 
@@ -251,6 +225,7 @@ export default ( gallery, output_container ) => {
 	const bg_color = form.querySelector('input[name=bg_color]')
 	color_picker.addEventListener('change', e => {
 		bg_color.value = color_picker.value
+		shortcode.value = gallery.render_shortcode() // gallery.form
 	})
 
 
@@ -369,6 +344,15 @@ export default ( gallery, output_container ) => {
 	return form
 
 }
+
+
+
+
+
+
+
+
+
 
 
 

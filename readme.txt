@@ -62,3 +62,4 @@ All the galleries on a given page will be available in the global variable `THRE
 = 0.4.0 =
 * Sun added 
 * wp.media include fixed
+* color picker always updates shortcode

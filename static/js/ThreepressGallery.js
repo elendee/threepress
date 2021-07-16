@@ -15,6 +15,7 @@ import { OrbitControls } from '../inc/OrbitControls.js?v=0.4.0'
 import Sun from './helpers/Sun.js'
 
 import {
+	model_selector,
 	fill_dimensions,
 	fetch_wrap,
 	ModelRow,
@@ -153,8 +154,11 @@ export default init => {
 		gallery.orbit_controls ? animate_controls() : animate()
 	}
 
-	const stop_animation = () => {
-		gallery.animating = false
+	const stop_animation = (e, override) => {
+
+		if( override || !gallery.rotate_scene ){
+			gallery.animating = false
+		}
 	}
 
 	gallery.anim_state = state => { // state
@@ -171,37 +175,33 @@ export default init => {
 		if( !gallery.animating ) return
 
 		now = performance.now()
-		// delta = now - then
-		// delta_seconds = delta / 1000 
 		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 
-		for( const child of gallery.SCENE.children ){
-			if( child.userData.subject && gallery.rotate_scene ){
-				if( gallery.rotate_x ) child.rotation.x += gallery.scaled_rotate
-				if( gallery.rotate_y ) child.rotation.y += gallery.scaled_rotate
-				if( gallery.rotate_z ) child.rotation.z += gallery.scaled_rotate
-			}
+		if(  gallery.rotate_scene ){ // child.userData.subject &&
+			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) )
+			gallery.CAMERA.position.z = gallery.camera_dist * ( Math.cos( performance.now() / 20000 * gallery.rotate_speed ) )
 		}
+
+		if( gallery.rotate_scene ) gallery.CAMERA.lookAt( origin )
 
 		requestAnimationFrame( animate )
 
 	}
 
 	const animate_controls = () => { // animation with controls
+
 		if( !gallery.animating ) return
+
 		now = performance.now()
-		// delta = now - then
-		// delta_seconds = delta / 1000 
 		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 
-		for( const child of gallery.SCENE.children ){
-			if( child.userData.subject && gallery.rotate_scene ){
-				if( gallery.rotate_x ) child.rotation.x += gallery.scaled_rotate
-				if( gallery.rotate_y ) child.rotation.y += gallery.scaled_rotate
-				if( gallery.rotate_z ) child.rotation.z += gallery.scaled_rotate
-			}
+		if( gallery.rotate_scene ){ // child.userData.subject
+			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) )
+			gallery.CAMERA.position.z = gallery.camera_dist * ( Math.cos( performance.now() / 20000 * gallery.rotate_speed ) )
 		}
+
 		gallery.orbit_controls.update()
+		// gallery.CAMERA.lookAt( )
 		requestAnimationFrame( animate_controls )
 
 	}
@@ -306,7 +306,7 @@ export default init => {
 
 				// sun stuffs...
 				gallery.SUN = new Sun({
-					
+					intensity: gallery.scaled_intensity,
 				})
 				gallery.LIGHT = gallery.SUN.directional
 			}
@@ -348,17 +348,29 @@ export default init => {
 
 			gallery.CAMERA.far = radius * 100
 
-			gallery.CAMERA.position.set( 0, radius, radius * gallery.camera_dist )
+			gallery.camera_xpos = 0
+			gallery.camera_ypos = radius * 1.5
+			gallery.camera_zpos = radius * gallery.camera_dist 
+			gallery.CAMERA.position.set( 
+				gallery.camera_xpos, 
+				gallery.camera_ypos, 
+				gallery.camera_zpos, 
+			)
 			gallery.CAMERA.lookAt( model.position )
 			gallery.LIGHT.position.set( diam, diam, diam )
 			gallery.LIGHT.lookAt( model.position )
 			if( gallery.SUN && gallery.MODELS && gallery.MODELS[0] ){
-				gallery.SUN.ele.position.set( gallery.MODELS[0].userData.dimensions.x, 10, 0 )
+				gallery.SUN.ele.position.set( 
+					gallery.MODELS[0].userData.dimensions.x * 3,
+					gallery.MODELS[0].userData.dimensions.y * 2,
+					-gallery.MODELS[0].userData.dimensions.z * 10,
+				)
 				gallery.SCENE.add( gallery.SUN.ele )
-				gallery.MODELS[0].traverse( child => {
-					console.log( child.material )
-					// child.receiveShadow = true
-				})
+				gallery.SUN.directional.position.copy( gallery.SUN.ele.position )
+				// gallery.MODELS[0].traverse( child => {
+				// 	console.log( child.material )
+				// 	// child.receiveShadow = true
+				// })
 				// .receiveShadow = true
 
 			}
@@ -457,9 +469,9 @@ export default init => {
 		// --- derived gallery attributes:
 
 		// rotate
-		if( gallery.rotate_scene ){
-			shortcodes += 'rotate_scene=true '
-		}
+		// if( gallery.rotate_scene ){
+		// 	shortcodes += 'rotate_scene=true '
+		// }
 		
 		// model
 		gallery.fill_model_from_form()
@@ -661,7 +673,7 @@ export default init => {
 
 		// light
 		for( const option of form.querySelectorAll('input[name=options_light]')){
-			if( option.value === gallery.controls ) option.checked = true
+			if( option.value === gallery.light ) option.checked = true
 		}
 		// light intensity
 		form.querySelector('input[name=intensity]').value = gallery.intensity // scaled_intensity
@@ -698,6 +710,11 @@ export default init => {
 			top: window.pageYOffset + form.getBoundingClientRect().top - 50,
 			behavior: 'smooth',
 		})
+
+		// const choose_model = document.getElementById('choose-model')
+
+		gallery.render_contingent( form, rotate_scene, model_choice, shortcode )
+		gallery.render_contingent( form, allow_zoom, model_choice, shortcode )
 
 		hal('success', 'editing "' + name + '"', 3000 )
 
@@ -805,6 +822,45 @@ export default init => {
 		})
 
 		return row
+
+	}
+
+
+
+
+
+	gallery.render_contingent = ( form, target_ele, model_choice, shortcode ) => {
+
+		if( !target_ele ){
+			console.log('missing', model_choice )
+			return 
+		}
+
+		let contingents
+
+		if( target_ele.id === 'choose-model'){
+
+			model_selector(( id, model_row ) => {
+				model_choice.innerHTML = ''
+				model_row.form = form
+				model_choice.appendChild( model_row.gen_row() )
+				shortcode.value = gallery.render_shortcode() //  form 
+			})
+
+		}else if( target_ele.name === 'rotate_scene'){
+
+			contingents = target_ele.parentElement.parentElement.querySelectorAll('.contingent')
+
+			set_contingents( contingents, target_ele.checked )
+
+		}else if( target_ele.name === 'allow_zoom' ){
+
+			contingents = target_ele.parentElement.parentElement.querySelectorAll('.contingent')
+			// contingents = [form.querySelector('input[name=zoom_speed]')]
+
+			set_contingents( contingents, target_ele.checked )
+
+		}
 
 	}
 

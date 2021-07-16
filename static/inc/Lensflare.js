@@ -19,7 +19,9 @@ import {
 
 var Lensflare = function () {
 
-	Mesh.call( this, Lensflare.Geometry, new MeshBasicMaterial( { opacity: 0, transparent: true } ) );
+	const lens_mat = new MeshBasicMaterial( { opacity: 0, transparent: true } )
+
+	Mesh.call( this, Lensflare.Geometry, lens_mat );
 
 	this.type = 'Lensflare';
 	this.frustumCulled = false;

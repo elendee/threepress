@@ -101,7 +101,7 @@ function threepress_gallery_form(){
 			    			<label>zoom speed</label>
 			    			<input type='range' min=1 max=12 name='zoom_speed'>
 			    		</div>
-			    		<div class='selection'>
+			    		<div class='selection contingent'>
 							<label>initial zoom</label>
 			    			<input type='range' min=1 max=20 name='camera_dist'>
 			    		</div>

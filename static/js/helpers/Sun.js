@@ -53,17 +53,16 @@ export default class Sun {
 		sun.material = new SpriteMaterial({
 			map: sun.texture,
 			color: sun.color,
-			// fog: false,
 		})
 		sun.layer1 = new Sprite( sun.material )
 		sun.layer1.bloom = true
 		sun.layer2 = new Sprite( sun.material )
 		// sun.layer3 = new Sprite( sun.material )
-		sun.layer1.scale.set( sun.scale, sun.scale, sun.scale )
-		sun.layer2.scale.multiplyScalar( 1.1 )
-		// set( sun.scale * 1.1, sun.scale * 1.1, sun.scale * 1.1 )
-		// sun.layer3.scale.multiplyScalar( 1.2 )
-		// set( sun.scale * 1.2, sun.scale * 1.2, sun.scale * 1.2 )
+		sun.layer1.scale.set( 
+			sun.scale, 
+			sun.scale, 
+			sun.scale )
+		sun.layer2.scale.copy( sun.layer1.scale ).multiplyScalar( 1.1 )
 
 		sun.flares = [
 			{
@@ -108,11 +107,16 @@ export default class Sun {
 				distance: .65,
 				color: new Color(0xccaaff),
 			},
-		],
+		]
 
 		sun.lensflare = new Lensflare()
 		for( const flare of sun.flares ){
-			sun.lensflare.addElement( new LensflareElement( flare.texture, flare.size, flare.distance, flare.color ) )
+			sun.lensflare.addElement( new LensflareElement( 
+				flare.texture, 
+				flare.size, 
+				flare.distance, 
+				flare.color 
+			))
 		}
 
 		sun.ele = new Group()
@@ -122,8 +126,9 @@ export default class Sun {
 
 		sun.ele.userData.type = 'sun'
 
-		// sun.ele.add( sun.lensflare )
-
+		sun.ele.add( sun.lensflare )
+		
+		// 
 		// sun.ele.add( sun.layer3 )
 		// sun.ele.add( sun.directional )
 
@@ -133,6 +138,7 @@ export default class Sun {
 
 		sun.directional = new DirectionalLight( sun.color, 1 )
 
+		// sun.ele.add( sun.directional )
 		sun.directional.position.copy( offset )
 		sun.directional.castShadow = true
 		sun.directional.shadow.camera.near = 10;
