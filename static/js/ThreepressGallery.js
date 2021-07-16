@@ -219,9 +219,11 @@ export default init => {
 			gallery_bound = gallery.canvas.getBoundingClientRect()
 			gallery_top = window.pageYOffset + gallery_bound.top
 			if( gallery.orbit_controls || gallery.allow_zoom ){
+				// console.log('a')
 				if( e.clientX > gallery_bound.left && e.clientX < gallery_bound.left + gallery_bound.width ){
-					if( e.clientY > gallery_top && e.clientY < gallery_top + gallery_bound.height ){
-
+					// console.log('b')
+					if( e.clientY > gallery_bound.top && e.clientY < gallery_bound.top + gallery_bound.height ){
+						// console.log('c')
 						e.preventDefault()
 
 						camera_step.subVectors( gallery.CAMERA.position, origin )
@@ -230,27 +232,33 @@ export default init => {
 						
 						projection.copy( gallery.CAMERA.position )
 
-						if( Math.abs( gallery.CAMERA.position.length() - projection.length() ) > 20 ){
-							return
-						}
+						// if( Math.abs( gallery.CAMERA.position.length() - projection.length() ) > 20 ){
+						// 	return
+						// }
 
 						if( e.deltaY > 0 ){ // out
 							
+							if( camera_step.length() > 10 ) camera_step.multiplyScalar( 10 / camera_step.length() )
 							projection.add( camera_step )
 
 						}else{ // in
 
+							buffer_radius = gallery.MODELS[0].userData.radius * 1.5
 							projection.sub( camera_step )
 							projected_dist = projection.distanceTo( gallery.MODELS[0].position ) // single model shim
-							buffer_radius = gallery.MODELS[0].userData.radius * 1.5
-							too_close = projected_dist < buffer_radius
-							pass_through = gallery.CAMERA.position.distanceTo( projection ) >= gallery.CAMERA.position.distanceTo( gallery.MODELS[0].position ) - buffer_radius
 
-							if( too_close || pass_through ){
-								return
-							}else{
-								projection.sub( camera_step )
+							let block 
+							if( projected_dist < buffer_radius ){
+								block = 'radius block'
+							}else if( camera_step.length() > buffer_radius ){
+								block = 'buffer block'
 							}
+							if( block ){
+								console.log( block )
+								return
+							}
+
+							projection.sub( camera_step )
 							
 						}
 
