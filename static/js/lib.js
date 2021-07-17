@@ -447,6 +447,54 @@ const build_option = ( type, name, value, label, placeholder, contingent, attrs,
 }
 
 
+const coord_range = ( name ) => {
+	const coord = document.createElement('input')
+	coord.classList.add('coord-range')
+	coord.type = 'range'
+	coord.min = -3
+	coord.max = 3
+	coord.step = 1
+	coord.name = name
+	// coord.value = coord.max
+	return coord
+}
+
+const build_positioner = type => {
+	const wrapper = document.createElement('div')
+	const readout = document.createElement('input')
+	readout.type = 'text'
+	readout.classList.add('readout')
+	readout.setAttribute('readonly', true)
+	const dims = {
+		x: 0,
+		y: 0,
+		z: 0,
+	}
+	for( const dim of Object.keys( dims ) ){
+		const ele = coord_range( dim )
+		dims[ dim ] = ele.value
+		wrapper.appendChild( ele )
+		ele.addEventListener('change', () => {
+			dims[ dim ] = ele.value
+			readout.value = ' '
+			for( const dim in dims ){
+				readout.value += dims[ dim ] + ' '
+			}
+		})
+
+	}
+	wrapper.appendChild( readout )
+	// const x = coord_range('x')
+	// const y = coord_range('y')
+	// const z = coord_range('z')
+	// wrapper.appendChild( x )
+	// wrapper.appendChild( y )
+	// wrapper.appendChild( z )
+
+	return wrapper
+}
+
+
 const get_html_translation_table = (table, quote_style) => {  
     // Returns the internal translation table used by htmlspecialchars and htmlentities    
     //   
@@ -734,6 +782,7 @@ export {
 
 	// builders
 	build_option,
+	build_positioner,
 
 	// helper functions
 	fill_dimensions,

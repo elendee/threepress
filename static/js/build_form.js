@@ -6,6 +6,7 @@ import {
 	get_row,
 	insertAfter,
 	build_option,
+	build_positioner,
 } from './lib.js?v=0.4.0'
 
 
@@ -20,9 +21,12 @@ const build_section = ( name ) => {
 	return section
 }
 
-const build_category = name => {
+const build_category = ( name, addClass ) => {
 	const category = document.createElement('div')
 	category.classList.add('threepress-options-category')
+	if( addClass ){
+		category.classList.add( addClass )
+	}
 	const header = document.createElement('h4')
 	header.innerHTML = name
 	category.appendChild( header )
@@ -91,7 +95,7 @@ export default ( gallery, output_container ) => {
 	// option - controls
 	const controls = build_category('controls')
 	options_content.append( controls )
-	const controls_options = ['none', 'orbit', 'first', 'flight']
+	const controls_options = ['none', 'orbit'] // , 'first', 'flight'
 	const disabled_opt = ['first', 'flight']
 	let opt
 	for( let i = 0; i < controls_options.length; i++ ){
@@ -99,6 +103,18 @@ export default ( gallery, output_container ) => {
 		if( disabled_opt.includes( controls_options[i] ) ) opt.classList.add('threepress-disabled')
 		controls.appendChild( opt )
 	}
+
+	// option - no controls cam setting
+	const cam_pos = build_category('camera position', 'cam-position')
+	const cam_setting = build_positioner('cam-position')
+	cam_pos.appendChild( cam_setting )
+	options_content.appendChild( cam_pos )
+
+	// option - no controls light setting
+	const light_pos = build_category('light position', 'light-position')
+	const light_setting = build_positioner('light-position')
+	light_pos.appendChild( light_setting )
+	options_content.appendChild( light_pos )
 
 	// option - bg
 	const bg = build_category('background')
@@ -131,7 +147,8 @@ export default ( gallery, output_container ) => {
 	const zoom = build_option('checkbox', 'allow_zoom', false, 'allow zoom', false, false )
 	const zoom_speed = build_option('range', 'zoom_speed', false, false, false, { min: 1, max: 12, })
 	// const initial_zoom = build_option('range', 'camera_dist', 10, 'initial zoom', false, false, { min: 1, max: 20 })
-	const initial_zoom = build_option('range', 'camera_dist', 10, 'initial zoom', false,  true, { min: 1, max: 20 })
+	// const initial_zoom = build_option('range', 'camera_dist', 10, 'initial zoom', false,  true, { min: 1, max: 20 })
+	const initial_zoom = build_option('range', 'camera_dist', 10, 'initial zoom', false, false, { min: 1, max: 20 } )
 	camera.appendChild( zoom )
 	camera.appendChild( zoom_speed )
 	camera.appendChild( initial_zoom )
@@ -202,7 +219,7 @@ export default ( gallery, output_container ) => {
 
 		let contingents
 
-		gallery.render_contingent( form, e.target, model_choice, shortcode )
+		gallery.render_contingent( e.target, form, model_choice, shortcode )
 
 	})
 

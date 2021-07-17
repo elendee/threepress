@@ -160,7 +160,7 @@ export default init => {
 
 	const stop_animation = (e, override) => {
 
-		console.log('called on mouseup?')
+		// console.log('called on mouseup?')
 
 		// console.log('called on mouseup, ohhhh... wny')
 
@@ -186,12 +186,10 @@ export default init => {
 		now = performance.now()
 		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 
-		if(  gallery.rotate_scene ){ // child.userData.subject &&
-			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) )// gallery.CAMERA.position.x
-			gallery.CAMERA.position.z = gallery.camera_dist * ( Math.cos( performance.now() / 20000 * gallery.rotate_speed ) )// gallery.CAMERA.position.z
+		if( gallery.controls !== 'none' && gallery.rotate_scene ){
+			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) )// gallery.camera_dist
+			gallery.CAMERA.position.z = gallery.camera_dist * ( Math.cos( performance.now() / 20000 * gallery.rotate_speed ) )// gallery.camera_dist
 		}
-
-		// console.log( gallery.CAMERA.position.z)
 
 		if( gallery.rotate_scene ) gallery.CAMERA.lookAt( origin )
 
@@ -211,12 +209,12 @@ export default init => {
 		now = performance.now()
 		// gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 
-		if( gallery.rotate_scene ){ // child.userData.subject
-			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) ) // gallery.CAMERA.position.x
-			gallery.CAMERA.position.z = gallery.camera_dist * ( Math.cos( performance.now() / 20000 * gallery.rotate_speed ) ) // gallery.CAMERA.position.z
-		}
+		// if( gallery.rotate_scene ){ // child.userData.subject
+		// 	gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) ) // gallery.CAMERA.position.x
+		// 	gallery.CAMERA.position.z = gallery.camera_dist * ( Math.cos( performance.now() / 20000 * gallery.rotate_speed ) ) // gallery.CAMERA.position.z
+		// }
 
-		// console.log( gallery.CAMERA.position.z)
+		// console.log( gallery.CAMERA.position.z )
 
 		gallery.orbit_controls.update()
 
@@ -232,69 +230,72 @@ export default init => {
 	let projected_dist, buffer_radius//, too_close, pass_through
 	let last_scroll = performance.now()
 	let delta_seconds
-	const scroll_canvas = e => {
-		delta_seconds = Math.min( ( performance.now() - last_scroll ) / 1000, .5 )
-		last_scroll = performance.now()
-		for( const gallery of galleries ){
-			// gallery_top = window.pageYOffset + gallery_bound.top
-			if( gallery.allow_zoom ){ //gallery.orbit_controls
-				// console.log('a')
+	// const scroll_canvas = e => {
+	// 	delta_seconds = Math.min( ( performance.now() - last_scroll ) / 1000, .5 )
+	// 	last_scroll = performance.now()
+	// 	for( const gallery of galleries ){
+	// 		// gallery_top = window.pageYOffset + gallery_bound.top
+	// 		if( gallery.allow_zoom ){ //gallery.orbit_controls
+	// 			// console.log('a')
 
-				if( gallery.contains_event( e ) ){
+	// 			if( gallery.contains_event( e ) ){
 
-					// console.log('c')
-					e.preventDefault()
+	// 				// console.log('c')
+	// 				e.preventDefault()
 
-					camera_step.subVectors( gallery.CAMERA.position, origin )
-					.normalize()
-					.multiplyScalar( gallery.scaled_zoom * delta_seconds )
+	// 				camera_step.subVectors( gallery.CAMERA.position, origin )
+	// 				.normalize()
+	// 				.multiplyScalar( gallery.scaled_zoom * delta_seconds )
 					
-					projection.copy( gallery.CAMERA.position )
+	// 				projection.copy( gallery.CAMERA.position )
 
-					// if( Math.abs( gallery.CAMERA.position.length() - projection.length() ) > 20 ){
-					// 	return
-					// }
+	// 				// if( Math.abs( gallery.CAMERA.position.length() - projection.length() ) > 20 ){
+	// 				// 	return
+	// 				// }
 
-					if( e.deltaY > 0 ){ // out
+	// 				if( e.deltaY > 0 ){ // out
 						
-						if( camera_step.length() > 10 ) camera_step.multiplyScalar( 10 / camera_step.length() )
-						projection.add( camera_step )
+	// 					if( camera_step.length() > 10 ) camera_step.multiplyScalar( 10 / camera_step.length() )
+	// 					projection.add( camera_step )
 
-					}else{ // in
+	// 				}else{ // in
 
-						buffer_radius = gallery.MODELS[0].userData.radius * 1.5
-						projection.sub( camera_step )
-						projected_dist = projection.distanceTo( gallery.MODELS[0].position ) // single model shim
+	// 					buffer_radius = gallery.MODELS[0].userData.radius * 1.5
+	// 					projection.sub( camera_step )
+	// 					projected_dist = projection.distanceTo( gallery.MODELS[0].position ) // single model shim
 
-						let block 
-						if( projected_dist < buffer_radius ){
-							block = 'radius block'
-						}else if( camera_step.length() > buffer_radius ){
-							block = 'buffer block'
-						}
-						if( block ){
-							console.log( block )
-							return
-						}
+	// 					let block 
+	// 					if( projected_dist < buffer_radius ){
+	// 						block = 'radius block'
+	// 					}else if( camera_step.length() > buffer_radius ){
+	// 						block = 'buffer block'
+	// 					}
+	// 					if( block ){
+	// 						console.log( block )
+	// 						return
+	// 					}
 
-						projection.sub( camera_step )
+	// 					projection.sub( camera_step )
 						
-					}
+	// 				}
 
-					projection.clampLength( gallery.MODELS[0].userData.radius * 1.5, 9999999 )
+	// 				projection.clampLength( gallery.MODELS[0].userData.radius * 1.5, 9999999 )
 
-					gallery.CAMERA.position.copy( projection )
+	// 				gallery.CAMERA.position.copy( projection )
 
-					gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
-					if( gallery.orbit_controls ) gallery.orbit_controls.update()
+	// 				gallery.current_camZ = gallery.CAMERA.position.z
+	// 				gallery.current_camX = gallery.CAMERA.position.x
 
-				}
+	// 				gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+	// 				if( gallery.orbit_controls ) gallery.orbit_controls.update()
 
-			}
-			if( gallery.orbit_controls ) gallery.orbit_controls.update()
-			gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
-		}
-	}
+	// 			}
+
+	// 		}
+	// 		if( gallery.orbit_controls ) gallery.orbit_controls.update()
+	// 		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+	// 	}
+	// }
 
 
 
@@ -386,17 +387,15 @@ export default init => {
 
 			gallery.CAMERA.far = radius * 100
 
-			gallery.camera_xpos = 0
+			gallery.camera_xpos = gallery.current_camX = 0
 			gallery.camera_ypos = radius * 1.5
-			gallery.camera_zpos = radius * gallery.camera_dist 
+			gallery.camera_zpos = gallery.current_camZ = radius * gallery.camera_dist 
 			gallery.CAMERA.position.set( 
 				gallery.camera_xpos, 
 				gallery.camera_ypos, 
 				gallery.camera_zpos, 
 			)
 			gallery.CAMERA.lookAt( model.position )
-
-			console.log( gallery.CAMERA.position )
 
 			gallery.LIGHT.lookAt( model.position )
 			if( gallery.SUN && gallery.MODELS && gallery.MODELS[0] ){
@@ -426,27 +425,49 @@ export default init => {
 			if( gallery.orbit_controls ) gallery.orbit_controls.dispose()
 			delete gallery.orbit_controls
 
+			if( gallery.rotate_scene ) gallery.current_camX = gallery.current_camZ
+
 		}else if( gallery.controls === 'orbit' ){
+
+			if( gallery.orbit_controls ) gallery.orbit_controls.dispose()
+			delete gallery.orbit_controls
 
 			gallery.orbit_controls = new OrbitControls( gallery.CAMERA, gallery.canvas )
 			// implement this yourself so it doesn't jack scroll
 			// ( it will preventDefault scroll events entirely otherwise )
-			if( !gallery.allow_zoom ) gallery.orbit_controls.enableZoom = false 
+			if( !gallery.allow_zoom ){
+				gallery.orbit_controls.enableZoom = false 
+			}else{
+				gallery.orbit_controls.zoomSpeed = gallery.zoom_speed / 100
+			}
 
-			gallery.RENDERER.domElement.addEventListener('mouseover', e => {
+			// console.log('set zoom: ', gallery.orbit_controls.enableZoom )
+
+			if( gallery.rotate_scene ){
+
+				gallery.orbit_controls.autoRotate = true
 				gallery.animating = false
 				gallery.anim_state( true )
-			})
-			gallery.RENDERER.domElement.addEventListener('mouseout', e => {
-				gallery.animating = false
-				console.log('stop')
-			})
+
+			}else{
+
+				gallery.RENDERER.domElement.addEventListener('mouseover', e => {
+					gallery.animating = false
+					gallery.anim_state( true )
+				})
+				gallery.RENDERER.domElement.addEventListener('mouseout', e => {
+					gallery.animating = false
+					console.log('stop')
+				})
+
+			}
+
 		}
 
-		if( !bound_wheel && gallery.controls !== 'orbit' ){
-			window.addEventListener('wheel', scroll_canvas, { passive: false } ) // mouse
-			bound_wheel = true
-		}
+		// if( !bound_wheel && gallery.controls !== 'orbit' ){
+		// 	window.addEventListener('wheel', scroll_canvas, { passive: false } ) // mouse
+		// 	bound_wheel = true
+		// }
 
 		// refresh
 		set_scalars( gallery )
@@ -766,8 +787,9 @@ export default init => {
 
 		// const choose_model = document.getElementById('choose-model')
 
-		gallery.render_contingent( form, rotate_scene, model_choice, shortcode )
-		gallery.render_contingent( form, allow_zoom, model_choice, shortcode )
+		gallery.render_contingent( rotate_scene, form, model_choice, shortcode )
+		gallery.render_contingent( allow_zoom, form, model_choice, shortcode )
+		gallery.render_contingent( document.querySelector('input[name=options_controls][value="none"]'), form, model_choice, shortcode )
 
 		hal('success', 'editing "' + name + '"', 3000 )
 
@@ -882,7 +904,7 @@ export default init => {
 
 
 
-	gallery.render_contingent = ( form, target_ele, model_choice, shortcode ) => {
+	gallery.render_contingent = ( target_ele, form, model_choice, shortcode ) => {
 
 		if( !target_ele ){
 			console.log('missing', model_choice )
@@ -921,6 +943,39 @@ export default init => {
 			// contingents = [form.querySelector('input[name=zoom_speed]')]
 
 			set_contingents( contingents, target_ele.checked )
+
+		}else if( target_ele.name === 'options_controls' ){ // no orbit controls
+
+			console.log('oc ')
+
+			if( target_ele.value === 'none' ){
+				console.log('none ')
+
+				document.querySelector('input[name=allow_zoom]').parentElement.parentElement.querySelectorAll('input').forEach( input => {
+					if( input.name !== 'camera_dist') input.parentElement.classList.add("threepress-disabled")
+				})
+				document.querySelector('input[name=rotate_scene]').parentElement.parentElement.querySelectorAll('input').forEach( input => {
+					input.parentElement.classList.add("threepress-disabled")
+				})
+
+				document.querySelector('.threepress-options-category.light-position').classList.remove('threepress-disabled')
+				document.querySelector('.threepress-options-category.cam-position').classList.remove('threepress-disabled')
+
+			}else{ //  if( target_ele.value === 'orbit' )
+
+				document.querySelector('input[name=allow_zoom]').parentElement.parentElement.querySelectorAll('input').forEach( input => {
+					if( input.name !== 'camera_dist') input.parentElement.classList.remove("threepress-disabled")
+				})
+				document.querySelector('input[name=rotate_scene]').parentElement.parentElement.querySelectorAll('input').forEach( input => {
+					input.parentElement.classList.remove("threepress-disabled")
+				})
+
+				document.querySelector('.threepress-options-category.light-position').classList.add('threepress-disabled')
+				document.querySelector('.threepress-options-category.cam-position').classList.add('threepress-disabled')
+				// document.querySelector('input[name=allow_zoom]').parentElement.parentElement.classList.remove('threepress-disabled')
+				// document.querySelector('input[name=rotate_scene]').parentElement.parentElement.classList.remove('threepress-disabled')				
+
+			}
 
 		}
 
@@ -1065,8 +1120,8 @@ export default init => {
 
 					gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 
-					gallery.canvas.parentElement.addEventListener('pointerdown', start_animation )
-					gallery.canvas.parentElement.addEventListener('pointerup', stop_animation )
+					// gallery.canvas.parentElement.addEventListener('pointerdown', start_animation )
+					// gallery.canvas.parentElement.addEventListener('pointerup', stop_animation )
 
 				}
 
