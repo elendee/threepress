@@ -477,8 +477,11 @@ const build_positioner = type => {
 		ele.addEventListener('change', () => {
 			dims[ dim ] = ele.value
 			readout.value = ' '
+			let iter = 0
 			for( const dim in dims ){
-				readout.value += dims[ dim ] + ' '
+				readout.value += dims[ dim ]
+				if( iter < 2 ) readout.value += ','
+				iter++
 			}
 		})
 
