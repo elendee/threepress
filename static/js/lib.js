@@ -455,11 +455,10 @@ const coord_range = ( name ) => {
 	coord.max = 3
 	coord.step = 1
 	coord.name = name
-	// coord.value = coord.max
 	return coord
 }
 
-const build_positioner = type => {
+const build_positioner = ( type, gallery ) => {
 	const wrapper = document.createElement('div')
 	const readout = document.createElement('input')
 	readout.type = 'text'
@@ -472,28 +471,16 @@ const build_positioner = type => {
 	}
 	for( const dim of Object.keys( dims ) ){
 		const ele = coord_range( dim )
-		dims[ dim ] = ele.value
 		wrapper.appendChild( ele )
 		ele.addEventListener('change', () => {
-			dims[ dim ] = ele.value
-			readout.value = ' '
-			let iter = 0
-			for( const dim in dims ){
-				readout.value += dims[ dim ]
-				if( iter < 2 ) readout.value += ','
-				iter++
-			}
+			gallery.render_readouts()
 		})
 
 	}
 	wrapper.appendChild( readout )
-	// const x = coord_range('x')
-	// const y = coord_range('y')
-	// const z = coord_range('z')
-	// wrapper.appendChild( x )
-	// wrapper.appendChild( y )
-	// wrapper.appendChild( z )
-
+	const pre = document.createElement('div')
+	pre.innerHTML = 'xyz: '
+	wrapper.prepend( pre )
 	return wrapper
 }
 

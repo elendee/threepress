@@ -106,13 +106,13 @@ export default ( gallery, output_container ) => {
 
 	// option - no controls cam setting
 	const cam_pos = build_category('camera position', 'cam-position')
-	const cam_setting = build_positioner('cam-position')
+	const cam_setting = build_positioner('cam-position', gallery )
 	cam_pos.appendChild( cam_setting )
 	options_content.appendChild( cam_pos )
 
 	// option - no controls light setting
 	const light_pos = build_category('light position', 'light-position')
-	const light_setting = build_positioner('light-position')
+	const light_setting = build_positioner('light-position', gallery )
 	light_pos.appendChild( light_setting )
 	options_content.appendChild( light_pos )
 
@@ -287,7 +287,7 @@ export default ( gallery, output_container ) => {
 			return
 		}
 
-		// console.log( shortcode )
+		console.log( shortcode )
 
 		fetch_wrap( ajaxurl, 'post', {
 			action: 'threepress_save_shortcode',

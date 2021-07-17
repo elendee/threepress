@@ -66,6 +66,9 @@ const shortcode_values = [
 	'rotate_y',
 	'rotate_z',
 
+	'light_pos',
+	'cam_pos',
+
 	'bg_color',
 ]
 
@@ -106,6 +109,18 @@ export default init => {
 	gallery.rotate_y = val_boolean( init.rotate_y, true )
 	gallery.rotate_z = init.rotate_z || defaults.rotate_z
 	gallery.bg_color = init.bg_color  || defaults.bg_color
+	gallery.cam_pos = init.cam_pos || {
+		string: '1,1,1',
+		x: 1,
+		y: 1, 
+		z: 1,
+	}
+	gallery.light_pos = init.light_pos || {
+		string: '1,1,1',
+		x: 1,
+		y: 1, 
+		z: 1,
+	}
 	gallery.view = init.view  || defaults.view
 	gallery.camera_dist = init.camera_dist  || defaults.camera_dist
 	gallery.intensity = init.intensity  || defaults.intensity
@@ -533,20 +548,17 @@ export default init => {
 
 		let shortcodes = ''
 		for( const key of shortcode_values ){
-			if( gallery[ key ] ){
-				shortcodes += tag( key, gallery[ key ] )
+			if( key.match(/cam_pos/)){
+				shortcodes += tag( key, gallery.cam_pos.string )
+			}else if( key.match(/light_pos/)){
+				shortcodes += tag( key, gallery.light_pos.string )
+			}else{
+				if( gallery[ key ] ){
+					shortcodes += tag( key, gallery[ key ] )
+				}				
 			}
 		}
 
-		// debugger
-
-		// --- derived gallery attributes:
-
-		// rotate
-		// if( gallery.rotate_scene ){
-		// 	shortcodes += 'rotate_scene=true '
-		// }
-		
 		// model
 		gallery.fill_model_from_form()
 		if( gallery.model.id ) shortcodes += 'model_id=' + gallery.model.id + ' '
@@ -584,6 +596,41 @@ export default init => {
 		for( const opt of radios.light ) if( opt.checked ) gallery.light = opt.value
 		gallery.intensity = form.querySelector('input[name=intensity]').value
 
+		// cam pos
+		gallery.cam_pos.string = form.querySelector('.cam-position .readout').value
+		const cpos = gallery.cam_pos.string.split(',')
+		if( cpos.length === 3 ){
+			if( typeof gallery.cam_pos.string === 'string' ){
+				gallery.cam_pos.x = cpos[0]
+				gallery.cam_pos.y = cpos[1]
+				gallery.cam_pos.z = cpos[2]
+			}else{
+				//
+			}
+		}else{
+			console.log('invalid cam pos: ', gallery.cam_pos )
+			gallery.cam_pos.string = '1,1,1'
+		}
+
+		// light pos
+		gallery.light_pos.string = form.querySelector('.light-position .readout').value
+		const lpos = gallery.light_pos.string.split(',')
+		if( lpos.length === 3 ){
+			if( typeof gallery.light_pos.string === 'string' ){
+				gallery.light_pos.x = lpos[0]
+				gallery.light_pos.y = lpos[1]
+				gallery.light_pos.z = lpos[2]
+			}else{
+				//
+			}
+		}else{
+			console.log('invalid light pos: ', gallery.light_pos )
+			gallery.light_pos.string = '1,1,1'
+		}
+
+		// bg color
+		gallery.bg_color = form.querySelector('input[name=bg_color]').value.replace(/ /g, '')
+
 		// allow_zoom 
 		gallery.allow_zoom = form.querySelector('input[name=allow_zoom]').checked
 		// zoom speed
@@ -602,9 +649,6 @@ export default init => {
 		gallery.rotate_x = form.querySelector('input[name=rotate_x]').checked
 		gallery.rotate_y = form.querySelector('input[name=rotate_y]').checked
 		gallery.rotate_z = form.querySelector('input[name=rotate_z]').checked
-
-		// bg color
-		gallery.bg_color = form.querySelector('input[name=bg_color]').value.replace(/ /g, '')
 
 		set_scalars( gallery )
 
@@ -641,6 +685,14 @@ export default init => {
 			}else if( !shortcode_values.includes( split[0] )){
 				if( split[0] ) console.log('invalid shortcode value', split[0], arr )
 				continue
+			}else if( split[0].match(/cam_pos/) || split[0].match(/light_pos/) ){
+				escrow[ split[0] ] = {
+					string: split[1],
+					x: split[1].split(',')[0],
+					y: split[1].split(',')[1],
+					z: split[1].split(',')[2],
+				}
+				continue
 			}
 			escrow[ split[0] ] = split[1].replace(/___/g, ' ').replace(/%%/g, ' ')
 		}
@@ -652,13 +704,6 @@ export default init => {
 
 		for( const key in escrow ) gallery[ key ] = escrow[ key ]
 
-		// if( deep && gallery.model.id ){
-		// 	const res = await fetch_wrap( THREEPRESS.ajaxurl, 'post', {
-		// 		action: 'get_model',
-		// 		id: gallery.model.id,
-		// 	})
-		// 	debugger
-		// }
 
 		if( !gallery.rotate_scene ) delete gallery.orbit_controls
 
@@ -703,7 +748,12 @@ export default init => {
 		const is_new = !shortcode_id 
 
 		// validate
-		if( shortcode ) gallery.ingest_shortcode( shortcode )
+		if( shortcode ){
+			gallery.ingest_shortcode( shortcode )
+			// console.log( gallery.cam_pos )
+			// console.log( gallery.light_pos )
+			// debugger
+		}
 
 		// hydrate model
 		const model_choice = ( form || gallery.form ).querySelector('#model-choice')
@@ -737,6 +787,16 @@ export default init => {
 		for( const option of form.querySelectorAll('input[name=options_controls]')){
 			if( option.value === gallery.controls ) option.checked = true
 		}
+		// camera position
+		form.querySelector('.cam-position input[name=x]').value = gallery.cam_pos.x
+		form.querySelector('.cam-position input[name=y]').value = gallery.cam_pos.y
+		form.querySelector('.cam-position input[name=z]').value = gallery.cam_pos.z
+		
+		// light position 
+		form.querySelector('.light-position input[name=x]').value = gallery.light_pos.x
+		form.querySelector('.light-position input[name=y]').value = gallery.light_pos.y
+		form.querySelector('.light-position input[name=z]').value = gallery.light_pos.z
+
 		// allow zoom
 		const allow_zoom = form.querySelector('input[name=allow_zoom]')
 		allow_zoom.checked = gallery.allow_zoom ? true : false
@@ -765,9 +825,6 @@ export default init => {
 		const rot_contingents = rotate_scene.parentElement.parentElement.querySelectorAll('.contingent')
 		set_contingents( rot_contingents, rotate_scene.checked )
 
-		// shortcode
-		// form.querySelector('#shortcode').value = gallery.shortcode// 
-
 		form.style.display = 'inline-block'
 		// add_gallery.querySelector('div').innerText = '-'
 		if( !is_new ){
@@ -790,6 +847,8 @@ export default init => {
 		gallery.render_contingent( rotate_scene, form, model_choice, shortcode )
 		gallery.render_contingent( allow_zoom, form, model_choice, shortcode )
 		gallery.render_contingent( document.querySelector('input[name=options_controls][value="none"]'), form, model_choice, shortcode )
+		gallery.render_positions()
+		gallery.render_readouts()
 
 		hal('success', 'editing "' + name + '"', 3000 )
 
@@ -905,6 +964,7 @@ export default init => {
 
 
 	gallery.render_contingent = ( target_ele, form, model_choice, shortcode ) => {
+		stack('render_contingent ' + target_ele.id || target_ele.name )
 
 		if( !target_ele ){
 			console.log('missing', model_choice )
@@ -979,6 +1039,43 @@ export default init => {
 
 		}
 
+	}
+
+
+
+	gallery.render_positions = () => {
+		stack('render_positions')
+		let iter = 0
+		for( const input of gallery.form.querySelectorAll('.cam-position input.coord-range') ){
+			input.value = gallery.cam_pos[ input.getAttribute('name') ]
+			iter++
+		}
+		iter = 0
+		for( const input of gallery.form.querySelectorAll('.light-position input.coord-range') ){
+			input.value = gallery.light_pos[ input.getAttribute('name') ]
+			iter++
+		}
+
+	}
+
+
+	gallery.render_readouts = () => {
+		stack('render_readouts')
+		for( const input of gallery.form.querySelectorAll('.readout')){
+			input.value = ''
+		}
+		let iter = 0
+		for( const input of gallery.form.querySelectorAll('.cam-position input.coord-range') ){
+			gallery.form.querySelector('.cam-position input.readout').value += input.value
+			if( iter < 2 ) gallery.form.querySelector('.cam-position input.readout').value += ','
+			iter++
+		}
+		iter = 0
+		for( const input of gallery.form.querySelectorAll('.light-position input.coord-range') ){
+			gallery.form.querySelector('.light-position input.readout').value += input.value
+			if( iter < 2 ) gallery.form.querySelector('.light-position input.readout').value += ','
+			iter++
+		}
 	}
 
 
