@@ -44,7 +44,6 @@ const loader = new GLTFLoader()
 
 let previewing = false
 let bound_wheel = false
-let gallery_bound, gallery_top
 
 
 const tag = ( key , value ) => { return value ? `${ key }=${ value } ` : '' }
@@ -147,14 +146,23 @@ export default init => {
 
 	let now// , delta//, delta_seconds
 	// let then = 0
+	let nonce_anim = false
 
 	const start_animation = () => { // single frame updates
 		if( gallery.animating ) return 
+		if( !nonce_anim ){
+			nonce_anim = true
+			// gallery.CAMERA.position.x = gallery.CAMERA.position.z = Number( gallery.camera_dist )
+		}
 		gallery.animating = true
 		gallery.orbit_controls ? animate_controls() : animate()
 	}
 
 	const stop_animation = (e, override) => {
+
+		console.log('called on mouseup?')
+
+		// console.log('called on mouseup, ohhhh... wny')
 
 		if( override || !gallery.rotate_scene ){
 			gallery.animating = false
@@ -162,6 +170,7 @@ export default init => {
 	}
 
 	gallery.anim_state = state => { // state
+
 		// console.log('anim_state: ', state, gallery.animating )
 		if( state ){
 			start_animation()
@@ -178,9 +187,11 @@ export default init => {
 		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 
 		if(  gallery.rotate_scene ){ // child.userData.subject &&
-			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) )
-			gallery.CAMERA.position.z = gallery.camera_dist * ( Math.cos( performance.now() / 20000 * gallery.rotate_speed ) )
+			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) )// gallery.CAMERA.position.x
+			gallery.CAMERA.position.z = gallery.camera_dist * ( Math.cos( performance.now() / 20000 * gallery.rotate_speed ) )// gallery.CAMERA.position.z
 		}
+
+		// console.log( gallery.CAMERA.position.z)
 
 		if( gallery.rotate_scene ) gallery.CAMERA.lookAt( origin )
 
@@ -190,17 +201,26 @@ export default init => {
 
 	const animate_controls = () => { // animation with controls
 
-		if( !gallery.animating ) return
-
-		now = performance.now()
-		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
-
-		if( gallery.rotate_scene ){ // child.userData.subject
-			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) )
-			gallery.CAMERA.position.z = gallery.camera_dist * ( Math.cos( performance.now() / 20000 * gallery.rotate_speed ) )
+		if( !gallery.animating ){
+			console.log('animate_controls off')
+			return
 		}
 
+		// console.log('animate_controls')
+
+		now = performance.now()
+		// gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+
+		if( gallery.rotate_scene ){ // child.userData.subject
+			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) ) // gallery.CAMERA.position.x
+			gallery.CAMERA.position.z = gallery.camera_dist * ( Math.cos( performance.now() / 20000 * gallery.rotate_speed ) ) // gallery.CAMERA.position.z
+		}
+
+		// console.log( gallery.CAMERA.position.z)
+
 		gallery.orbit_controls.update()
+
+		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 		// gallery.CAMERA.lookAt( )
 		requestAnimationFrame( animate_controls )
 
@@ -209,68 +229,67 @@ export default init => {
 
 	const camera_step = new Vector3()
 	const projection = new Vector3()
-	let projected_dist, buffer_radius, too_close, pass_through
+	let projected_dist, buffer_radius//, too_close, pass_through
 	let last_scroll = performance.now()
 	let delta_seconds
 	const scroll_canvas = e => {
 		delta_seconds = Math.min( ( performance.now() - last_scroll ) / 1000, .5 )
 		last_scroll = performance.now()
 		for( const gallery of galleries ){
-			gallery_bound = gallery.canvas.getBoundingClientRect()
-			gallery_top = window.pageYOffset + gallery_bound.top
-			if( gallery.orbit_controls || gallery.allow_zoom ){
+			// gallery_top = window.pageYOffset + gallery_bound.top
+			if( gallery.allow_zoom ){ //gallery.orbit_controls
 				// console.log('a')
-				if( e.clientX > gallery_bound.left && e.clientX < gallery_bound.left + gallery_bound.width ){
-					// console.log('b')
-					if( e.clientY > gallery_bound.top && e.clientY < gallery_bound.top + gallery_bound.height ){
-						// console.log('c')
-						e.preventDefault()
 
-						camera_step.subVectors( gallery.CAMERA.position, origin )
-						.normalize()
-						.multiplyScalar( gallery.scaled_zoom * delta_seconds )
+				if( gallery.contains_event( e ) ){
+
+					// console.log('c')
+					e.preventDefault()
+
+					camera_step.subVectors( gallery.CAMERA.position, origin )
+					.normalize()
+					.multiplyScalar( gallery.scaled_zoom * delta_seconds )
+					
+					projection.copy( gallery.CAMERA.position )
+
+					// if( Math.abs( gallery.CAMERA.position.length() - projection.length() ) > 20 ){
+					// 	return
+					// }
+
+					if( e.deltaY > 0 ){ // out
 						
-						projection.copy( gallery.CAMERA.position )
+						if( camera_step.length() > 10 ) camera_step.multiplyScalar( 10 / camera_step.length() )
+						projection.add( camera_step )
 
-						// if( Math.abs( gallery.CAMERA.position.length() - projection.length() ) > 20 ){
-						// 	return
-						// }
+					}else{ // in
 
-						if( e.deltaY > 0 ){ // out
-							
-							if( camera_step.length() > 10 ) camera_step.multiplyScalar( 10 / camera_step.length() )
-							projection.add( camera_step )
+						buffer_radius = gallery.MODELS[0].userData.radius * 1.5
+						projection.sub( camera_step )
+						projected_dist = projection.distanceTo( gallery.MODELS[0].position ) // single model shim
 
-						}else{ // in
-
-							buffer_radius = gallery.MODELS[0].userData.radius * 1.5
-							projection.sub( camera_step )
-							projected_dist = projection.distanceTo( gallery.MODELS[0].position ) // single model shim
-
-							let block 
-							if( projected_dist < buffer_radius ){
-								block = 'radius block'
-							}else if( camera_step.length() > buffer_radius ){
-								block = 'buffer block'
-							}
-							if( block ){
-								console.log( block )
-								return
-							}
-
-							projection.sub( camera_step )
-							
+						let block 
+						if( projected_dist < buffer_radius ){
+							block = 'radius block'
+						}else if( camera_step.length() > buffer_radius ){
+							block = 'buffer block'
+						}
+						if( block ){
+							console.log( block )
+							return
 						}
 
-						projection.clampLength( gallery.MODELS[0].userData.radius * 1.5, 9999999 )
-
-						gallery.CAMERA.position.copy( projection )
-
-						gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
-						if( gallery.orbit_controls ) gallery.orbit_controls.update()
-
+						projection.sub( camera_step )
+						
 					}
+
+					projection.clampLength( gallery.MODELS[0].userData.radius * 1.5, 9999999 )
+
+					gallery.CAMERA.position.copy( projection )
+
+					gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+					if( gallery.orbit_controls ) gallery.orbit_controls.update()
+
 				}
+
 			}
 			if( gallery.orbit_controls ) gallery.orbit_controls.update()
 			gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
@@ -376,6 +395,9 @@ export default init => {
 				gallery.camera_zpos, 
 			)
 			gallery.CAMERA.lookAt( model.position )
+
+			console.log( gallery.CAMERA.position )
+
 			gallery.LIGHT.lookAt( model.position )
 			if( gallery.SUN && gallery.MODELS && gallery.MODELS[0] ){
 				gallery.SUN.ele.position.set( 
@@ -407,11 +429,21 @@ export default init => {
 		}else if( gallery.controls === 'orbit' ){
 
 			gallery.orbit_controls = new OrbitControls( gallery.CAMERA, gallery.canvas )
-			gallery.orbit_controls.enableZoom = false // implement this yourself so it doesn't jack scroll
+			// implement this yourself so it doesn't jack scroll
 			// ( it will preventDefault scroll events entirely otherwise )
+			if( !gallery.allow_zoom ) gallery.orbit_controls.enableZoom = false 
+
+			gallery.RENDERER.domElement.addEventListener('mouseover', e => {
+				gallery.animating = false
+				gallery.anim_state( true )
+			})
+			gallery.RENDERER.domElement.addEventListener('mouseout', e => {
+				gallery.animating = false
+				console.log('stop')
+			})
 		}
 
-		if( !bound_wheel ){
+		if( !bound_wheel && gallery.controls !== 'orbit' ){
 			window.addEventListener('wheel', scroll_canvas, { passive: false } ) // mouse
 			bound_wheel = true
 		}
@@ -874,14 +906,14 @@ export default init => {
 
 			set_contingents( contingents, target_ele.checked )
 
-			const no_controls = document.querySelector('input[name=options_controls][value=none]')
-			const orbit = document.querySelector('input[name=options_controls][value=orbit]')
-			if( target_ele.checked ){
-				no_controls.checked = true
-				orbit.parentElement.classList.add('threepress-disabled')
-			}else{
-				orbit.parentElement.classList.remove('threepress-disabled')
-			}
+			// const no_controls = document.querySelector('input[name=options_controls][value=none]')
+			// const orbit = document.querySelector('input[name=options_controls][value=orbit]')
+			// if( target_ele.checked ){
+			// 	no_controls.checked = true
+			// 	orbit.parentElement.classList.add('threepress-disabled')
+			// }else{
+			// 	orbit.parentElement.classList.remove('threepress-disabled')
+			// }
 
 		}else if( target_ele.name === 'allow_zoom' ){
 
@@ -943,6 +975,18 @@ export default init => {
 		)
 	}
 
+	gallery.contains_event = e => {
+		const gallery_bound = gallery.canvas.getBoundingClientRect()
+		// console.log('a')
+		if( e.clientX > gallery_bound.left && e.clientX < gallery_bound.left + gallery_bound.width ){
+			// console.log('b')
+			if( e.clientY > gallery_bound.top && e.clientY < gallery_bound.top + gallery_bound.height ){
+				return true
+			}
+		}
+		return false
+	}
+
 	gallery.display = viewer => {	
 	stack('display')
 
@@ -955,8 +999,8 @@ export default init => {
 
 				if( gallery.controls && gallery.controls !== 'none' ){ 
 					// ignored by pointer-events in woo:
-					gallery.canvas.parentElement.addEventListener('pointerdown', start_animation )
-					gallery.canvas.parentElement.addEventListener('pointerup', stop_animation )
+					// gallery.canvas.parentElement.addEventListener('pointerdown', start_animation )
+					// gallery.canvas.parentElement.addEventListener('pointerup', stop_animation )
 				}
 				
 				gallery.set_renderer()

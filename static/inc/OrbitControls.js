@@ -463,6 +463,8 @@ var OrbitControls = function ( object, domElement ) {
 
 	function dollyIn( dollyScale ) {
 
+		// console.log('oc dolly in')
+
 		if ( scope.object.isPerspectiveCamera ) {
 
 			scale *= dollyScale;
@@ -565,6 +567,8 @@ var OrbitControls = function ( object, domElement ) {
 	}
 
 	function handleMouseWheel( event ) {
+
+		// console.log('oc mousewheel')
 
 		if ( event.deltaY < 0 ) {
 
