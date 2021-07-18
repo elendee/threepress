@@ -1,5 +1,8 @@
 // import BROKER from './helpers/EventBroker.js?v=040'
 
+import * as composer from '../inc/ComposerSelectiveBloom.js?v=040'
+
+
 import {
 	// Color,
 	DirectionalLight,
@@ -78,8 +81,6 @@ const shortcode_values = [
 
 
 
-
-
 export default init => {
 
 	init = init || {}
@@ -148,7 +149,8 @@ export default init => {
 	}
 
 
-
+	// composer
+	// composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA )
 
 
 
@@ -198,7 +200,9 @@ export default init => {
 		if( !gallery.animating ) return
 
 		now = performance.now()
-		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+
+		composer.composeAnimate( gallery.SCENE )
+		// gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 
 		if( gallery.controls !== 'none' && gallery.rotate_scene ){
 			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) )// gallery.camera_dist
@@ -220,7 +224,10 @@ export default init => {
 
 		now = performance.now()
 		gallery.orbit_controls.update()
-		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+		
+		composer.composeAnimate( gallery.SCENE )
+
+		// gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 		requestAnimationFrame( animate_controls )
 
 	}
@@ -422,6 +429,8 @@ export default init => {
 		gallery.LIGHT.intensity = gallery.scaled_intensity
 
 		if( gallery.bg_color )  gallery.canvas.style.background = gallery.bg_color
+
+		composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA )
 
 		return true
 
