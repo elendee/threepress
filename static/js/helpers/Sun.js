@@ -2,7 +2,7 @@
 import { 
 	Lensflare, 
 	LensflareElement 
-} from '../../inc/Lensflare.js?v=0.4.0'
+} from '../../inc/Lensflare.js?v=040'
 
 import { 
 	DirectionalLight, 

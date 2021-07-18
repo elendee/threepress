@@ -1,5 +1,5 @@
-import ThreepressGallery from './ThreepressGallery.js?v=0.4.0'
-// import BROKER from './helpers/EventBroker.js?v=0.4.0'
+import ThreepressGallery from './ThreepressGallery.js?v=040'
+// import BROKER from './helpers/EventBroker.js?v=040'
 
 import {
 	Box3,

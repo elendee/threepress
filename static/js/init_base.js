@@ -1,11 +1,11 @@
 import {
 // 	hal,
 	tstack,
-} from './lib.js?v=0.4.0'
+} from './lib.js?v=040'
 
 tstack('init_base')
 
-import ThreepressGallery from './ThreepressGallery.js?v=0.4.0'
+import ThreepressGallery from './ThreepressGallery.js?v=040'
 
 
 // ------------------------------------------------------------ declarations

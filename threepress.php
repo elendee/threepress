@@ -88,17 +88,17 @@ if ( !class_exists( 'Threepress' ) ) {
  	    	global $threepress_version;
     		wp_enqueue_style( 
 				'threepress-global-css', 
-				plugins_url('/static/css/global.css?v=' . $threepress_version, __FILE__ ), 
+				plugins_url('/static/css/global.css?v=040.4.0' . $threepress_version, __FILE__ ), 
 				array()
 			);
 			wp_enqueue_style( 
 				'threepress-modal-css', 
-				plugins_url('/static/css/modal.css?v=' . $threepress_version, __FILE__ ), 
+				plugins_url('/static/css/modal.css?v=040.4.0' . $threepress_version, __FILE__ ), 
 				array()
 			);	    	
     		wp_enqueue_script( 
 				'threepress-global-js', 
-				plugins_url( '/static/js/global.js?v=' . $threepress_version, __FILE__ ),
+				plugins_url( '/static/js/global.js?v=040.4.0' . $threepress_version, __FILE__ ),
 				array()
 			);
 
@@ -141,7 +141,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	global $threepress_version;
     		wp_enqueue_script( 
 				'threepress-base-js', 
-				plugins_url( '/static/js/init_base.js?v=' . $threepress_version, __FILE__ ),
+				plugins_url( '/static/js/init_base.js?v=040.4.0' . $threepress_version, __FILE__ ),
 				array() 
 			);
 	    }
@@ -151,7 +151,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	global $threepress_version;
     		wp_enqueue_script( 
 				'threepress-admin-js', 
-				plugins_url( '/static/js/init_admin.js?v=' . $threepress_version, __FILE__ ),
+				plugins_url( '/static/js/init_admin.js?v=040.4.0' . $threepress_version, __FILE__ ),
 				array()
 			);
 
@@ -162,7 +162,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	global $threepress_version;
 			wp_enqueue_style( 
 				'threepress-admin-css', 
-				plugins_url('/static/css/admin.css?v=' . $threepress_version, __FILE__ ), 
+				plugins_url('/static/css/admin.css?v=040.4.0' . $threepress_version, __FILE__ ), 
 				array()
 			);
 

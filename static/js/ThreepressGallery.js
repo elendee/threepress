@@ -1,4 +1,4 @@
-// import BROKER from './helpers/EventBroker.js?v=0.4.0'
+// import BROKER from './helpers/EventBroker.js?v=040'
 
 import {
 	// Color,
@@ -9,8 +9,8 @@ import {
 	Vector3,
 } from '../inc/three.module.js'
 
-import { GLTFLoader } from '../inc/GLTFLoader.js?v=0.4.0'
-import { OrbitControls } from '../inc/OrbitControls.js?v=0.4.0'
+import { GLTFLoader } from '../inc/GLTFLoader.js?v=040'
+import { OrbitControls } from '../inc/OrbitControls.js?v=040'
 
 import Sun from './helpers/Sun.js'
 
@@ -26,9 +26,9 @@ import {
 	set_scalars,
 	resolutions,
 	defaults,
-} from './lib.js?v=0.4.0'
+} from './lib.js?v=040'
 
-import { Modal } from './helpers/Modal.js?v=0.4.0'
+import { Modal } from './helpers/Modal.js?v=040'
 
 
 const logging = false

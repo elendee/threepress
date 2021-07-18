@@ -6,7 +6,7 @@ import {
 	insertAfter,
 	build_option,
 	build_positioner,
-} from './lib.js?v=0.4.0'
+} from './lib.js?v=040'
 
 
 

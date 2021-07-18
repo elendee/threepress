@@ -1,14 +1,14 @@
-import ThreepressGallery from './ThreepressGallery.js?v=0.4.0'
+import ThreepressGallery from './ThreepressGallery.js?v=040'
 
 import {
 	ModelRow,
 	fetch_wrap,
 	tstack,
-} from './lib.js?v=0.4.0'
+} from './lib.js?v=040'
 
-import build_form from './build_form.js?v=0.4.0'
+import build_form from './build_form.js?v=040'
 
-// import bind_gallery_form from './bind_gallery_form.js?v=0.4.0'
+// import bind_gallery_form from './bind_gallery_form.js?v=040'
 
 
 tstack('init_admin')
