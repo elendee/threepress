@@ -159,7 +159,7 @@ export default init => {
 
 
 
-	let now// , delta//, delta_seconds
+	// let now// , delta//, delta_seconds
 	// let then = 0
 	let nonce_anim = false
 
@@ -167,7 +167,6 @@ export default init => {
 		if( gallery.animating ) return 
 		if( !nonce_anim ){
 			nonce_anim = true
-			// gallery.CAMERA.position.x = gallery.CAMERA.position.z = Number( gallery.camera_dist )
 		}
 		gallery.animating = true
 		gallery.orbit_controls ? animate_controls() : animate()
@@ -219,107 +218,28 @@ export default init => {
 			return
 		}
 
-		// console.log('animate_controls')
-
 		now = performance.now()
-		// gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
-
-		// if( gallery.rotate_scene ){ // child.userData.subject
-		// 	gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) ) // gallery.CAMERA.position.x
-		// 	gallery.CAMERA.position.z = gallery.camera_dist * ( Math.cos( performance.now() / 20000 * gallery.rotate_speed ) ) // gallery.CAMERA.position.z
-		// }
-
-		// console.log( gallery.CAMERA.position.z )
-
 		gallery.orbit_controls.update()
-
 		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
-		// gallery.CAMERA.lookAt( )
 		requestAnimationFrame( animate_controls )
 
 	}
 
-
-	const camera_step = new Vector3()
-	const projection = new Vector3()
-	let projected_dist, buffer_radius//, too_close, pass_through
-	let last_scroll = performance.now()
-	let delta_seconds
-	// const scroll_canvas = e => {
-	// 	delta_seconds = Math.min( ( performance.now() - last_scroll ) / 1000, .5 )
-	// 	last_scroll = performance.now()
-	// 	for( const gallery of galleries ){
-	// 		// gallery_top = window.pageYOffset + gallery_bound.top
-	// 		if( gallery.allow_zoom ){ //gallery.orbit_controls
-	// 			// console.log('a')
-
-	// 			if( gallery.contains_event( e ) ){
-
-	// 				// console.log('c')
-	// 				e.preventDefault()
-
-	// 				camera_step.subVectors( gallery.CAMERA.position, origin )
-	// 				.normalize()
-	// 				.multiplyScalar( gallery.scaled_zoom * delta_seconds )
-					
-	// 				projection.copy( gallery.CAMERA.position )
-
-	// 				// if( Math.abs( gallery.CAMERA.position.length() - projection.length() ) > 20 ){
-	// 				// 	return
-	// 				// }
-
-	// 				if( e.deltaY > 0 ){ // out
-						
-	// 					if( camera_step.length() > 10 ) camera_step.multiplyScalar( 10 / camera_step.length() )
-	// 					projection.add( camera_step )
-
-	// 				}else{ // in
-
-	// 					buffer_radius = gallery.MODELS[0].userData.radius * 1.5
-	// 					projection.sub( camera_step )
-	// 					projected_dist = projection.distanceTo( gallery.MODELS[0].position ) // single model shim
-
-	// 					let block 
-	// 					if( projected_dist < buffer_radius ){
-	// 						block = 'radius block'
-	// 					}else if( camera_step.length() > buffer_radius ){
-	// 						block = 'buffer block'
-	// 					}
-	// 					if( block ){
-	// 						console.log( block )
-	// 						return
-	// 					}
-
-	// 					projection.sub( camera_step )
-						
-	// 				}
-
-	// 				projection.clampLength( gallery.MODELS[0].userData.radius * 1.5, 9999999 )
-
-	// 				gallery.CAMERA.position.copy( projection )
-
-	// 				gallery.current_camZ = gallery.CAMERA.position.z
-	// 				gallery.current_camX = gallery.CAMERA.position.x
-
-	// 				gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
-	// 				if( gallery.orbit_controls ) gallery.orbit_controls.update()
-
-	// 			}
-
-	// 		}
-	// 		if( gallery.orbit_controls ) gallery.orbit_controls.update()
-	// 		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
-	// 	}
-	// }
-
-
+	// const camera_step = new Vector3()
+	// const projection = new Vector3()
+	// let projected_dist, buffer_radius//, too_close, pass_through
+	// let last_scroll = performance.now()
+	// let delta_seconds
 
 
 
 
 	gallery.clear_scene = () => {
 
-		gallery.SCENE = gallery.SCENE || new Scene()
+		if( !gallery.SCENE ){
+			gallery.SCENE = new Scene()
+			return
+		}
 
 		let cap = 0
 		while( gallery.SCENE.children.length > 0 && cap < 1999999 ){ 
@@ -329,6 +249,9 @@ export default init => {
 		    cap++
 		}
 
+		delete gallery.LIGHT
+		delete gallery.SUN
+
 	}
 
 
@@ -337,7 +260,7 @@ export default init => {
 
 		if( !gallery.validate( false, true, false ) ) return
 
-		/// 
+		// basic setup
 
 		gallery.SCENE = gallery.SCENE || new Scene()
 		gallery.RENDERER = gallery.RENDERER || new WebGLRenderer({ 
@@ -348,6 +271,8 @@ export default init => {
 		gallery.canvas.height = gallery.canvas.width * gallery.aspect_ratio
 
 		set_scalars( gallery )
+
+		// lights...
 
 		if( !gallery.LIGHT ){
 
@@ -366,12 +291,13 @@ export default init => {
 			}
 
 		}
+
+		// camera, action
+
 		gallery.CAMERA = gallery.CAMERA || new PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, gallery.view )
 
 		gallery.SCENE.add( gallery.LIGHT )
 		gallery.SCENE.add( gallery.CAMERA )
-
-		///
 
 		// model
 		if( gallery.model ){
@@ -400,24 +326,31 @@ export default init => {
 			const radius = model.userData.radius
 			const diam = radius * 2
 
-			gallery.CAMERA.far = radius * 100
+			// base camera off model dimensions - 
 
-			gallery.camera_xpos = gallery.current_camX = 0
-			gallery.camera_ypos = radius * 1.5
-			gallery.camera_zpos = gallery.current_camZ = radius * gallery.camera_dist 
+			gallery.CAMERA.far = radius * 100
+			
+			const arbitrary_scalar = gallery.scaled_dist
+
+			gallery.current_camX = gallery.cam_pos.x * radius * arbitrary_scalar
+			gallery.current_camY = gallery.cam_pos.y * radius * arbitrary_scalar
+			gallery.current_camZ = gallery.cam_pos.z * radius * arbitrary_scalar
+
 			gallery.CAMERA.position.set( 
-				gallery.camera_xpos, 
-				gallery.camera_ypos, 
-				gallery.camera_zpos, 
+				gallery.current_camX,
+				gallery.current_camY,
+				gallery.current_camZ, 
 			)
 			gallery.CAMERA.lookAt( model.position )
+
+			// base light off model dimensions -
 
 			gallery.LIGHT.lookAt( model.position )
 			if( gallery.SUN && gallery.MODELS && gallery.MODELS[0] ){
 				gallery.SUN.ele.position.set( 
-					gallery.MODELS[0].userData.dimensions.x * 3,
-					gallery.MODELS[0].userData.dimensions.y * 2,
-					-gallery.MODELS[0].userData.dimensions.z * 10,
+					gallery.light_pos.x * radius * arbitrary_scalar,
+					gallery.light_pos.y * radius * arbitrary_scalar,
+					gallery.light_pos.z * radius * arbitrary_scalar,
 				)
 				gallery.SUN.directional.position.copy( gallery.SUN.ele.position )
 				gallery.LIGHT.position.copy( gallery.SUN.ele.position )
@@ -429,7 +362,13 @@ export default init => {
 				// .receiveShadow = true
 
 			}else{
-				gallery.LIGHT.position.set( diam, diam, diam )
+
+				gallery.LIGHT.position.copy( new Vector3( 
+					gallery.light_pos.x, 
+					gallery.light_pos.y, 
+					gallery.light_pos.z 
+				).normalize() )
+
 			}
 
 		}
@@ -456,8 +395,6 @@ export default init => {
 				gallery.orbit_controls.zoomSpeed = gallery.zoom_speed / 100
 			}
 
-			// console.log('set zoom: ', gallery.orbit_controls.enableZoom )
-
 			if( gallery.rotate_scene ){
 
 				gallery.orbit_controls.autoRotate = true
@@ -478,11 +415,6 @@ export default init => {
 			}
 
 		}
-
-		// if( !bound_wheel && gallery.controls !== 'orbit' ){
-		// 	window.addEventListener('wheel', scroll_canvas, { passive: false } ) // mouse
-		// 	bound_wheel = true
-		// }
 
 		// refresh
 		set_scalars( gallery )
@@ -750,9 +682,6 @@ export default init => {
 		// validate
 		if( shortcode ){
 			gallery.ingest_shortcode( shortcode )
-			// console.log( gallery.cam_pos )
-			// console.log( gallery.light_pos )
-			// debugger
 		}
 
 		// hydrate model
@@ -800,10 +729,10 @@ export default init => {
 		// allow zoom
 		const allow_zoom = form.querySelector('input[name=allow_zoom]')
 		allow_zoom.checked = gallery.allow_zoom ? true : false
+
 		// zoom speed
 		const zoom_speed = form.querySelector('input[name=zoom_speed]')
 		zoom_speed.value = gallery.zoom_speed
-		set_contingents( [zoom_speed], allow_zoom.checked )
 
 		// light
 		for( const option of form.querySelectorAll('input[name=options_light]')){
@@ -845,14 +774,15 @@ export default init => {
 		// const choose_model = document.getElementById('choose-model')
 
 		gallery.render_contingent( rotate_scene, form, model_choice, shortcode )
-		gallery.render_contingent( allow_zoom, form, model_choice, shortcode )
+		// gallery.render_contingent( allow_zoom, form, model_choice, shortcode )
 		gallery.render_contingent( document.querySelector('input[name=options_controls][value="none"]'), form, model_choice, shortcode )
+		gallery.render_contingent( allow_zoom, form, model_choice, shortcode )
 		gallery.render_positions()
 		gallery.render_readouts()
 
 		hal('success', 'editing "' + name + '"', 3000 )
 
-	}
+	} // hydrate_editor
 
 
 
@@ -988,15 +918,6 @@ export default init => {
 
 			set_contingents( contingents, target_ele.checked )
 
-			// const no_controls = document.querySelector('input[name=options_controls][value=none]')
-			// const orbit = document.querySelector('input[name=options_controls][value=orbit]')
-			// if( target_ele.checked ){
-			// 	no_controls.checked = true
-			// 	orbit.parentElement.classList.add('threepress-disabled')
-			// }else{
-			// 	orbit.parentElement.classList.remove('threepress-disabled')
-			// }
-
 		}else if( target_ele.name === 'allow_zoom' ){
 
 			contingents = target_ele.parentElement.parentElement.querySelectorAll('.contingent')
@@ -1006,34 +927,28 @@ export default init => {
 
 		}else if( target_ele.name === 'options_controls' ){ // no orbit controls
 
-			console.log('oc ')
-
-			if( target_ele.value === 'none' ){
-				console.log('none ')
+			if( target_ele.value === 'none' && target_ele.checked ){
 
 				document.querySelector('input[name=allow_zoom]').parentElement.parentElement.querySelectorAll('input').forEach( input => {
-					if( input.name !== 'camera_dist') input.parentElement.classList.add("threepress-disabled")
+					if( input.name !== 'camera_dist') input.parentElement.classList.add('threepress-disabled')
 				})
 				document.querySelector('input[name=rotate_scene]').parentElement.parentElement.querySelectorAll('input').forEach( input => {
-					input.parentElement.classList.add("threepress-disabled")
+					input.parentElement.classList.add('threepress-disabled')
 				})
 
-				document.querySelector('.threepress-options-category.light-position').classList.remove('threepress-disabled')
 				document.querySelector('.threepress-options-category.cam-position').classList.remove('threepress-disabled')
 
 			}else{ //  if( target_ele.value === 'orbit' )
 
 				document.querySelector('input[name=allow_zoom]').parentElement.parentElement.querySelectorAll('input').forEach( input => {
-					if( input.name !== 'camera_dist') input.parentElement.classList.remove("threepress-disabled")
+					input.parentElement.classList.remove('threepress-disabled')
+					// if( input.name !== 'camera_dist') 
 				})
 				document.querySelector('input[name=rotate_scene]').parentElement.parentElement.querySelectorAll('input').forEach( input => {
-					input.parentElement.classList.remove("threepress-disabled")
+					input.parentElement.classList.remove('threepress-disabled')
 				})
 
-				document.querySelector('.threepress-options-category.light-position').classList.add('threepress-disabled')
 				document.querySelector('.threepress-options-category.cam-position').classList.add('threepress-disabled')
-				// document.querySelector('input[name=allow_zoom]').parentElement.parentElement.classList.remove('threepress-disabled')
-				// document.querySelector('input[name=rotate_scene]').parentElement.parentElement.classList.remove('threepress-disabled')				
 
 			}
 

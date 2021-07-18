@@ -464,22 +464,29 @@ const build_positioner = ( type, gallery ) => {
 	readout.type = 'text'
 	readout.classList.add('readout')
 	readout.setAttribute('readonly', true)
-	const dims = {
-		x: 0,
-		y: 0,
-		z: 0,
-	}
-	for( const dim of Object.keys( dims ) ){
+	// const dims = {
+	// 	x: 0,
+	// 	y: 0,
+	// 	z: 0,
+	// }
+	const dims = ['x', 'y', 'z']
+	for( const dim of dims ){
 		const ele = coord_range( dim )
 		wrapper.appendChild( ele )
 		ele.addEventListener('change', () => {
+			let has_val
+			for( const range of ele.parentElement.querySelectorAll('.coord-range') ) if( range.value != 0 ) has_val = true
+			if( !has_val ){
+				hal('error', 'cannot set all values to zero', 7000 )
+				ele.value = 1
+			}
 			gallery.render_readouts()
 		})
 
 	}
 	wrapper.appendChild( readout )
 	const pre = document.createElement('div')
-	pre.innerHTML = 'xyz: '
+	pre.innerHTML = 'XYZ for <b>angle</b> only.  Use camera "initial zoom" to control distance.'
 	wrapper.prepend( pre )
 	return wrapper
 }
@@ -704,6 +711,7 @@ const set_scalars = gallery => {
 	gallery.scaled_intensity = gallery.intensity / 3
 	gallery.scaled_rotate = Number( gallery.rotate_speed ) / 1000
 	gallery.scaled_zoom = gallery.zoom_speed ? gallery.zoom_speed : defaults.zoom_speed
+	gallery.scaled_dist = gallery.camera_dist ? gallery.camera_dist : 50
 }
 
 const defaults = { // form values, not scaled values
