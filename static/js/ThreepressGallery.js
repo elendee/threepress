@@ -159,7 +159,7 @@ export default init => {
 
 
 
-	// let now// , delta//, delta_seconds
+	let now// , delta//, delta_seconds
 	// let then = 0
 	let nonce_anim = false
 
