@@ -10,6 +10,7 @@ import {
 	Scene,
 	PerspectiveCamera,
 	Vector3,
+	Raycaster,
 } from '../inc/three.module.js'
 
 import { GLTFLoader } from '../inc/GLTFLoader.js?v=040'
@@ -46,8 +47,6 @@ const galleries = THREEPRESS.galleries = []
 const loader = new GLTFLoader()
 
 let previewing = false
-let bound_wheel = false
-let preview_initted = false
 
 
 const tag = ( key , value ) => { return value ? `${ key }=${ value } ` : '' }
@@ -64,12 +63,15 @@ const shortcode_values = [
 	'camera_dist',
 	'allow_zoom',
 	'has_bloom',
+	'has_lensflare',
+	'bloom_threshold',
+	'bloom_strength',
 	'zoom_speed',
 	'rotate_scene',
 	'rotate_speed',
-	'rotate_x',
-	'rotate_y',
-	'rotate_z',
+	// 'rotate_x',
+	// 'rotate_y',
+	// 'rotate_z',
 
 	'light_pos',
 	'cam_pos',
@@ -98,7 +100,7 @@ export default init => {
 	// data
 	gallery.model = init.model || {}
 	gallery.location = init.location
-	// setTimeout(()=>{
+	// setTimeout(() => {
 	// 	console.log('THREEPRESS Gallery, location: ', gallery.location)
 	// }, 50)
 	// rendering
@@ -106,12 +108,12 @@ export default init => {
 	gallery.controls = init.controls || defaults.controls
 	gallery.allow_zoom = val_boolean( init.allow_zoom, false )
 	gallery.has_bloom = val_boolean( init.has_bloom, false )
+	gallery.has_lensflare = val_boolean( init.has_lensflare, false )
+	gallery.bloom_strength = init.bloom_strength || 0
+	gallery.bloom_threshold = init.bloom_threshold || 0
 	gallery.zoom_speed = init.zoom_speed || defaults.zoom_speed
 	gallery.rotate_scene = val_boolean( init.rotate_scene, false )
 	gallery.rotate_speed = init.rotate_speed || defaults.rotate_speed
-	gallery.rotate_x = init.rotate_x || defaults.rotate_x
-	gallery.rotate_y = val_boolean( init.rotate_y, true )
-	gallery.rotate_z = init.rotate_z || defaults.rotate_z
 	gallery.bg_color = init.bg_color  || defaults.bg_color
 
 	if( typeof init.cam_pos === 'object' && typeof init.cam_pos.string === 'string' ){
@@ -282,7 +284,8 @@ export default init => {
 
 
 
-	gallery.init_scene = async() => { // lights camera action
+	gallery.init_scene = async() => {
+	// lights camera action
 
 		if( !gallery.validate( false, true, false ) ) return
 
@@ -293,6 +296,9 @@ export default init => {
 			antialias: true,
 			alpha: true
 		})
+		// raycaster
+		gallery.RAYCASTER = new Raycaster()
+
 		gallery.canvas = gallery.canvas || gallery.RENDERER.domElement
 		gallery.canvas.height = gallery.canvas.width * gallery.aspect_ratio
 
@@ -311,6 +317,7 @@ export default init => {
 				// sun stuffs...
 				gallery.SUN = new Sun({
 					intensity: gallery.scaled_intensity,
+					has_lensflare: gallery.has_lensflare,
 				})
 				gallery.LIGHT = gallery.SUN.directional
 				gallery.SCENE.add( gallery.SUN.ele )
@@ -337,6 +344,11 @@ export default init => {
 			const model = await (()=>{
 				return new Promise((resolve, reject ) => {
 					loader.load( gallery.model.guid, res => {
+						if( gallery.has_bloom ){
+							res.scene.traverse( obj => {
+								addBloom( obj )
+							})
+						}
 						resolve( res.scene )
 					}, xhr => {
 						// loading progress
@@ -386,15 +398,15 @@ export default init => {
 				gallery.LIGHT.position.copy( gallery.SUN.ele.position )
 
 
-				const blorb = 1
-				if( blorb || gallery.has_bloom_ ){
-					gallery.SCENE.traverse( child => {
-						// blorb skip background / scene and other exceptions here
-						if( child.material && child.material.emissiveIntensity ){
-							composer.addBloom( child )
-						}
-					})
-				}
+				// if( gallery.has_bloom_ ){
+				// 	gallery.SCENE.traverse( child => {
+				// 		// blorb skip background / scene and other exceptions here
+				// 		// if( child.material && child.material.emissiveIntensity ){
+				// 			// composer.addBloom( child )
+				// 		// }
+				// 		// composer.addBloom( child )
+				// 	})
+				// }
 
 			}else{
 
@@ -407,8 +419,6 @@ export default init => {
 			}
 
 		}
-
-		// if( gallery.bloom )
 
 		// controls
 		if( !gallery.controls || gallery.controls === 'none' ) {
@@ -620,6 +630,9 @@ export default init => {
 
 		// bloom
 		gallery.has_bloom = form.querySelector('input[name=has_bloom]').checked
+		gallery.has_lensflare = form.querySelector('input[name=has_lensflare]').checked
+		gallery.bloom_threshold = form.querySelector('input[name=bloom_threshold]').value
+		gallery.bloom_strength = form.querySelector('input[name=bloom_strength]').value
 
 		set_scalars( gallery )
 
@@ -797,6 +810,10 @@ export default init => {
 		const bloom = form.querySelector('input[name=has_bloom]')
 		bloom.checked = gallery.has_bloom
 
+		// lensflare
+		const lensflare = form.querySelector('input[name=has_lensflare]')
+		lensflare.checked = gallery.has_lensflare
+
 		form.style.display = 'inline-block'
 		if( !is_new ){
 			form.setAttribute('data-shortcode-id', shortcode_id )
@@ -817,6 +834,8 @@ export default init => {
 		// gallery.render_contingent( allow_zoom, form, model_choice, shortcode )
 		gallery.render_contingent( document.querySelector('input[name=options_controls][value="none"]'), form, model_choice, shortcode )
 		gallery.render_contingent( allow_zoom, form, model_choice, shortcode )
+		gallery.render_contingent( document.querySelector('input[name=has_bloom]'), form, model_choice, shortcode )
+		gallery.render_contingent( document.querySelector('input[name=has_lensflare]'), form, model_choice, shortcode )
 		gallery.render_positions()
 		gallery.render_readouts()
 
@@ -965,6 +984,18 @@ export default init => {
 
 			set_contingents( contingents, target_ele.checked )
 
+		}else if( target_ele.name === 'has_bloom'){
+
+			contingents = target_ele.parentElement.parentElement.querySelectorAll('.contingent')
+
+			set_contingents( contingents, target_ele.checked )
+
+		}else if( target_ele.name === 'options_light'){
+
+			contingents = target_ele.parentElement.parentElement.querySelectorAll('.contingent')
+
+			set_contingents( contingents, target_ele.parentElement.parentElement.querySelector('input[value=sun]').checked )
+
 		}else if( target_ele.name === 'options_controls' ){ // no orbit controls
 
 			if( target_ele.value === 'none' && target_ele.checked ){
@@ -1112,7 +1143,12 @@ export default init => {
 				// walk it back - what is requried to make it work again
 				// narrow down
 
-				composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA )
+				if( gallery.has_bloom ){
+					composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA, {
+						threshold: gallery.bloom_threshold,
+						strength: gallery.bloom_strength,
+					} )
+				}
 
 				if( gallery.controls && gallery.controls !== 'none' ){ 
 					// ignored by pointer-events in woo:
@@ -1126,6 +1162,20 @@ export default init => {
 				if( !gallery.rotate_scene ) gallery.anim_state( false )					
 
 				if( !galleries.includes( gallery )) galleries.push( gallery )
+
+
+				// gallery.SCENE.traverse( obj => {
+				// 	if( obj.type === 'Lensflare'){
+				// 		obj.traverse( o => {
+				// 			console.log( o )
+				// 		})
+				// 		// obj.position.x += 10000
+				// 	}
+				// 	// if( obj.material ) console.log( obj.type + ': ', obj.material )
+				// })
+
+				gallery.canvas.parentElement.addEventListener('pointerdown', gallery.handle_click )
+
 
 			}else{
 				console.log('gallery display fail')
@@ -1183,9 +1233,6 @@ export default init => {
 
 					gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 
-					// gallery.canvas.parentElement.addEventListener('pointerdown', start_animation )
-					// gallery.canvas.parentElement.addEventListener('pointerup', stop_animation )
-
 				}
 
 				const type = document.createElement('div')
@@ -1195,9 +1242,11 @@ export default init => {
 
 				if( !galleries.includes( gallery )) galleries.push( gallery )
 
-				if( !preview_initted ){
-					composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA )
-					preview_initted = true
+				if( gallery.has_bloom ){
+					composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA, {
+						threshold: gallery.bloom_threshold,
+						strength: gallery.bloom_strength,
+					} )
 				}
 
 			}else{
@@ -1209,6 +1258,45 @@ export default init => {
 		.catch( err => { console.log( err ) } )
 
 	}
+
+
+
+
+	gallery.handle_click = e => {
+
+		if(!e.preventDefault ) return
+		e.preventDefault();
+
+		const bounds = gallery.RENDERER.domElement.getBoundingClientRect()
+
+		const gallX = e.clientX - bounds.x
+		const gallY = e.clientY - bounds.y
+
+		const x = ( gallX / gallery.RENDERER.domElement.clientWidth ) * 2 - 1
+		const y =  - ( gallY / gallery.RENDERER.domElement.clientHeight ) * 2 + 1
+
+
+
+		gallery.RAYCASTER.setFromCamera({
+			x: x, 
+			y: y
+		}, gallery.CAMERA )
+
+		const intersects = gallery.RAYCASTER.intersectObjects( gallery.SCENE.children, true ) // [ objects ], recursive (children) (ok to turn on if needed)
+
+		if( intersects.length <= 1 ){ // 1 == skybox
+			// console.log( 'skybox')
+			return false
+		}	
+
+		if( intersects[0].distance < 10000 ){
+			// addBloom( intersects[0].object )
+			// const clicked = scour_clickable( intersects[0].object )
+			// console.log( 'click: ,', intersects[0] )
+		}
+
+	}
+
 
 	return gallery
 

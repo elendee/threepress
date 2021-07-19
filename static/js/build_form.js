@@ -127,26 +127,25 @@ export default ( gallery, output_container ) => {
 	const light = build_category('light')
 	const light_options = ['directional', 'sun', 'hemispherical']
 	const disabled_light = ['hemispherical']
-	let light_opt
+	// let light_options = ['']
 	for( let i = 0; i < light_options.length; i++ ){
 		opt = build_option('radio', 'options_light', light_options[i], light_options[i], false, false, {}, i === 0 )
 		if( disabled_light.includes( light_options[i] ) ) opt.classList.add('threepress-disabled')
 		light.appendChild( opt )
 	}
+	const lensflare = build_option('checkbox', 'has_lensflare', true, 'lensflare', false, true )
 	const intensity = build_option('range', 'intensity', 5, false, false, false, {
 		min: 1,
 		max: 15,
 	})
 	light.appendChild( intensity )
+	light.appendChild( lensflare )
 	options_content.appendChild( light )
 
 	// option - camera
 	const camera = build_category('camera')
-	// allow zoom, zoom speed, initial zoom
 	const zoom = build_option('checkbox', 'allow_zoom', false, 'allow zoom', false, false )
 	const zoom_speed = build_option('range', 'zoom_speed', false, false, false, { min: 1, max: 12, })
-	// const initial_zoom = build_option('range', 'camera_dist', 10, 'initial zoom', false, false, { min: 1, max: 20 })
-	// const initial_zoom = build_option('range', 'camera_dist', 10, 'initial zoom', false,  true, { min: 1, max: 20 })
 	const initial_zoom = build_option('range', 'camera_dist', 10, 'initial zoom', false, false, { min: 1, max: 20 } )
 	camera.appendChild( zoom )
 	camera.appendChild( zoom_speed )
@@ -160,18 +159,22 @@ export default ( gallery, output_container ) => {
 	rotation.appendChild( auto )
 	const rotate_speed = build_option('range', 'rotate_speed', 20, 'rotation speed', false, true, { min: 1, max: 50 })
 	rotation.appendChild( rotate_speed )
-	// const rot_x = build_option('checkbox', 'rotate_x', false, false, false, true)
-	// const rot_y = build_option('checkbox', 'rotate_y', false, false, false, true)
-	// const rot_z = build_option('checkbox', 'rotate_z', false, false, false, true)
-	// rotation.appendChild( rot_x )
-	// rotation.appendChild( rot_y )
-	// rotation.appendChild( rot_z )
 	options_content.appendChild( rotation )
 
 	// bloom
 	const bloom = build_category('bloom')
 	const bloom_on = build_option('checkbox', 'has_bloom', false, 'bloom effect', false, false )
 	bloom.appendChild( bloom_on )
+	const threshold = build_option('range', 'bloom_threshold', 5, 'threshold', false, true, {
+		min: 0,
+		max: 10,
+	})
+	bloom.appendChild( threshold )
+	const strength = build_option('range', 'bloom_strength', 5, 'strength', false, true, {
+		min: 0,
+		max: 10,
+	})
+	bloom.appendChild( strength )
 	options_content.appendChild( bloom )
 	 // type, name, value, label, placeholder, contingent, attrs, checked
 

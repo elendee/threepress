@@ -49,6 +49,8 @@ export default class Sun {
 		sun.color = new Color( init.color || 'rgb(255, 255, 255)' )
 		sun.scale = init.scale || 100
 
+		sun.has_lensflare = init.has_lensflare
+
 		sun.texture = sun_tex
 		sun.material = new SpriteMaterial({
 			map: sun.texture,
@@ -111,13 +113,16 @@ export default class Sun {
 		]
 
 		sun.lensflare = new Lensflare()
-		for( const flare of sun.flares ){
-			sun.lensflare.addElement( new LensflareElement( 
-				flare.texture, 
-				flare.size, 
-				flare.distance, 
-				flare.color 
-			))
+		for( let i = 0; i < sun.flares.length; i++ ){
+			// if( i < 2 ) continue
+			// continue
+			sun.flares[i] = new LensflareElement( 
+				sun.flares[i].texture, 
+				sun.flares[i].size, 
+				sun.flares[i].distance, 
+				sun.flares[i].color 
+			)
+			sun.lensflare.addElement( sun.flares[i] )
 		}
 
 		sun.ele = new Group()
@@ -127,7 +132,7 @@ export default class Sun {
 
 		sun.ele.userData.type = 'sun'
 
-		sun.ele.add( sun.lensflare )
+		if( sun.has_lensflare ) sun.ele.add( sun.lensflare )
 		
 		// 
 		// sun.ele.add( sun.layer3 )

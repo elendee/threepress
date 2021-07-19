@@ -4,19 +4,9 @@ import {
 	ReinhardToneMapping,
 	ShaderMaterial,
 	DoubleSide,
-	// BoxBufferGeometry,
-	// MeshLambertMaterial,
-	// Mesh,
 	MeshBasicMaterial,
 } from './three.module.js'
 
-// import GLOBAL from '../../GLOBAL.js?v=040'
-
-// import SCENE from './SCENE.js?v=040'
-// import CAMERA from './CAMERA.js?v=040'
-// import RENDERER from './RENDERER.js?v=040'
-
-// import BROKER from '../../EventBroker.js?v=040'
 
 import {
 	EffectComposer,
@@ -28,17 +18,12 @@ import { UnrealBloomPass } from './UnrealBloomPass.js?v=040'
 
 
 
-// const vshader = document.createElement('script')
-// vshader.type = 'x-shader/x-vertex'
-// vshader.id = 'vertexshader'
-// vshader.innerHTML = 
 const vshader = `
 varying vec2 vUv;
 void main() {
 	vUv = uv;
 	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 }`
-// document.body.appendChild( vshader )
 
 const fshader = `
 uniform sampler2D baseTexture;
@@ -47,14 +32,6 @@ varying vec2 vUv;
 void main() {
 	gl_FragColor = ( texture2D( baseTexture, vUv ) + vec4( 1.0 ) * texture2D( bloomTexture, vUv ) );
 }`
-// document.body.appendChild( fshader )
-
-const bloom_params = {
-	// exposure: 1,
-	strength: 2,
-	threshold: .1,
-	radius: 0,
-}
 
 const BLOOM_LAYER = 1
 // const DEFAULT_LAYER = 0
@@ -68,7 +45,14 @@ let bloomComposer, bloomPass, renderScene, finalComposer, finalPass
 
 
 
-const init = ( RENDERER, SCENE, CAMERA ) => {
+const init = ( RENDERER, SCENE, CAMERA, params ) => {
+
+	const bloom_params = {
+		// exposure: 1,
+		strength: params.strength / 10,
+		threshold: params.threshold / 10,
+		radius: 0,
+	}
 
 	bloomComposer = new EffectComposer( RENDERER )
 	window.bloomComposer = bloomComposer
@@ -181,7 +165,7 @@ const composeAnimate = SCENE => {
 }
 
 
-const addBloom = obj => { // window.addBloom
+const addBloom = window.addBloom = obj => { // window.addBloom
 
 	obj.layers.enable( BLOOM_LAYER )
 	materials[ obj.uuid ] = obj.material
