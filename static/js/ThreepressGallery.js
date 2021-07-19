@@ -34,7 +34,7 @@ import {
 import { Modal } from './helpers/Modal.js?v=040'
 
 
-const logging = true
+const logging = false
 const stack = msg => {
 	if( logging ) console.log( 'gallery stack: ', msg )
 }
