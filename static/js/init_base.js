@@ -30,7 +30,6 @@ for( const viewer of viewers ){
 	// console.log( raw )
 	try{
 		scene = JSON.parse( raw.innerHTML )
-		console.log( scene )
 	}catch( e ){
 		console.log( e )
 	}
