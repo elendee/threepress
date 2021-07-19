@@ -57,6 +57,7 @@ export default class Sun {
 		sun.layer1 = new Sprite( sun.material )
 		sun.layer1.bloom = true
 		sun.layer2 = new Sprite( sun.material )
+		sun.layer2.bloom = true
 		// sun.layer3 = new Sprite( sun.material )
 		sun.layer1.scale.set( 
 			sun.scale, 
@@ -111,7 +112,6 @@ export default class Sun {
 
 		sun.lensflare = new Lensflare()
 		for( const flare of sun.flares ){
-			continue
 			sun.lensflare.addElement( new LensflareElement( 
 				flare.texture, 
 				flare.size, 

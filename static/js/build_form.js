@@ -168,6 +168,14 @@ export default ( gallery, output_container ) => {
 	// rotation.appendChild( rot_z )
 	options_content.appendChild( rotation )
 
+	// bloom
+	const bloom = build_category('bloom')
+	const bloom_on = build_option('checkbox', 'has_bloom', false, 'bloom effect', false, false )
+	bloom.appendChild( bloom_on )
+	options_content.appendChild( bloom )
+	 // type, name, value, label, placeholder, contingent, attrs, checked
+
+
 	form.appendChild( options )
 
 	// gallery shortcode

@@ -63,6 +63,7 @@ const shortcode_values = [
 
 	'camera_dist',
 	'allow_zoom',
+	'has_bloom',
 	'zoom_speed',
 	'rotate_scene',
 	'rotate_speed',
@@ -104,6 +105,7 @@ export default init => {
 	gallery.form = init.form || gallery.form
 	gallery.controls = init.controls || defaults.controls
 	gallery.allow_zoom = val_boolean( init.allow_zoom, false )
+	gallery.has_bloom = val_boolean( init.has_bloom, false )
 	gallery.zoom_speed = init.zoom_speed || defaults.zoom_speed
 	gallery.rotate_scene = val_boolean( init.rotate_scene, false )
 	gallery.rotate_speed = init.rotate_speed || defaults.rotate_speed
@@ -211,8 +213,11 @@ export default init => {
 
 		now = performance.now()
 
-		// composer.composeAnimate( gallery.SCENE )
-		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+		if( gallery.has_bloom ){
+			composer.composeAnimate( gallery.SCENE )
+		}else{
+			gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+		}
 
 		if( gallery.controls !== 'none' && gallery.rotate_scene ){
 			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) )// gallery.camera_dist
@@ -237,20 +242,17 @@ export default init => {
 		now = performance.now()
 		gallery.orbit_controls.update()
 		
-		// composer.composeAnimate( gallery.SCENE )
-		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+		if( gallery.has_bloom ){
+			composer.composeAnimate( gallery.SCENE )
+		}else{
+			gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+		}
 
 		requestAnimationFrame( animate_controls )
 
 		// console.log('animate_controls')
 
 	}
-
-	// const camera_step = new Vector3()
-	// const projection = new Vector3()
-	// let projected_dist, buffer_radius//, too_close, pass_through
-	// let last_scroll = performance.now()
-	// let delta_seconds
 
 
 
@@ -261,6 +263,9 @@ export default init => {
 			gallery.SCENE = new Scene()
 			return
 		}
+
+		gallery.SUN.lensflare.dispose()
+
 
 		let cap = 0
 		while( gallery.SCENE.children.length > 0 && cap < 1999999 ){ 
@@ -382,7 +387,7 @@ export default init => {
 
 
 				const blorb = 1
-				if( blorb || gallery.bloom_ ){
+				if( blorb || gallery.has_bloom_ ){
 					gallery.SCENE.traverse( child => {
 						// blorb skip background / scene and other exceptions here
 						if( child.material && child.material.emissiveIntensity ){
@@ -612,9 +617,9 @@ export default init => {
 		}else{
 			gallery.rotate_speed = undefined
 		}
-		// gallery.rotate_x = form.querySelector('input[name=rotate_x]').checked
-		// gallery.rotate_y = form.querySelector('input[name=rotate_y]').checked
-		// gallery.rotate_z = form.querySelector('input[name=rotate_z]').checked
+
+		// bloom
+		gallery.has_bloom = form.querySelector('input[name=has_bloom]').checked
 
 		set_scalars( gallery )
 
@@ -782,17 +787,17 @@ export default init => {
 		form.querySelector('input[name=camera_dist]').value = gallery.camera_dist
 
 		// rotation on / speed / axes
-		const rotate_scene = document.querySelector('input[name=rotate_scene]')
+		const rotate_scene = form.querySelector('input[name=rotate_scene]')
 		rotate_scene.checked = gallery.rotate_scene
 		form.querySelector('input[name=rotate_speed]').value = gallery.rotate_speed
-		// form.querySelector('input[name=rotate_x]').checked = gallery.rotate_x
-		// form.querySelector('input[name=rotate_y]').checked = gallery.rotate_y
-		// form.querySelector('input[name=rotate_z]').checked = gallery.rotate_z
 		const rot_contingents = rotate_scene.parentElement.parentElement.querySelectorAll('.contingent')
 		set_contingents( rot_contingents, rotate_scene.checked )
 
+		// bloom
+		const bloom = form.querySelector('input[name=has_bloom]')
+		bloom.checked = gallery.has_bloom
+
 		form.style.display = 'inline-block'
-		// add_gallery.querySelector('div').innerText = '-'
 		if( !is_new ){
 			form.setAttribute('data-shortcode-id', shortcode_id )
 			form.classList.add('editing')		
@@ -807,8 +812,6 @@ export default init => {
 			top: window.pageYOffset + form.getBoundingClientRect().top - 50,
 			behavior: 'smooth',
 		})
-
-		// const choose_model = document.getElementById('choose-model')
 
 		gallery.render_contingent( rotate_scene, form, model_choice, shortcode )
 		// gallery.render_contingent( allow_zoom, form, model_choice, shortcode )
