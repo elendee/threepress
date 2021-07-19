@@ -111,6 +111,7 @@ export default class Sun {
 
 		sun.lensflare = new Lensflare()
 		for( const flare of sun.flares ){
+			continue
 			sun.lensflare.addElement( new LensflareElement( 
 				flare.texture, 
 				flare.size, 

@@ -47,6 +47,7 @@ const loader = new GLTFLoader()
 
 let previewing = false
 let bound_wheel = false
+let preview_initted = false
 
 
 const tag = ( key , value ) => { return value ? `${ key }=${ value } ` : '' }
@@ -172,13 +173,13 @@ export default init => {
 
 	let now// , delta//, delta_seconds
 	// let then = 0
-	let nonce_anim = false
+	// let nonce_anim = false
 
 	const start_animation = () => { // single frame updates
 		if( gallery.animating ) return 
-		if( !nonce_anim ){
-			nonce_anim = true
-		}
+		// if( !nonce_anim ){
+			// nonce_anim = true
+		// }
 		gallery.animating = true
 		gallery.orbit_controls ? animate_controls() : animate()
 	}
@@ -210,8 +211,8 @@ export default init => {
 
 		now = performance.now()
 
-		composer.composeAnimate( gallery.SCENE )
-		// gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+		// composer.composeAnimate( gallery.SCENE )
+		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 
 		if( gallery.controls !== 'none' && gallery.rotate_scene ){
 			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) )// gallery.camera_dist
@@ -226,7 +227,7 @@ export default init => {
 
 	}
 
-	const animate_controls = () => { // animation with controls
+	const animate_controls = () => { // scene has orbit_controls
 
 		if( !gallery.animating ){
 			// console.log('animate_controls off')
@@ -236,8 +237,8 @@ export default init => {
 		now = performance.now()
 		gallery.orbit_controls.update()
 		
-		composer.composeAnimate( gallery.SCENE )
-		// gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+		// composer.composeAnimate( gallery.SCENE )
+		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 
 		requestAnimationFrame( animate_controls )
 
@@ -402,7 +403,7 @@ export default init => {
 
 		}
 
-		if( gallery.bloom )
+		// if( gallery.bloom )
 
 		// controls
 		if( !gallery.controls || gallery.controls === 'none' ) {
@@ -1100,13 +1101,13 @@ export default init => {
 
 				viewer.appendChild( gallery.canvas )
 
-				blorb
-				the problem is
-				composer doesnt work with orbit controls - vice versa
-				is it perhaps the scene/renderer/camera get disassociated ?
-				does composer not update the renderer ??
-				walk it back - what is requried to make it work again
-				narrow down
+				// blorb
+				// the problem is
+				// composer doesnt work with orbit controls - vice versa
+				// is it perhaps the scene/renderer/camera get disassociated ?
+				// does composer not update the renderer ??
+				// walk it back - what is requried to make it work again
+				// narrow down
 
 				composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA )
 
@@ -1171,8 +1172,9 @@ export default init => {
 
 				if( gallery.rotate_scene ){
 
-					gallery.animating = true
-					gallery.orbit_controls ? animate_controls() : animate()
+					start_animation()
+					// gallery.animating = true
+					// gallery.orbit_controls ? animate_controls() : animate()
 
 				}else{
 
@@ -1190,7 +1192,10 @@ export default init => {
 
 				if( !galleries.includes( gallery )) galleries.push( gallery )
 
-				composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA )
+				if( !preview_initted ){
+					composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA )
+					preview_initted = true
+				}
 
 			}else{
 
