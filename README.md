@@ -29,4 +29,4 @@ All models must be in ".glb" format - most 3d programs can export to this.
 They are stored in the Media Library like everything else, but can be found easily through the Threepress library, which simply filters for ".glb" extensions.
 
 #### For javascript devs:
-All the galleries on a given page will be available in the global variable `THREEPRESS`, in the `galleries` property.  See the `Gallery` class (`static/js/Gallery.js`) for insight on interacting with these.
+All the galleries on a given page will be available in the global variable `THREEPRESS`, in the `galleries` property.  See the `Gallery` class (`static/js/ThreepressGallery.js`) for insight on interacting with these.

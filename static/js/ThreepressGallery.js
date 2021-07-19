@@ -694,14 +694,14 @@ export default init => {
 
 
 
-	// gallery.ingest_data = data => {
-	// 	stack( 'ingest_data')
+	gallery.ingest_data = data => { // used for threepress-woo
+		stack( 'ingest_data')
 
-	// 	// if( data.post_id ) gallery.model.id = Number( data.post_id )
-	// 	if( data.post_id ) gallery.model.id = Number( data.ID )
-	// 	if( data.guid ) gallery.model.guid = data.guid
+		// if( data.post_id ) gallery.model.id = Number( data.post_id )
+		if( data.post_id ) gallery.model.id = Number( data.ID )
+		if( data.guid ) gallery.model.guid = data.guid
 
-	// }
+	}
 
 
 
