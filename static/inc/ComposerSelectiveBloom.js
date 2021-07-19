@@ -113,6 +113,8 @@ const init = ( RENDERER, SCENE, CAMERA ) => {
 	bloomComposer.addPass( renderScene )
 	bloomComposer.addPass( bloomPass )
 
+	composer_res( RENDERER )
+
 }
 
 
@@ -195,20 +197,26 @@ const removeBloom = obj => { /// = window.removeBloom
 
 
 
-// const composer_res = () => {
+const composer_res = renderer => {
 
-// 	finalComposer.setSize( 
-// 		window.innerWidth / GLOBAL.RENDER.RESOLUTIONS[ GLOBAL.RENDER.RES_KEY ],
-// 		window.innerWidth / GLOBAL.RENDER.RESOLUTIONS[ GLOBAL.RENDER.RES_KEY ],
-// 		false,
-// 	)
-// 	bloomComposer.setSize( 
-// 		window.innerWidth / GLOBAL.RENDER.RESOLUTIONS[ GLOBAL.RENDER.RES_KEY ],
-// 		window.innerWidth / GLOBAL.RENDER.RESOLUTIONS[ GLOBAL.RENDER.RES_KEY ],
-// 		false,
-// 	)
+	// setTimeout(()=>{
 
-// }
+		const bounds = renderer.domElement.getBoundingClientRect()
+
+		finalComposer.setSize( 
+			bounds.width, // / GLOBAL.RENDER.RESOLUTIONS[ GLOBAL.RENDER.RES_KEY ],
+			bounds.height, // / GLOBAL.RENDER.RESOLUTIONS[ GLOBAL.RENDER.RES_KEY ],
+			false,
+		)
+		bloomComposer.setSize( 
+			bounds.width, //  / GLOBAL.RENDER.RESOLUTIONS[ GLOBAL.RENDER.RES_KEY ],
+			bounds.height, //  / GLOBAL.RENDER.RESOLUTIONS[ GLOBAL.RENDER.RES_KEY ],
+			false,
+		)
+
+	// }, 2000 )
+
+}
 
 // const composer_intensity = event => {
 // 	const { modifier } = event 
@@ -231,12 +239,6 @@ const removeBloom = obj => { /// = window.removeBloom
 // 		bloomPass.radius = bloom_params.radius
 // 	}
 // }
-
-
-// CAMERA.layers.enable( BLOOM_LAYER )
-// BROKER.subscribe('COMPOSER_RES', composer_res )
-// BROKER.subscribe('COMPOSER_INTENSITY', composer_intensity )
-// BROKER.subscribe('COMPOSER_RADIUS', composer_radius )
 
 
 export {

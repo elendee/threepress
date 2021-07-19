@@ -1,6 +1,6 @@
 // import BROKER from './helpers/EventBroker.js?v=040'
 
-// import * as composer from '../inc/ComposerSelectiveBloom.js?v=040'
+import * as composer from '../inc/ComposerSelectiveBloom.js?v=040'
 
 
 import {
@@ -210,8 +210,8 @@ export default init => {
 
 		now = performance.now()
 
-		// composer.composeAnimate( gallery.SCENE )
-		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+		composer.composeAnimate( gallery.SCENE )
+		// gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 
 		if( gallery.controls !== 'none' && gallery.rotate_scene ){
 			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) )// gallery.camera_dist
@@ -236,9 +236,9 @@ export default init => {
 		now = performance.now()
 		gallery.orbit_controls.update()
 		
-		// composer.composeAnimate( gallery.SCENE )
+		composer.composeAnimate( gallery.SCENE )
+		// gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 
-		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 		requestAnimationFrame( animate_controls )
 
 		// console.log('animate_controls')
@@ -379,15 +379,16 @@ export default init => {
 				gallery.SUN.directional.position.copy( gallery.SUN.ele.position )
 				gallery.LIGHT.position.copy( gallery.SUN.ele.position )
 
-				console.log('positioned sun: ', gallery.light_pos )
-				console.log('positioned sun: ', gallery.SUN.ele.position )
 
-
-				// gallery.MODELS[0].traverse( child => {
-				// 	console.log( child.material )
-				// 	// child.receiveShadow = true
-				// })
-				// .receiveShadow = true
+				const blorb = 1
+				if( blorb || gallery.bloom_ ){
+					gallery.SCENE.traverse( child => {
+						// blorb skip background / scene and other exceptions here
+						if( child.material && child.material.emissiveIntensity ){
+							composer.addBloom( child )
+						}
+					})
+				}
 
 			}else{
 
@@ -400,6 +401,8 @@ export default init => {
 			}
 
 		}
+
+		if( gallery.bloom )
 
 		// controls
 		if( !gallery.controls || gallery.controls === 'none' ) {
@@ -452,8 +455,6 @@ export default init => {
 		gallery.LIGHT.intensity = gallery.scaled_intensity
 
 		if( gallery.bg_color )  gallery.canvas.style.background = gallery.bg_color
-
-		// composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA )
 
 		return true
 
@@ -1099,6 +1100,16 @@ export default init => {
 
 				viewer.appendChild( gallery.canvas )
 
+				blorb
+				the problem is
+				composer doesnt work with orbit controls - vice versa
+				is it perhaps the scene/renderer/camera get disassociated ?
+				does composer not update the renderer ??
+				walk it back - what is requried to make it work again
+				narrow down
+
+				composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA )
+
 				if( gallery.controls && gallery.controls !== 'none' ){ 
 					// ignored by pointer-events in woo:
 					// gallery.canvas.parentElement.addEventListener('pointerdown', start_animation )
@@ -1178,6 +1189,8 @@ export default init => {
 				gallery.canvas.parentElement.appendChild( type )
 
 				if( !galleries.includes( gallery )) galleries.push( gallery )
+
+				composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA )
 
 			}else{
 
