@@ -96,9 +96,9 @@ export default init => {
 	// data
 	gallery.model = init.model || {}
 	gallery.location = init.location
-	setTimeout(()=>{
-		console.log('new Gallery, location: ', gallery.location)
-	}, 50)
+	// setTimeout(()=>{
+	// 	console.log('THREEPRESS Gallery, location: ', gallery.location)
+	// }, 50)
 	// rendering
 	gallery.form = init.form || gallery.form
 	gallery.controls = init.controls || defaults.controls
@@ -229,7 +229,7 @@ export default init => {
 	const animate_controls = () => { // animation with controls
 
 		if( !gallery.animating ){
-			console.log('animate_controls off')
+			// console.log('animate_controls off')
 			return
 		}
 
