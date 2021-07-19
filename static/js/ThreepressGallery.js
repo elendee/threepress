@@ -1,6 +1,6 @@
 // import BROKER from './helpers/EventBroker.js?v=040'
 
-import * as composer from '../inc/ComposerSelectiveBloom.js?v=040'
+// import * as composer from '../inc/ComposerSelectiveBloom.js?v=040'
 
 
 import {
@@ -34,7 +34,7 @@ import {
 import { Modal } from './helpers/Modal.js?v=040'
 
 
-const logging = false
+const logging = true
 const stack = msg => {
 	if( logging ) console.log( 'gallery stack: ', msg )
 }
@@ -110,18 +110,31 @@ export default init => {
 	gallery.rotate_y = val_boolean( init.rotate_y, true )
 	gallery.rotate_z = init.rotate_z || defaults.rotate_z
 	gallery.bg_color = init.bg_color  || defaults.bg_color
-	gallery.cam_pos = init.cam_pos || {
-		string: '1,1,1',
-		x: 1,
-		y: 1, 
-		z: 1,
+
+	if( typeof init.cam_pos === 'object' && typeof init.cam_pos.string === 'string' ){
+		gallery.cam_pos = init.cam_pos
+	}else{
+		gallery.cam_pos = {
+			string: typeof init.cam_pos === 'string' ? init.cam_pos : '1,1,1',
+		}
+		const split = gallery.cam_pos.string.split(',')
+		gallery.cam_pos.x = split[0]
+		gallery.cam_pos.y = split[1]
+		gallery.cam_pos.z = split[2]
 	}
-	gallery.light_pos = init.light_pos || {
-		string: '1,1,1',
-		x: 1,
-		y: 1, 
-		z: 1,
+
+	if( typeof init.light_pos === 'object' && typeof init.light_pos.string === 'string' ){
+		gallery.light_pos = init.light_pos
+	}else{
+		gallery.light_pos = {
+			string: typeof init.light_pos === 'string' ? init.light_pos : '1,1,1',
+		}
+		const split = gallery.light_pos.string.split(',')
+		gallery.light_pos.x = split[0]
+		gallery.light_pos.y = split[1]
+		gallery.light_pos.z = split[2]
 	}
+
 	gallery.view = init.view  || defaults.view
 	gallery.camera_dist = init.camera_dist  || defaults.camera_dist
 	gallery.intensity = init.intensity  || defaults.intensity
@@ -147,10 +160,6 @@ export default init => {
 		gallery.canvas.classList.add('threepress-overlay')
 		overlays.push( gallery )
 	}
-
-
-	// composer
-	// composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA )
 
 
 
@@ -201,8 +210,8 @@ export default init => {
 
 		now = performance.now()
 
-		composer.composeAnimate( gallery.SCENE )
-		// gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+		// composer.composeAnimate( gallery.SCENE )
+		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 
 		if( gallery.controls !== 'none' && gallery.rotate_scene ){
 			gallery.CAMERA.position.x = gallery.camera_dist * ( Math.sin( performance.now() / 20000 * gallery.rotate_speed ) )// gallery.camera_dist
@@ -212,6 +221,8 @@ export default init => {
 		if( gallery.rotate_scene ) gallery.CAMERA.lookAt( origin )
 
 		requestAnimationFrame( animate )
+
+		// console.log('animate')
 
 	}
 
@@ -225,10 +236,12 @@ export default init => {
 		now = performance.now()
 		gallery.orbit_controls.update()
 		
-		composer.composeAnimate( gallery.SCENE )
+		// composer.composeAnimate( gallery.SCENE )
 
-		// gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
+		gallery.RENDERER.render( gallery.SCENE, gallery.CAMERA )
 		requestAnimationFrame( animate_controls )
+
+		// console.log('animate_controls')
 
 	}
 
@@ -295,9 +308,13 @@ export default init => {
 				})
 				gallery.LIGHT = gallery.SUN.directional
 				gallery.SCENE.add( gallery.SUN.ele )
+
 			}
 
 		}
+		// else{
+			// console.log('skipping light')
+		// }
 
 		// camera, action
 
@@ -362,6 +379,10 @@ export default init => {
 				gallery.SUN.directional.position.copy( gallery.SUN.ele.position )
 				gallery.LIGHT.position.copy( gallery.SUN.ele.position )
 
+				console.log('positioned sun: ', gallery.light_pos )
+				console.log('positioned sun: ', gallery.SUN.ele.position )
+
+
 				// gallery.MODELS[0].traverse( child => {
 				// 	console.log( child.material )
 				// 	// child.receiveShadow = true
@@ -399,12 +420,14 @@ export default init => {
 			if( !gallery.allow_zoom ){
 				gallery.orbit_controls.enableZoom = false 
 			}else{
-				gallery.orbit_controls.zoomSpeed = gallery.zoom_speed / 100
+				gallery.orbit_controls.zoomSpeed = gallery.zoom_speed / 50
+
 			}
 
 			if( gallery.rotate_scene ){
 
 				gallery.orbit_controls.autoRotate = true
+				gallery.orbit_controls.autoRotateSpeed = gallery.rotate_speed / 10
 				gallery.animating = false
 				gallery.anim_state( true )
 
@@ -416,7 +439,7 @@ export default init => {
 				})
 				gallery.RENDERER.domElement.addEventListener('mouseout', e => {
 					gallery.animating = false
-					console.log('stop')
+					// console.log('stop')
 				})
 
 			}
@@ -430,11 +453,11 @@ export default init => {
 
 		if( gallery.bg_color )  gallery.canvas.style.background = gallery.bg_color
 
-		composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA )
+		// composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA )
 
 		return true
 
-	}
+	} // init_scene
 
 
 
@@ -563,7 +586,7 @@ export default init => {
 				gallery.light_pos.z = lpos[2]
 			}else{
 				//
-			}
+			}	
 		}else{
 			console.log('invalid light pos: ', gallery.light_pos )
 			gallery.light_pos.string = '1,1,1'
@@ -587,9 +610,9 @@ export default init => {
 		}else{
 			gallery.rotate_speed = undefined
 		}
-		gallery.rotate_x = form.querySelector('input[name=rotate_x]').checked
-		gallery.rotate_y = form.querySelector('input[name=rotate_y]').checked
-		gallery.rotate_z = form.querySelector('input[name=rotate_z]').checked
+		// gallery.rotate_x = form.querySelector('input[name=rotate_x]').checked
+		// gallery.rotate_y = form.querySelector('input[name=rotate_y]').checked
+		// gallery.rotate_z = form.querySelector('input[name=rotate_z]').checked
 
 		set_scalars( gallery )
 
@@ -671,14 +694,14 @@ export default init => {
 
 
 
-	gallery.ingest_data = data => {
-		stack( 'ingest_data')
+	// gallery.ingest_data = data => {
+	// 	stack( 'ingest_data')
 
-		// if( data.post_id ) gallery.model.id = Number( data.post_id )
-		if( data.post_id ) gallery.model.id = Number( data.ID )
-		if( data.guid ) gallery.model.guid = data.guid
+	// 	// if( data.post_id ) gallery.model.id = Number( data.post_id )
+	// 	if( data.post_id ) gallery.model.id = Number( data.ID )
+	// 	if( data.guid ) gallery.model.guid = data.guid
 
-	}
+	// }
 
 
 
@@ -721,6 +744,9 @@ export default init => {
 
 		// bg color
 		form.querySelector('input[name=bg_color]').value = gallery.bg_color
+		if( typeof gallery.bg_color === 'string' && gallery.bg_color.match(/^#/) ){
+			form.querySelector('input[type=color]').value = gallery.bg_color
+		}
 		// controls
 		for( const option of form.querySelectorAll('input[name=options_controls]')){
 			if( option.value === gallery.controls ) option.checked = true
@@ -757,9 +783,9 @@ export default init => {
 		const rotate_scene = document.querySelector('input[name=rotate_scene]')
 		rotate_scene.checked = gallery.rotate_scene
 		form.querySelector('input[name=rotate_speed]').value = gallery.rotate_speed
-		form.querySelector('input[name=rotate_x]').checked = gallery.rotate_x
-		form.querySelector('input[name=rotate_y]').checked = gallery.rotate_y
-		form.querySelector('input[name=rotate_z]').checked = gallery.rotate_z
+		// form.querySelector('input[name=rotate_x]').checked = gallery.rotate_x
+		// form.querySelector('input[name=rotate_y]').checked = gallery.rotate_y
+		// form.querySelector('input[name=rotate_z]').checked = gallery.rotate_z
 		const rot_contingents = rotate_scene.parentElement.parentElement.querySelectorAll('.contingent')
 		set_contingents( rot_contingents, rotate_scene.checked )
 
@@ -1064,7 +1090,7 @@ export default init => {
 	}
 
 	gallery.display = viewer => {	
-	stack('display')
+		stack('display')
 
 		gallery.init_scene()
 		.then( success => {
