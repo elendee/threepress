@@ -1,11 +1,10 @@
 import {
-// 	hal,
 	tstack,
-} from './lib.js?v=040'
+} from './lib.js?v=112'
 
 tstack('init_base')
 
-import ThreepressGallery from './ThreepressGallery.js?v=040'
+import ThreepressGallery from './ThreepressGallery.js?v=112'
 
 
 // ------------------------------------------------------------ declarations
@@ -23,16 +22,19 @@ if( !THREEPRESS ){
 	return
 }
 
-let raw, scene //, shortcode
+// single model galleries
+
+let raw, scene
 for( const viewer of viewers ){
 	raw = viewer.querySelector('.threepress-gallery-data')
-	// shortcode = viewer.querySelector('.threepress-gallery-data').innerHTML
-	// console.log( raw )
+	// console.log( raw.innerHTML )
 	try{
-		scene = JSON.parse( raw.innerHTML )
+		scene = JSON.parse( raw.innerText )
 	}catch( e ){
 		console.log( e )
 	}
+
+	// console.log( raw.innerText, scene )
 
 	const gallery_front = ThreepressGallery( scene )
 
@@ -40,6 +42,15 @@ for( const viewer of viewers ){
 
 }	
 
+// games
+for( const game of document.querySelectorAll('.threepress-game') ){
+	console.log('game time: ', game )
+}
+
+// errors
+for( const error of document.querySelectorAll('.threepress-init-error') ){
+	console.log( 'Threepress error: ', error.getAttribute('data-error') )
+}
 
 })();
 

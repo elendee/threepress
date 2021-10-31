@@ -1,7 +1,6 @@
 import {
-	set_scalars,
 	resolutions,
-} from './lib.js?v=040'
+} from './lib.js?v=112'
 
 import {
 	DoubleSide,
@@ -16,7 +15,7 @@ import {
 	Mesh,
 	Raycaster,
 	MeshLambertMaterial,
-} from '../inc/three.module.js'
+} from '../inc/three.module.js?v=112'
 
 
 const groundgeo = new PlaneGeometry( 100, 100 )
@@ -58,8 +57,6 @@ export default function ThreePressScene( init ){
 	scene.wrapper.classList.add('threepress-scene', 'threepress-' + scene.type + '-canvas')
 
 	scene.fullscreen = true
-
-	set_scalars( scene )
 
 	// scene.canvas.style.border = '10px solid pink'
 

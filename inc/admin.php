@@ -25,6 +25,7 @@
     		add a model
     		<div class='threepress-toggle-wrapper'>
 	        	<div id='add-toggle' class='threepress-toggle'>
+	        		<!-- threepress-button -->
 	        		<div>
 	        			+
 	        		</div>
@@ -71,7 +72,7 @@
     	<h3>
     		create gallery shortcode
     		<div class='threepress-toggle-wrapper'>
-	        	<div id='create-toggle' class='threepress-toggle'>
+	        	<div id='create-toggle' class='threepress-toggle threepress-button'>
 	        		<div>
 	        			+
 	        		</div>
@@ -89,10 +90,20 @@
     </div>
 
 
+    <div id='tab-games' class='section'>
+    	<h3>
+    		Games: <!--a href="https://threepress.shop/product-category/extension/" target="_blank">https://threepress.shop/extensions</a-->
+    	</h3>
+
+    </div>
+
+
+
     <div id='model-extensions' class='section'>
     	<h3>
-    		Extensions: <a href="https://threepress.shop/product-category/extension/" target="_blank">https://threepress.shop/extensions</a>
+    		Extensions: <!--a href="https://threepress.shop/product-category/extension/" target="_blank">https://threepress.shop/extensions</a-->
     	</h3>
+    	<i>Extensions currently unavailable</i>
     	<h4>Your installed extensions:</h4>
     	<div id='extension-menu' class='nav-tab-wrapper'>
 	    	<?php do_action('threepress_list_ext_menu'); ?>

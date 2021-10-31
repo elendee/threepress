@@ -1,10 +1,10 @@
-import ThreepressGallery from './ThreepressGallery.js?v=040'
-// import BROKER from './helpers/EventBroker.js?v=040'
+import ThreepressGallery from './ThreepressGallery.js?v=112'
+// import BROKER from './helpers/EventBroker.js?v=112'
 
 import {
 	Box3,
 	Vector3,
-} from '../inc/three.module.js'
+} from '../inc/three.module.js?v=112'
 
 
 // ------------------------------------------------------------ declarations
@@ -62,6 +62,7 @@ const hal = ( type, msg, time ) => {
 	}
 	
 }
+
 
 
 
@@ -144,10 +145,10 @@ class ModelRow {
 		const obj = this
 
 		const row = document.createElement('div')
-		row.classList.add('row', 'threepress-row', 'threepress-model-row')
+		row.classList.add('threepress-row', 'threepress-model-row')
 		row.setAttribute('data-id', this.id )
 		const title = document.createElement('div')
-		title.classList.add('column', 'column-3')
+		title.classList.add('threepress-column', 'threepress-column-3')
 		title.title = 'title'
 		// title.innerText = this.title
 		const a = document.createElement('a')
@@ -163,21 +164,21 @@ class ModelRow {
 		title.prepend( thumb )
 		// const name = document.createElement('div')
 		// name.title = 'name'
-		// name.classList.add('column', 'column-3')
+		// name.classList.add('threepress-column', 'threepress-column-3')
 		// name.innerText = this.name
 		// row.appendChild( name )
 		const date = document.createElement('div')
 		date.title = 'date created'
-		date.classList.add('column', 'column-3')
+		date.classList.add('threepress-column', 'threepress-column-3')
 		date.innerText = new Date( this.date ).toLocaleString()
 		row.appendChild( date )
 		const id = document.createElement('div')
 		id.title = 'model id'
-		id.classList.add('column', 'column-3')
+		id.classList.add('threepress-column', 'threepress-column-3')
 		id.innerText = this.id
 		row.appendChild( id )
 		const url = document.createElement('div')
-		url.classList.add('column', 'url')
+		url.classList.add('threepress-column', 'url')
 		// url.innerText = this.url
 		const input = document.createElement('input')
 		// input.type = 'text'
@@ -188,7 +189,7 @@ class ModelRow {
 
 		if( this.caption ){
 			const caption = document.createElement('div')
-			caption.classList.add('column')
+			caption.classList.add('threepress-column')
 			caption.innerHTML = this.caption
 			row.appendChild( caption )
 		}
@@ -204,14 +205,92 @@ class ModelRow {
 				model: { guid: input.value.trim() },
 				name: '',
 				rotate_scene: true,
-				rotate_y: 1,
-				bg_color: 'linear-gradient(45deg, white, transparent)',
+				// rotate_y: 1,
+				bg_color: 'linear-gradient(45deg,white,transparent)',
 				controls: 'orbit',
 				form: obj.form,
 			})
 			gallery_preview.preview()
 		})
 		row.appendChild( viz )
+
+		return row
+	}
+
+}
+
+
+
+
+
+class ImageRow {  
+
+	constructor( init ){
+		init = init || {}
+		this.id = init.ID || init.id
+		this.title = init.post_title || init.title
+		this.name = init.post_name || init.name
+		this.url = init.guid || init.url
+		this.date = init.post_date || init.date
+		this.name = init.post_name || init.name
+		this.caption = init.post_excerpt || init.caption
+		this.thumb_url = init.thumb_img || THREEPRESS.plugin_url + '/assets/helper.png'
+		this.form = init.form
+	}
+
+	gen_row(){
+
+		const obj = this
+
+		const row = document.createElement('div')
+		row.classList.add('threepress-row', 'threepress-image-row')
+		row.setAttribute('data-id', this.id )
+		const title = document.createElement('div')
+		title.classList.add('threepress-column', 'threepress-column-3')
+		title.title = 'title'
+		// title.innerText = this.title
+		const a = document.createElement('a')
+		a.href = THREEPRESS.home_url + '/wp-admin/post.php?post=' + this.id + '&action=edit'
+		a.innerText = this.title 
+		title.appendChild( a )
+		row.appendChild( title )
+		const thumb = document.createElement('div')
+		thumb.classList.add('threepress-row-icon') // blorb < change to img icon <
+		const thumb_img = document.createElement('img')
+		thumb_img.src = this.thumb_url
+		thumb.appendChild( thumb_img )
+		title.prepend( thumb )
+		// const name = document.createElement('div')
+		// name.title = 'name'
+		// name.classList.add('threepress-column', 'threepress-column-3')
+		// name.innerText = this.name
+		// row.appendChild( name )
+		const date = document.createElement('div')
+		date.title = 'date created'
+		date.classList.add('threepress-column', 'threepress-column-3')
+		date.innerText = new Date( this.date ).toLocaleString()
+		row.appendChild( date )
+		const id = document.createElement('div')
+		id.title = 'image id'
+		id.classList.add('threepress-column', 'threepress-column-3')
+		id.innerText = this.id
+		row.appendChild( id )
+		const url = document.createElement('div')
+		url.classList.add('threepress-column', 'url')
+		// url.innerText = this.url
+		const input = document.createElement('input')
+		// input.type = 'text'
+		input.setAttribute('readonly', true )
+		input.value = this.url
+		url.appendChild( input )
+		row.appendChild( url )
+
+		if( this.caption ){
+			const caption = document.createElement('div')
+			caption.classList.add('threepress-column')
+			caption.innerHTML = this.caption
+			row.appendChild( caption )
+		}
 
 		return row
 	}
@@ -232,6 +311,13 @@ const fetch_wrap = ( url, method, body, no_spinner ) => {
 			data : body,
 			method : method,
 		})
+		// .error( ( req, err ) => {
+		// 	console.log( req, err )
+		// 	reject( err )
+		// })
+		// .success( res => {
+		// 	resolve( res )
+		// })
 		.then( res => {
 			if( typeof res === 'string' ){
 				try{
@@ -344,48 +430,57 @@ const set_contingents = ( contingents, enabled, hide ) => {
 
 
 
-let model_frame = false
+const media_types = {
+	image: ['image'],
+	model: 'application/octet-stream',
+}
 
-const model_selector = ( callback ) => {
+let media_frame = false
 
-	if( model_frame ){
-		model_frame.open()
-		return
-	}
+const media_selector = ( type, callback ) => {
+
+	// if( type == 'model' && media_frame ){
+	// 	media_frame.open()
+	// 	return
+	// }
 
 	if( !wp.media ){
 		console.error('wp.media not enabled')
 		return false
 	}
 
-	model_frame = new wp.media.view.MediaFrame.Select({
-		title: 'Select model',
+	media_frame = new wp.media.view.MediaFrame.Select({
+		title: 'Select ' + type,
 		multiple: false,
 		library: {
 			order: 'ASC',
 			orderby: 'title',
-			type: 'application/octet-stream',
+			type: media_types[ type ],
 			search: null,
-			uploadedTo: null
+			uploadedTo: null,
 		},
 
 		button: {
-			text: 'set model'
+			text: 'set ' + type
 		}
 	})
 
-	model_frame.on( 'select', function() {
+	media_frame.on( 'select', function() {
 
-		const attachment = model_frame.state().get('selection').first().toJSON()
-		console.log('attachment selected: ', attachment)
-		const model_row = new ModelRow( attachment )
-		// const row = model.gen_row()
+		const attachment = media_frame.state().get('selection').first().toJSON()
+		// console.log('attachment selected: ', attachment)
+		let row
+		if( type === 'model' ){
+			row = new ModelRow( attachment )
+		}else{
+			row = new ImageRow( attachment )
+		}
 		
-		callback( attachment.id, model_row )
+		callback( attachment.id, row )
 
 	});
 
-	model_frame.open()
+	media_frame.open()
 
 }
 
@@ -420,76 +515,24 @@ const tstack = file => {
 	if( logging ) console.log('threepress stack: ', file )
 }
 
-const build_option = ( type, name, value, label, placeholder, contingent, attrs, checked ) => {
-	const selection = document.createElement('div')
-	selection.classList.add('selection')
-	if( contingent ) selection.classList.add('contingent')
-	const label_ele = document.createElement('label')
-	label_ele.innerHTML = label || ( name ? name.replace(/_/g, ' ' ) : '' )
-	const input = document.createElement('input')
-	if( placeholder ) input.placeholder = placeholder
-	if( type ) input.type = type
-	if( name ) input.name = name
-	if( value ) input.value = value
-	for( const key in attrs ){
-		input[ key ] = attrs[ key ]
-	}
-	if( type === 'checkbox' || type === 'radio'){
-		if( checked ) input.checked = true
-		label_ele.addEventListener('click', () => {
-			const input = label_ele.parentElement.querySelector('input')
-			if( input.type === 'radio' || input.type === 'checkbox') input.click()
-		})
-	}
-	selection.appendChild( label_ele )
-	selection.appendChild( input )
-	return selection
-}
 
 
-const coord_range = ( name ) => {
+
+const coord_range = ( name, is_ground_dims, dim ) => {
+	const dim_ranges = ['x', 'z']
 	const coord = document.createElement('input')
 	coord.classList.add('coord-range')
 	coord.type = 'range'
-	coord.min = -3
-	coord.max = 3
+	coord.min = is_ground_dims && dim_ranges.includes( dim ) ? 1 : -3
+	coord.max = is_ground_dims && dim_ranges.includes( dim ) ? 10 : 3
 	coord.step = 1
 	coord.name = name
+	coord.value = 1
+	if( is_ground_dims && dim === 'y' ) coord.max = 10
 	return coord
 }
 
-const build_positioner = ( type, gallery ) => {
-	const wrapper = document.createElement('div')
-	const readout = document.createElement('input')
-	readout.type = 'text'
-	readout.classList.add('readout')
-	readout.setAttribute('readonly', true)
-	// const dims = {
-	// 	x: 0,
-	// 	y: 0,
-	// 	z: 0,
-	// }
-	const dims = ['x', 'y', 'z']
-	for( const dim of dims ){
-		const ele = coord_range( dim )
-		wrapper.appendChild( ele )
-		ele.addEventListener('change', () => {
-			let has_val
-			for( const range of ele.parentElement.querySelectorAll('.coord-range') ) if( range.value != 0 ) has_val = true
-			if( !has_val ){
-				hal('error', 'cannot set all values to zero', 7000 )
-				ele.value = 1
-			}
-			gallery.render_readouts()
-		})
 
-	}
-	wrapper.appendChild( readout )
-	const pre = document.createElement('div')
-	pre.innerHTML = 'XYZ for <b>angle</b> only.  Use camera "initial zoom" to control distance.'
-	wrapper.prepend( pre )
-	return wrapper
-}
 
 
 const get_html_translation_table = (table, quote_style) => {  
@@ -707,24 +750,9 @@ const get_radio_val = elements => {
 }
 
 
-const set_scalars = gallery => {
-	gallery.scaled_intensity = gallery.intensity / 3
-	gallery.scaled_rotate = Number( gallery.rotate_speed ) / 1000
-	gallery.scaled_zoom = gallery.zoom_speed ? gallery.zoom_speed : defaults.zoom_speed
-	gallery.scaled_dist = gallery.camera_dist ? gallery.camera_dist : 50
-}
 
-const defaults = { // form values, not scaled values
-	name: 'new gallery',
-	light: 'directional',
-	intensity: 5,
-	camera_dist: 5,
-	aspect_ratio: .7,
-	rotate_speed: 1,
-	zoom_speed: 5,
-	bg_color: 'linear-gradient(45deg,white,transparent)',
-	shortcode: '',
-}
+
+
 
 const resolutions = [4, 2, 1.5, 1]
 
@@ -738,7 +766,20 @@ const set_radio = result => {
 }
 
 
-const random_hex = ( len ) => {
+const random_vector = ( min, max ) => {
+
+	const range = Math.abs( max - min )
+
+	return new Vector3( 
+		min + ( Math.random() * range ), 
+		min + ( Math.random() * range ), 
+		min + ( Math.random() * range ), 
+	)
+
+}
+
+
+const random_hex = len => {
 	//	let r = '#' + Math.floor( Math.random() * 16777215 ).toString(16)
 	let s = ''
 	for( let i = 0; i < len; i++){
@@ -765,6 +806,155 @@ const imageToDataURI = ( img, initX, initY, initWidth, initHeight, targetX, targ
     return offscreen_canvas.toDataURL()
 }
 
+const diff = window.diff = ( a, b, current, allowed ) => {
+	
+	if( typeof current !== 'number' || typeof allowed !== 'number' || typeof a === 'function' || typeof b === 'function' || !a || !b ){
+		return
+	}
+	
+	const diffpass = {}
+	
+	if( typeof a === 'object' && typeof b === 'object' ){
+	    for( const key of Object.keys( a ) ){
+	        if( a[ key ] !== b[ key ] ){
+	            diffpass[ key ] = [ a[ key ], b[ key ] ]
+	        }else if( current < allowed ){
+		    	diff( a[ key ], b[ key ], current + 1, allowed )
+	        }
+	    }
+		for( const key of Object.keys( b ) ){
+	        if( a[ key ] !== b[ key ] && !diffpass[ key ] ){
+	        	diffpass[ key ] = [ a[ key ], b[ key ]]
+	        }else if( current < allowed ){
+			    diff( a[ key ], b[ key ], current + 1, allowed )
+	        }
+	    }
+	}else if( a !== b ){
+		diffpass[ random_hex( 6 )] = [ a, b ]
+	}
+
+	if( Object.keys( diffpass ).length ) console.log( 'diffpass ' + current + ': ', diffpass )
+
+}
+
+
+const sleep = ms => {
+	return new Promise((resolve, reject ) => {
+		setTimeout(() => {
+			resolve()
+		}, typeof ms === 'number' ? ms : 1000 )
+	})
+}
+
+
+const process_split = ( string, require_length ) => {
+
+	if( typeof string !== 'string' ) return {}
+
+	const split = string.split(',')
+	if( !split || split.length !== 3 ) return {}
+
+	// console.log('hrm', split )
+	if( require_length ){
+		if( !split[0] && !split[1] && !split[2] ) split = [1,0,0]
+	}
+
+	return {
+		x: Number( split[0] ),
+		y: Number( split[1] ),
+		z: Number( split[2] ),
+	}
+
+}
+
+
+
+
+
+const build_option = ( type, name, value, label, placeholder, contingent, attrs, checked ) => {
+	const selection = document.createElement('div')
+	selection.classList.add('selection')
+	if( contingent ) selection.classList.add('contingent')
+	const label_ele = document.createElement('label')
+	label_ele.innerHTML = label || ( name ? name.replace(/_/g, ' ' ) : '' )
+	const input = document.createElement('input')
+	if( placeholder ) input.placeholder = placeholder
+	if( type ) input.type = type
+	if( name ) input.name = name
+	if( value ) input.value = value
+	for( const key in attrs ){
+		input[ key ] = attrs[ key ]
+	}
+	if( type === 'checkbox' || type === 'radio'){
+		if( checked ) input.checked = true
+		label_ele.addEventListener('click', () => {
+			const input = label_ele.parentElement.querySelector('input')
+			if( input.type === 'radio' || input.type === 'checkbox') input.click()
+		})
+	}
+
+	selection.appendChild( label_ele )
+	selection.appendChild( input )
+	return selection
+}
+
+
+
+
+
+
+
+const build_positioner = ( type, gallery, is_ground_dims ) => {
+	const wrapper = document.createElement('div')
+	const readout = document.createElement('input')
+	readout.type = 'text'
+	readout.classList.add('readout')
+	readout.setAttribute('readonly', true)
+	const dims = ['x', 'y', 'z']
+	for( const dim of dims ){
+		const ele = coord_range( dim, is_ground_dims, dim )
+		wrapper.appendChild( ele )
+		ele.addEventListener('change', () => {
+			gallery.render_change( ele.parentElement, gallery.form )
+			gallery.render_position_strings()
+		})
+	}
+	wrapper.appendChild( readout )
+	const pre = document.createElement('div')
+	if( is_ground_dims ){
+		pre.innerHTML = '<b>x:</b> ground plane width &nbsp;&nbsp;&nbsp; <b>y:</b> ground height scale (if height mapped) &nbsp;&nbsp;&nbsp; <b>z:</b> ground plane depth'
+	}else{
+		pre.innerHTML = 'XYZ for <b>angle</b> only.  '
+	}
+	wrapper.prepend( pre )
+	return wrapper
+}
+
+
+const require_length = obj => {
+	if( !obj ) return {
+		x: 1,
+		y: 0,
+		z: 0,
+	}
+	if( obj.x == 0 && obj.y == 0 && obj.z == 0 ){
+		obj.x = 1
+	}
+}
+
+
+
+const validate_number = ( ...args ) => {
+	if( !args || !args.length ) return false
+	for( const arg of args ){
+		if( typeof Number( arg ) === 'number' && !isNaN( arg )) return Number( arg )
+	}
+	return args[ args.length - 1 ]
+}
+
+
+
+
 
 export {
 
@@ -772,13 +962,15 @@ export {
 	hal,
 	render,
 	fetch_wrap,
+	spinner,
 
 	// base app classes
 	ModelRow,
+	ImageRow,
 	Spinner,
 	ThreepressGallery,
 
-	// builders
+	// builders - used by ext's
 	build_option,
 	build_positioner,
 
@@ -786,25 +978,31 @@ export {
 	fill_dimensions,
 	origin,
 	set_contingents,
-	model_selector,
+	media_selector,
 	insertAfter,
 	get_radio_val,
 	get_html_translation_table,
 	htmlspecialchars_decode,
-	set_scalars,
 	set_radio,
 	random_hex,
+	random_vector,
+	diff,
+	coord_range,
+	require_length,
 
 	// validations
 	val_boolean,
 	get_row,
 	tstack,
+	validate_number,
 
 	// canvas defaults
-	defaults,
+
 	resolutions,
 
 	imageToDataURI,
+	sleep,
+	process_split,
 
 }
 

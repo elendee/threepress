@@ -2,7 +2,7 @@
 import { 
 	Lensflare, 
 	LensflareElement 
-} from '../../inc/Lensflare.js?v=040'
+} from '../../inc/Lensflare.js?v=112'
 
 import { 
 	DirectionalLight, 
@@ -12,17 +12,13 @@ import {
 	Color,
 	Group,
 	Vector3,
-} from '../../inc/three.module.js'
+    SpotLight,
+} from '../../inc/three.module.js?v=112'
 
 
 const textureLoader = new TextureLoader()
 
 const sun_tex = textureLoader.load( THREEPRESS.plugin_url + '/assets/sun.png' )
-
-// const flare_particle = textureLoader.load('/assets/particle.png')
-// const flare_gif = textureLoader.load('/assets/flare.gif')
-// const flare_smoke = textureLoader.load('/assets/smoke.png')
-// const flare_sun_trans = textureLoader.load('/assets/flare_sun_trans.gif')
 
 const flare0 = textureLoader.load( THREEPRESS.plugin_url + '/assets/lensflare0.png')
 const flare1 = textureLoader.load( THREEPRESS.plugin_url + '/assets/lensflare1.png')
@@ -48,6 +44,7 @@ export default class Sun {
 		//////////////// sun / flare
 		sun.color = new Color( init.color || 'rgb(255, 255, 255)' )
 		sun.scale = init.scale || 100
+		sun.intensity = init.intensity || 1
 
 		sun.has_lensflare = init.has_lensflare
 
@@ -133,32 +130,16 @@ export default class Sun {
 		sun.ele.userData.type = 'sun'
 
 		if( sun.has_lensflare ) sun.ele.add( sun.lensflare )
-		
-		// 
-		// sun.ele.add( sun.layer3 )
-		// sun.ele.add( sun.directional )
-
-		// sun.ele.position.copy( offset ).multiplyScalar( 10 )
 
 		//////////////// Light
 
-		sun.directional = new DirectionalLight( sun.color, 1 )
+		sun.light_type = init.light_type
 
-		// sun.ele.add( sun.directional )
-		sun.directional.position.copy( offset )
-		sun.directional.castShadow = true
-		sun.directional.shadow.camera.near = 10;
-		sun.directional.shadow.camera.far = 30200;
-
-		// bounds
-		sun.directional.shadow.camera.left = -500;
-		sun.directional.shadow.camera.right = 500;
-		sun.directional.shadow.camera.top = 500;
-		sun.directional.shadow.camera.bottom = -500;
-		// resolution
-		sun.directional.shadow.mapSize.width = 2000;
-		sun.directional.shadow.mapSize.height = 2000;
-		sun.directional.intensity = init.intensity || 1
+		if( sun.light_type === 'spot' ){
+			sun.light = new SpotLight(0xffffff, sun.intensity, 1000 )
+		}else if( sun.light_type === 'directional' ){
+			sun.light = new DirectionalLight( sun.color, sun.intensity )
+		}
 
 		this.tracking = false
 
@@ -166,28 +147,16 @@ export default class Sun {
 
 
 
-	hydrate( init ){ // from Ecc
-
-		init = init || {}
-		this.color = new Color( init.color || 'rgb(255, 255, 255)')
-		this.material.color = this.color
-		this.directional.intensity = init.intensity || 1
-		
-	}
-
-
-
-
 	track( object3d, state ){ 
 
-		const directional = this.directional
+		const light = this.light
 
 		if( state ){
 
 			this.tracking = setInterval( () => {
 
-				directional.position.copy( object3d.position ).add( offset ) // .multiplyScalar( -30 )
-				directional.target.position.copy( directional.position ).sub( offset )
+				light.position.copy( object3d.position ).add( offset ) // .multiplyScalar( -30 )
+				light.target.position.copy( light.position ).sub( offset )
 
 			}, 2000 )
 
