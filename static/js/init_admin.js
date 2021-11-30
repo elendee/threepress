@@ -11,10 +11,10 @@ import {
 
 import build_form from './build_form.js?v=112'
 
-import('http://localhost:9001/scripts/game_chat.js')
-.then( xport => {
-	console.log('WOOHOO PARTY', xport )
-})
+// import('http://localhost:9001/scripts/game_chat.js')
+// .then( xport => {
+// 	console.log('WOOHOO PARTY', xport )
+// })
 
 tstack('init_admin')
 
