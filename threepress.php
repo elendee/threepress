@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Threepress 
  * Plugin URI: https://threepress.shop
- * Version: 1.2.0
+ * Version: 1.1.2
  * Description: Generate 3D gallery shortcodes powered by three.js
  * Text Domain: threepress
  * License:           GPL v2 or later
@@ -37,7 +37,7 @@ require_once( ABSPATH . 'wp-includes/pluggable.php' );
 
 $threepress_dir = plugins_url( '', __FILE__ );
 
-$threepress_version = '1.2.0';
+$threepress_version = '1.0.1';
 
 $threepress_settings = [];
 
@@ -48,10 +48,8 @@ if ( !class_exists( 'Threepress' ) ) {
 	    public static function activate(){
 			global $wpdb;
 
-			// Threepress::LOG('running Threepress activate');
-
-	    	// $sql = $wpdb->prepare('SHOW TABLES LIKE "threepress_shortcodes"');
-	    	$has_table = $wpdb->query( 'SHOW TABLES LIKE "threepress_shortcodes"' );//$sql );
+	    	$sql = $wpdb->prepare('SHOW TABLES LIKE "threepress_shortcodes"');
+	    	$has_table = $wpdb->query( $sql );
 	    	
 	    	if( $has_table ){  // Threepress has been previously activated
 
@@ -60,7 +58,7 @@ if ( !class_exists( 'Threepress' ) ) {
 			}else{ // Threepress install procedures
 
 				// database
-		    	$sql = $wpdb->query('
+		    	$sql = $wpdb->prepare('
 		    		CREATE TABLE IF NOT EXISTS threepress_shortcodes (
 		    		id int(11) NOT NULL auto_increment PRIMARY KEY,
 		    		author_key int(11),
@@ -68,7 +66,7 @@ if ( !class_exists( 'Threepress' ) ) {
 		    		created datetime,
 		    		edited datetime,
 		    		shortcode text )');
-		    	// $results = $wpdb->query( $sql );
+		    	$results = $wpdb->query( $sql );
 
 		    	$starters = new stdClass();
 		    	// $starters->bmw = [
@@ -95,17 +93,17 @@ if ( !class_exists( 'Threepress' ) ) {
  	    	global $threepress_version;
     		wp_enqueue_style( 
 				'threepress-global-css', 
-				plugins_url('/static/css/global.css?v=' . $threepress_version, __FILE__ ), 
+				plugins_url('/static/css/global.css?v=112' . $threepress_version, __FILE__ ), 
 				array()
 			);
 			wp_enqueue_style( 
 				'threepress-modal-css', 
-				plugins_url('/static/css/modal.css?v=' . $threepress_version, __FILE__ ), 
+				plugins_url('/static/css/modal.css?v=112' . $threepress_version, __FILE__ ), 
 				array()
 			);	    	
     		wp_enqueue_script( 
 				'threepress-global-js', 
-				plugins_url( '/static/js/global.js?v=' . $threepress_version, __FILE__ ),
+				plugins_url( '/static/js/global.js?v=112' . $threepress_version, __FILE__ ),
 				array()
 			);
 
@@ -125,9 +123,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	global $wpdb;
 	 		$starter = plugins_url( '/starter-models/' . $slug . '.glb', __FILE__ );
 			$starter_id = Threepress::sideload( $starter, null, $title, array( 'post_excerpt' => wp_kses_post( $caption ) ) );
-
 			if( gettype( $starter_id ) === 'integer' ){
-
 				$now = Threepress::datetime();
 				$sql = $wpdb->prepare(
 					'INSERT INTO threepress_shortcodes ( author_key, name, created, edited, shortcode ) 
@@ -141,61 +137,16 @@ if ( !class_exists( 'Threepress' ) ) {
 				$res = $wpdb->query( $sql );
 
 			}else{
-
-				if( is_wp_error( $starter_id ) ){
-					Threepress::LOG( 'Threepress error: ');
-					Threepress::LOG( $starter_id->get_error_message() );
-				}else{
-					Threepress::LOG( 'Threepress error loading starter model ' . $id ); // error
-				}
-
+				Threepress::LOG( $id ); // error
 			} 
 	    }
-
-
-	   //  public static function init_game_table() {
-	   //  	global $wpdb;
-
-	   //  	$has_table = $wpdb->query( 'SHOW TABLES LIKE "threepress_games"' ); //$sql );
-	    	
-	   //  	if( $has_table ){ 
-	   //  		// 
-	   //  	}else{
-				// // database
-		  //   	$results = $wpdb->query('
-		  //   		CREATE TABLE IF NOT EXISTS threepress_games (
-		  //   		id int(11) NOT NULL auto_increment PRIMARY KEY,
-		  //   		author_key int(11),
-		  //   		name varchar(255),
-		  //   		magic_key varchar(16),
-		  //   		created datetime,
-		  //   		edited datetime )');
-	   //  	}
-
-	   //  	$has_table = $wpdb->query( 'SHOW TABLES LIKE "threepress_saved_games"' ); //$sql );
-	    	
-	   //  	if( $has_table ){ 
-	   //  		// 
-	   //  	}else{
-				// // database
-		  //   	$results = $wpdb->query('
-		  //   		CREATE TABLE IF NOT EXISTS threepress_saved_games (
-		  //   		id int(11) NOT NULL auto_increment PRIMARY KEY,
-		  //   		author_key int(11),
-		  //   		name varchar(255),
-		  //   		shortcode text,
-		  //   		created datetime,
-		  //   		edited datetime )');
-	   //  	}
-
-	   //  }
 
 
 	    public static function base_scripts() {
 	    	global $threepress_version;
     		wp_enqueue_script( 
 				'threepress-base-js', 
-				plugins_url( '/static/js/init_base.js?v=' . $threepress_version, __FILE__ ),
+				plugins_url( '/static/js/init_base.js?v=112' . $threepress_version, __FILE__ ),
 				array() 
 			);
 	    }
@@ -205,7 +156,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	global $threepress_version;
     		wp_enqueue_script( 
 				'threepress-admin-js', 
-				plugins_url( '/static/js/init_admin.js?v=' . $threepress_version, __FILE__ ),
+				plugins_url( '/static/js/init_admin.js?v=112' . $threepress_version, __FILE__ ),
 				array()
 			);
 
@@ -216,7 +167,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	global $threepress_version;
 			wp_enqueue_style( 
 				'threepress-admin-css', 
-				plugins_url('/static/css/admin.css?v=' . $threepress_version, __FILE__ ), 
+				plugins_url('/static/css/admin.css?v=112' . $threepress_version, __FILE__ ), 
 				array()
 			);
 
@@ -248,31 +199,6 @@ if ( !class_exists( 'Threepress' ) ) {
 			    false,
 			    20
 			);	
-	    }
-
-
-	    public static function shortcode_game( $attr, $content, $name ){
-
-	    	// Threepress::LOG( $attr );
-
-	    	global $wpdb;
-
-	    	if( empty( $attr['name'] ) ){
-	    		return;
-	    	}
-
-    		$sql = $wpdb->prepare('SELECT * FROM threepress_games WHERE name=%s', $attr['name'] );
-    		$results = $wpdb->get_results( $sql );
-			if( !empty( $results ) ){
-				return '
-				<div class="threepress-game">' . json_encode( $attr ) . '</div>';
-				// $attr['model'] = $results[0];
-			}else{
-				return '
-		    	<div class="threepress-init-error" data-error="unable to load Threepress game: ' . $attr['name'] . '"></div>';
-			}
-	    	
-
 	    }
 
 
@@ -527,7 +453,7 @@ if ( !class_exists( 'Threepress' ) ) {
 		public static function LOG( $msg ){
 
 			if( !file_exists( __DIR__ . '/.threepress-log.txt') ){
-				return;
+				// return;
 			}
 
 			$type = gettype( $msg );
@@ -599,11 +525,8 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	<a class='nav-tab main-tab' data-section='model-galleries'>
 	    		galleries
  	    	</a>
-	    	<!--a class='nav-tab main-tab' data-section='model-extensions'>
+	    	<a class='nav-tab main-tab' data-section='model-extensions'>
 	    		extensions
- 	    	</a-->
-	    	<a class='nav-tab main-tab' data-section='tab-games'>
-	    		games
  	    	</a>
 	    	<a class='nav-tab main-tab' data-section='model-help'>
 	    		help
@@ -668,6 +591,7 @@ if ( !class_exists( 'Threepress' ) ) {
 			add_action( 'wp_ajax_threepress_get_image', 'Threepress::get_image' );
 			add_action( 'wp_ajax_threepress_settings', 'Threepress::get_settings', 100 );
 
+
 		}else{
 
 			if( $admin_any ){
@@ -675,12 +599,12 @@ if ( !class_exists( 'Threepress' ) ) {
 				add_action( 'admin_enqueue_scripts', 'Threepress::admin_styles', 100 );
 				add_action( 'admin_enqueue_scripts', 'wp_enqueue_media', 100 );
 
+
 			}
 
 			if( $threepress ){ // _____ admin page
 
 				add_action( 'admin_enqueue_scripts', 'Threepress::admin_scripts', 100 );
-				// add_action( 'admin_enqueue_scripts', 'Threepress::init_game_table', 100 );
 				// add_action( 'threepress_gallery_form', 'threepress_gallery_form');
 				$has_module = true;
 
@@ -703,8 +627,6 @@ if ( !class_exists( 'Threepress' ) ) {
 	add_filter('upload_mimes', 'Threepress::allow_glb');
 
 	add_shortcode('threepress', 'Threepress::shortcode');
-
-	add_shortcode('threepress_game', 'Threepress::shortcode_game');
 
 	register_activation_hook( __FILE__, 'Threepress::activate' );
 

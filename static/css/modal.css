@@ -47,10 +47,10 @@
 	color: #c1cafb;
 	margin-bottom: 10px;
 }
-.threepress-modal .threepress-column h3.threepress-column-header{
+.threepress-modal .column h3.column-header{
 	margin-top: 0;
 }
-.threepress-modal .threepress-column{
+.threepress-modal .column{
 	padding: 10px 10px 30px 10px;
 	height: 90%;
 }
@@ -85,7 +85,7 @@
 .threepress-modal.has-columns .threepress-modal-content{
 	overflow-y: hidden;
 }
-.threepress-modal.has-columns .threepress-column{
+.threepress-modal.has-columns .column{
 	overflow-y: auto;
 }
 

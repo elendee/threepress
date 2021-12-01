@@ -30,6 +30,7 @@ import {
 	process_split,
 	build_option,
 	validate_number,
+	random_hex,
 	// require_length,
 } from './lib.js?v=112'
 
@@ -58,7 +59,6 @@ const stack_debug = gallery => {
 const stack = ( msg, caller, gallery ) => {
 	if( stack_settings.logging ){
 		console.log( 'stack: ', msg, caller )
-		// if( window.thisgal && window.thisgal.CAMERA ) console.log( 'pos: ', window.thisgal.CAMERA.position )
 	}
 	if( stack_settings.debugging ){
 		debugger
@@ -125,7 +125,7 @@ const shortcode_values = [
 ]
 
 
-window.thisgal = false
+// window.thisgal = false
 
 
 
@@ -133,9 +133,10 @@ export default init => {
 
 	init = init || {}
 
-	const gallery = THREEPRESS.last_gallery_data = {}
+	// const gallery = THREEPRESS.last_gallery_data = {}
+	const gallery = {}
 
-	window.thisgal = gallery
+	// window.thisgal = gallery
 
 	// db
 	gallery.id = init.id 
@@ -151,6 +152,9 @@ export default init => {
 	// setTimeout(() => {
 	// 	console.log('THREEPRESS Gallery, location: ', gallery.location)
 	// }, 50)
+
+	gallery.hash = init.hash || random_hex(6)
+	// console.log('###', gallery.hash , '###')
 
 	// rendering
 	gallery.GROUND = init.GROUND // PlaneBuffer
@@ -200,6 +204,7 @@ export default init => {
 	gallery.aspect_ratio = init.aspect_ratio  || .7
 
 	gallery.preview_type = init.preview_type
+	gallery.model_row = init.model_row // used for model-section previews, not normal galleries
 
 	// calculated
 	gallery.res_key = typeof init.res_key === 'number' ? init.res_key : resolutions.length - 1
@@ -390,6 +395,8 @@ export default init => {
 
 	gallery.render_animation_boxes = gltf => {
 
+		if( gallery.preview_type === 'model' ) return true
+
 		// hold user choices in anim_split:
 		const anim_split = gallery.animations.split(',')
 		// console.log('anim_split: ', anim_split )
@@ -430,10 +437,13 @@ export default init => {
 
 
 
-	gallery.fill_model_from_form = () => {
+	gallery.fill_model_from_form = async() => {
 		stack('fill_model_from_form', null, gallery )
 		gallery.model = gallery.model || {}
-		const mc = gallery.form.querySelector('#model-choice .threepress-row')
+		let mc = gallery.form.querySelector('#model-choice .threepress-row')
+		if( gallery.preview_type === 'model' ){
+			mc = gallery.model_row
+		}
 		if( mc ){
 			gallery.model.guid = mc.querySelector('.url input').value.trim()
 			gallery.model.id = mc.getAttribute('data-id')
@@ -454,40 +464,44 @@ export default init => {
 		if( !gallery.model.guid ) return
 
 		const loader = new GLTFLoader()
-		loader.load( gallery.model.guid, ( gltf, err ) => {
 
-			if( err ){
-
-				console.log( err )
-
-			}else{
-
-				if( gallery.last_model_fill === gallery.model.guid ){
-					// console.log('loaded model; already have post-processed though')
-					return
+		const gltf = await new Promise((resolve, reject) => {
+			loader.load( gallery.model.guid, ( gltf, err ) => {
+				if( err ){
+					console.log( err )
+					reject( err )
+				}else{
+					resolve( gltf )
 				}
-
-				// console.log('post-processing model')
-
-				// clear existing
-				const clips = gallery.form.querySelector('#anim-clips')
-				if( clips ) clips.innerHTML = ''
-
-				// prevent double loads
-				gallery.last_model_fill = gallery.model.guid
-
-				if( typeof gallery.animations !== 'string' ){
-					console.log('invalid gallery animations')
-					return
-				}
-
-				gallery.render_animation_boxes( gltf )
-
-			}
-
+			})
 		})
 
-		// console.log( gallery.model, loader )
+		if( !gltf ){
+			console.log('failed to load gltf')
+			return
+		}
+		if( gallery.last_model_fill === gallery.model.guid ){
+			console.log('loaded model; already have post-processed though')
+			return
+		}
+
+		console.log('post-processing model')
+
+		// clear existing
+		const clips = gallery.form.querySelector('#anim-clips')
+		if( clips ) clips.innerHTML = ''
+
+		// prevent double loads
+		gallery.last_model_fill = gallery.model.guid
+
+		if( typeof gallery.animations !== 'string' ){
+			console.log('invalid gallery animations')
+			return
+		}
+
+		gallery.render_animation_boxes( gltf )
+
+		// console.log( gallery.model ) //, loader
 	}
 
 
@@ -557,7 +571,7 @@ export default init => {
 
 
 
-	gallery.gen_shortcode = ( caller, skip_ajax ) => {
+	gallery.gen_shortcode = async( caller, skip_ajax ) => {
 		stack( 'gen_shortcode', caller, gallery )
 
 		let shortcodes = ''
@@ -565,7 +579,7 @@ export default init => {
 			shortcodes += tag( key, gallery[ key ] )
 		}
 
-		if( !skip_ajax ) gallery.fill_form_assets()
+		if( !skip_ajax ) await gallery.fill_form_assets()
 
 		if( gallery.model.id ) shortcodes += 'model_id=' + gallery.model.id + ' '
 		if( gallery.ground_tex_id ) shortcodes += 'ground_tex_id=' + gallery.ground_tex_id + ' '
@@ -586,11 +600,11 @@ export default init => {
 
 
 
-	gallery.fill_form_assets = caller => {
+	gallery.fill_form_assets = async( caller ) => {
 		stack('fill_form_assets', caller, gallery )
 
 		// chosen model
-		gallery.fill_model_from_form()
+		await gallery.fill_model_from_form()
 
 		// chosen ground_tex
 		gallery.fill_ground_tex_from_form()
@@ -602,16 +616,22 @@ export default init => {
 
 
 	
-	gallery.ingest_form = ( form, caller ) => {
+	gallery.ingest_form = async( form, caller ) => {
 		stack( 'ingest_form', caller, gallery )
 
 		form = form || gallery.form
 
 		// gallery name
-		gallery.name = form.querySelector('input[name=gallery_name]').value.trim().replace(/ /g, '___')
+		if( gallery.preview_type === 'model' ){
+			gallery.name = 'model preview'
+		}else{
+			gallery.name = form.querySelector('input[name=gallery_name]').value.trim().replace(/ /g, '___')
+		}
 
 		// model and ground assets
-		gallery.fill_form_assets('ingest_form')
+		await gallery.fill_form_assets('ingest_form') 
+
+		if( gallery.preview_type === 'model' ) return true
 
 		// ground dimensions
 		gallery.ground_dimensions = form.querySelector('.ground-dimensions .readout').value
@@ -797,13 +817,13 @@ export default init => {
 
 
 
-	gallery.render_shortcode = ( caller, data_only ) => {
+	gallery.render_shortcode = async( caller, data_only ) => {
 
 		stack('render shortcode', caller, gallery )
 
-		if( !data_only ) gallery.ingest_form( null, 'render_shortcode')
+		if( !data_only ) await gallery.ingest_form( null, 'render_shortcode' )
 
-		gallery.gen_shortcode('render_shortcode' )
+		await gallery.gen_shortcode('render_shortcode' )
 
 		gallery.form.querySelector('#shortcode').value = gallery.shortcode
 
@@ -858,8 +878,6 @@ export default init => {
 				new_model.form = form || gallery.form
 
 				model_choice.appendChild( new_model.gen_row() )
-
-				// debugger
 
 				await new Promise(( resolve, reject ) => {
 
@@ -1092,10 +1110,10 @@ export default init => {
 		stack('gen_row', null, gallery )
 
 		const row = document.createElement('div')
-		row.classList.add('threepress-row', 'threepress-gallery-row')
+		row.classList.add('row', 'threepress-row', 'threepress-gallery-row')
 		row.setAttribute('data-id', gallery.id )
 		const name = document.createElement('div')
-		name.classList.add('threepress-column', 'threepress-column-3')
+		name.classList.add('column', 'column-3')
 		name.title = 'name'
 		name.innerText = gallery.name
 		row.appendChild( name )
@@ -1106,18 +1124,18 @@ export default init => {
 		thumb.appendChild( thumb_img )
 		name.prepend( thumb )
 		const edited = document.createElement('div')
-		edited.classList.add('threepress-column', 'threepress-column-3')
+		edited.classList.add('column', 'column-3')
 		edited.title = 'edited'
 		edited.innerText = new Date( gallery.edited ).toDateString()
 		row.appendChild( edited )
 		const id = document.createElement('div')
-		id.classList.add('threepress-column', 'threepress-column-3')
+		id.classList.add('column', 'column-3')
 		id.title = 'id'
 		id.innerHTML = gallery.id
 		row.appendChild( id )
 
 		const content = document.createElement('div')
-		content.classList.add('threepress-column')
+		content.classList.add('column')
 		content.title = 'shortcode'
 		const shortcode = document.createElement('input')
 		shortcode.name = 'threepress_shortcode'
@@ -1331,9 +1349,9 @@ export default init => {
 
 
 
-	gallery.update_animation_shortcode = () => {
+	gallery.update_animation_shortcode = async() => {
 
-		if( !gallery.shortcode ) gallery.gen_shortcode( 'update_animation_shortcode', 'skip ajax' )
+		if( !gallery.shortcode ) await gallery.gen_shortcode( 'update_animation_shortcode', 'skip ajax' )
 
 		const clips = gallery.form.querySelector('#anim-clips')
 		if( !clips ) return
@@ -1539,90 +1557,94 @@ export default init => {
 
 
 	gallery.is_continuous = () => {
+
 		return gallery.rotate_scene || gallery.has_snow || gallery.has_blizzard || gallery.animations.length
+
 	}
 
 
 
-	gallery.preview = () => {
+	gallery.preview = async() => {
 
 		spinner.show()
 
 		stack('preview', null, gallery )
 
+		console.log('preview: ', gallery.hash )
+
 		// if( !gallery.validate( true, true, false ) ) return // in scene
 
 		gallery.clear_scene()
 
-		gallery.ingest_form(null, 'preview')
+		await gallery.ingest_form( null, 'preview' )
 
-		init_scene( gallery )
-		.then( success => {
+		const success = await init_scene( gallery )
 
-			spinner.hide()
+		spinner.hide()
 
-			if( success ){
+		if( !success ){
+			console.log( success )
+			hal('error', 'failed to init preview', 5 * 1000)
+			return
+		}
 
-				if( previewing ) return 
-				previewing = true
+		if( previewing ) return 
+		previewing = true
 
-				const modal = new Modal({
-					type: 'gallery-preview'
-				})
-				
-				const viewer = document.createElement('div')
-				viewer.classList.add('threepress-gallery')
-				viewer.appendChild( gallery.canvas )
-				modal.content.appendChild( viewer )
-
-				modal.close.addEventListener('click', () => {
-					gallery.animating = false
-					previewing = false
-					galleries.splice( gallery, 1 )
-				})
-
-				document.querySelector('.threepress').appendChild( modal.ele )
-
-				gallery.set_renderer()
-
-
-				const type = document.createElement('div')
-				type.classList.add('threepress-gallery-type')
-				type.innerText = ( gallery.preview_type || 'gallery' ) + ' preview'
-				gallery.canvas.parentElement.appendChild( type )
-
-				if( !galleries.includes( gallery )) galleries.push( gallery )
-
-				if( gallery.has_bloom ){
-					composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA, {
-						threshold: gallery.bloom_threshold,
-						strength: gallery.bloom_strength,
-					} )
-
-					// composer.composeAnimate( gallery.SCENE )
-
-				}
-
-				gallery.anim_state( true )
-
-			}else{
-
-				hal('error', 'failed to init preview', 4000 )
-
-			}
-
+		const modal = new Modal({
+			type: 'gallery-preview'
 		})
-		.catch( err => { 
+		
+		const viewer = document.createElement('div')
+		viewer.classList.add('threepress-gallery')
+		viewer.appendChild( gallery.canvas )
+		modal.content.appendChild( viewer )
 
-			spinner.hide()
+		modal.close.addEventListener('click', () => {
+			gallery.animating = false
+			previewing = false
+			galleries.splice( gallery, 1 )
+		})
 
-			if( err && err.currentTarget && err.currentTarget.status === 404 && gallery.model.guid.match(/woocommerce_uploads/) ){
-				hal('error', 'error initializing model - it may be a protected woocommerce download', 10 * 1000 )
-			}
+		document.querySelector('.threepress').appendChild( modal.ele )
 
-			console.log( err ) 
+		gallery.set_renderer()
 
-		} )
+		const type = document.createElement('div')
+		type.classList.add('threepress-gallery-type')
+		type.innerText = ( gallery.preview_type || 'gallery' ) + ' preview'
+		gallery.canvas.parentElement.appendChild( type )
+
+		if( !galleries.includes( gallery )) galleries.push( gallery )
+
+		if( gallery.has_bloom ){
+			composer.init( gallery.RENDERER, gallery.SCENE, gallery.CAMERA, {
+				threshold: gallery.bloom_threshold,
+				strength: gallery.bloom_strength,
+			} )
+
+			// composer.composeAnimate( gallery.SCENE )
+
+		}
+
+		gallery.anim_state( true )
+
+			// hal('error', 'failed to init preview', 4000 )
+
+		// }
+
+		// })
+		// .catch( err => { 
+
+		// 	spinner.hide()
+
+		// 	if( err && err.currentTarget && err.currentTarget.status === 404 && gallery.model.guid.match(/woocommerce_uploads/) ){
+		// 		hal('error', 'error initializing model - it may be a protected woocommerce download', 10 * 1000 )
+		// 	}
+
+		// 	console.log( err ) 
+
+		// } )
 
 	}
 

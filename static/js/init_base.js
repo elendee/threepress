@@ -22,8 +22,6 @@ if( !THREEPRESS ){
 	return
 }
 
-// single model galleries
-
 let raw, scene
 for( const viewer of viewers ){
 	raw = viewer.querySelector('.threepress-gallery-data')
@@ -41,16 +39,6 @@ for( const viewer of viewers ){
 	gallery_front.display( viewer )
 
 }	
-
-// games
-for( const game of document.querySelectorAll('.threepress-game') ){
-	console.log('game time: ', game )
-}
-
-// errors
-for( const error of document.querySelectorAll('.threepress-init-error') ){
-	console.log( 'Threepress error: ', error.getAttribute('data-error') )
-}
 
 })();
 

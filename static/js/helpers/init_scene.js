@@ -202,18 +202,16 @@ export default async( gallery ) => { // init_scene
 			gallery.model.guid = gallery.model.guid.replace(/^http:/, 'https:')
 		}
 		
-		const model = await (()=>{
-			return new Promise((resolve, reject ) => {
-				loader.load( gallery.model.guid, res => {
-					gltf = res
-					resolve( res.scene )
-				}, xhr => {
-					// loading progress
-				}, err => {
-					reject( err )
-				})
+		const model = await new Promise((resolve, reject ) => {
+			loader.load( gallery.model.guid, res => {
+				gltf = res
+				resolve( res.scene )
+			}, xhr => {
+				// loading progress
+			}, err => {
+				reject( err )
 			})
-		})();
+		})
 
 		// process model
 		fill_dimensions( model )
@@ -234,13 +232,15 @@ export default async( gallery ) => { // init_scene
 		gallery.FIXTURE.add( model )
 		gallery.MODEL = model
 
+		if( gallery.preview_type === 'model' ) gallery.cam_pos = '1,1,1'
+
 		const { x, y, z } = process_split( typeof gallery.cam_pos === 'string' ? gallery.cam_pos : gallery.cam_pos.string )
 
 		// console.log('setting ' + gallery.name + ' to ', gallery.cam_pos, gallery.CAMERA.position )
 
-		gallery.cam_coords.x = typeof x === 'number' ? x : 0
-		gallery.cam_coords.y = typeof y === 'number' ? y : 0
-		gallery.cam_coords.z = typeof z === 'number' ? z : 0
+		gallery.cam_coords.x = typeof x === 'number' ? x : 1
+		gallery.cam_coords.y = typeof y === 'number' ? y : 1
+		gallery.cam_coords.z = typeof z === 'number' ? z : 1
 
 		// const re_hydrate = 1 / gltf.scene.scale.length()
 

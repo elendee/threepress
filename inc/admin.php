@@ -24,8 +24,7 @@
     	<h3>
     		add a model
     		<div class='threepress-toggle-wrapper'>
-	        	<div id='add-toggle' class='threepress-toggle'>
-	        		<!-- threepress-button -->
+	        	<div id='add-toggle' class='threepress-toggle threepress-button'>
 	        		<div>
 	        			+
 	        		</div>
@@ -88,15 +87,6 @@
     	</div>
 
     </div>
-
-
-    <div id='tab-games' class='section'>
-    	<h3>
-    		Games: <!--a href="https://threepress.shop/product-category/extension/" target="_blank">https://threepress.shop/extensions</a-->
-    	</h3>
-
-    </div>
-
 
 
     <div id='model-extensions' class='section'>

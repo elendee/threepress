@@ -5,7 +5,7 @@ Donate link: http://threepress.shop/donate
 Requires at least: 4.0
 Tested up to: 5.8.1
 Requires PHP: 5.6
-Stable tag: 1.2.0
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,6 +85,3 @@ All the galleries on a given page will be available in the global variable `THRE
 = 1.1.2 =
 * animation display bugfix
 * multiple threejs versions
-= 1.2.0 =
-* games category added
-* multiplayer chat game option added

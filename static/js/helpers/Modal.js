@@ -33,10 +33,10 @@ class Modal {
 	make_columns(){
 
 		this.left_panel = document.createElement('div')
-		this.left_panel.classList.add('threepress-column', 'threepress-column-2', 'left-panel')
+		this.left_panel.classList.add('column', 'column-2', 'left-panel')
 
 		this.right_panel = document.createElement('div')
-		this.right_panel.classList.add('threepress-column', 'threepress-column-2', 'right-panel')
+		this.right_panel.classList.add('column', 'column-2', 'right-panel')
 
 		this.content.appendChild( this.left_panel )
 		this.content.appendChild( this.right_panel )

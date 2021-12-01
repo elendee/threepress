@@ -71,7 +71,6 @@ const hal = ( type, msg, time ) => {
 
 
 
-
 let spinning = false
 
 class Spinner{
@@ -145,10 +144,10 @@ class ModelRow {
 		const obj = this
 
 		const row = document.createElement('div')
-		row.classList.add('threepress-row', 'threepress-model-row')
+		row.classList.add('row', 'threepress-row', 'threepress-model-row')
 		row.setAttribute('data-id', this.id )
 		const title = document.createElement('div')
-		title.classList.add('threepress-column', 'threepress-column-3')
+		title.classList.add('column', 'column-3')
 		title.title = 'title'
 		// title.innerText = this.title
 		const a = document.createElement('a')
@@ -164,21 +163,21 @@ class ModelRow {
 		title.prepend( thumb )
 		// const name = document.createElement('div')
 		// name.title = 'name'
-		// name.classList.add('threepress-column', 'threepress-column-3')
+		// name.classList.add('column', 'column-3')
 		// name.innerText = this.name
 		// row.appendChild( name )
 		const date = document.createElement('div')
 		date.title = 'date created'
-		date.classList.add('threepress-column', 'threepress-column-3')
+		date.classList.add('column', 'column-3')
 		date.innerText = new Date( this.date ).toLocaleString()
 		row.appendChild( date )
 		const id = document.createElement('div')
 		id.title = 'model id'
-		id.classList.add('threepress-column', 'threepress-column-3')
+		id.classList.add('column', 'column-3')
 		id.innerText = this.id
 		row.appendChild( id )
 		const url = document.createElement('div')
-		url.classList.add('threepress-column', 'url')
+		url.classList.add('column', 'url')
 		// url.innerText = this.url
 		const input = document.createElement('input')
 		// input.type = 'text'
@@ -189,7 +188,7 @@ class ModelRow {
 
 		if( this.caption ){
 			const caption = document.createElement('div')
-			caption.classList.add('threepress-column')
+			caption.classList.add('column')
 			caption.innerHTML = this.caption
 			row.appendChild( caption )
 		}
@@ -202,13 +201,15 @@ class ModelRow {
 		viz.addEventListener('click', () => {
 			const gallery_preview = ThreepressGallery({
 				preview_type: 'model',
-				model: { guid: input.value.trim() },
+				model_row: row,
+				model: { 
+					guid: input.value.trim(),
+				},
 				name: '',
 				rotate_scene: true,
-				// rotate_y: 1,
 				bg_color: 'linear-gradient(45deg,white,transparent)',
 				controls: 'orbit',
-				form: obj.form,
+				form: document.createElement('form'),// obj.form,
 			})
 			gallery_preview.preview()
 		})
@@ -243,10 +244,10 @@ class ImageRow {
 		const obj = this
 
 		const row = document.createElement('div')
-		row.classList.add('threepress-row', 'threepress-image-row')
+		row.classList.add('row', 'threepress-row', 'threepress-image-row')
 		row.setAttribute('data-id', this.id )
 		const title = document.createElement('div')
-		title.classList.add('threepress-column', 'threepress-column-3')
+		title.classList.add('column', 'column-3')
 		title.title = 'title'
 		// title.innerText = this.title
 		const a = document.createElement('a')
@@ -262,21 +263,21 @@ class ImageRow {
 		title.prepend( thumb )
 		// const name = document.createElement('div')
 		// name.title = 'name'
-		// name.classList.add('threepress-column', 'threepress-column-3')
+		// name.classList.add('column', 'column-3')
 		// name.innerText = this.name
 		// row.appendChild( name )
 		const date = document.createElement('div')
 		date.title = 'date created'
-		date.classList.add('threepress-column', 'threepress-column-3')
+		date.classList.add('column', 'column-3')
 		date.innerText = new Date( this.date ).toLocaleString()
 		row.appendChild( date )
 		const id = document.createElement('div')
 		id.title = 'image id'
-		id.classList.add('threepress-column', 'threepress-column-3')
+		id.classList.add('column', 'column-3')
 		id.innerText = this.id
 		row.appendChild( id )
 		const url = document.createElement('div')
-		url.classList.add('threepress-column', 'url')
+		url.classList.add('column', 'url')
 		// url.innerText = this.url
 		const input = document.createElement('input')
 		// input.type = 'text'
@@ -287,7 +288,7 @@ class ImageRow {
 
 		if( this.caption ){
 			const caption = document.createElement('div')
-			caption.classList.add('threepress-column')
+			caption.classList.add('column')
 			caption.innerHTML = this.caption
 			row.appendChild( caption )
 		}
@@ -311,13 +312,6 @@ const fetch_wrap = ( url, method, body, no_spinner ) => {
 			data : body,
 			method : method,
 		})
-		// .error( ( req, err ) => {
-		// 	console.log( req, err )
-		// 	reject( err )
-		// })
-		// .success( res => {
-		// 	resolve( res )
-		// })
 		.then( res => {
 			if( typeof res === 'string' ){
 				try{
@@ -951,9 +945,6 @@ const validate_number = ( ...args ) => {
 	}
 	return args[ args.length - 1 ]
 }
-
-
-
 
 
 export {
