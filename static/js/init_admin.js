@@ -41,6 +41,8 @@ const model_library = wrap.querySelector('#model-library')
 const library_content = model_library.querySelector('.content')
 const model_galleries = wrap.querySelector('#model-galleries')
 const galleries_content = model_galleries.querySelector('.content')
+const games_content = wrap.querySelector('#tab-games')
+
 
 const gallery_container = document.querySelector('#gallery-container')
 
@@ -121,6 +123,147 @@ const fill = async( type, scroll_top ) => {
 
 
 
+const build_game_row = game => {
+
+	console.log( game )
+
+	const row = document.createElement('div')
+	row.classList.add('threepress-row')
+	row.setAttribute('data-name', game.name )
+
+	const image = document.createElement('div')
+	image.classList.add('threepress-column')
+
+	const img = document.createElement('img')
+	img.src = 'https://arcade.threepress.shop/resource/image/' + game.img_url
+
+	image.appendChild( img )
+
+	const name = document.createElement('div')
+	name.classList.add('threepress-column')
+	name.innerHTML = '<h3>' + game.name + '</h3>'
+	name.title = 'game name'
+
+	const description = document.createElement('div')
+	description.classList.add('threepress-column')
+	description.innerHTML = game.description || 'no description'
+
+	row.appendChild( image )
+	row.appendChild( name )
+	row.appendChild( description )
+
+	let purchase_area = document.createElement('div')
+	purchase_area.classList.add('threepress-column', 'threepress-purchase-area')
+
+	const save_column = document.createElement('div')
+	save_column.classList.add('threepress-column')
+
+	// const key = document.createElement('input')
+	// key.type = 'text'
+	// key.placeholder = 'enter your code here'
+	// save_column.appendChild( key )
+
+	if( game.purchased ){
+
+		purchase_area.innerHTML = '<span style="color: green">active</span>'
+		row.classList.add('threepress-purchased')
+		// key.value = game.magic_key
+		// key.setAttribute('readonly', true )
+
+	}else{
+
+		// key.addEventListener('keyup', e => {
+		// 	if( e.keyCode === 13 ){
+		// 		save_key( game.name, key.value )
+		// 	}
+		// })
+
+		// const save = document.createElement('div')
+		// save.classList.add('button')
+		// save.innerHTML = 'unlock'
+		// save.addEventListener('click', () => {
+		// 	save_key( game.name, key.value )
+		// })
+		// save_column.appendChild( save )
+		// purchase_area.appendChild( save_column )
+
+		const link_column = document.createElement('div')
+		link_column.classList.add('threepress-column')
+
+		const linkout = document.createElement('a')
+		linkout.id = 'linkout'
+		linkout.target='_blank'
+		linkout.classList.add('button')
+		linkout.innerHTML = '+'
+		linkout.href = root + '/game/' + game.name + '?d=' + location.host
+
+		link_column.appendChild( linkout )
+
+		purchase_area.prepend( link_column )
+
+		const desc = document.createElement('div')
+		desc.classList.add('threepress-column')
+		desc.innerHTML = 'add ' + game.name + ' to your site'
+
+		purchase_area.appendChild( desc )
+
+	}
+
+	row.appendChild( purchase_area )
+
+	return row 
+
+}
+
+
+
+
+
+
+
+
+const fill_games = async() => {
+
+	loaded.game = true
+
+	// const url = root + '/game_listing'
+	const url = 'https://arcade.threepress.shop/game_listing'
+
+	// console.log('fetch games: ', url )
+
+	const res = await fetch_wrap( url, 'post', { add_purchased: true })
+	if( !res ){
+		hal('error', 'error fetching games', 5 * 1000)
+		return
+	}
+	if( res.success ){
+		if( res.games ){
+			for( const r of res.games ){
+				games_content.appendChild( build_game_row( r ))
+			}		
+		}else{
+			console.log( 'no games (' + res.games + ')')
+		}
+	}else if( res.msg ){
+		hal('error', res.msg || 'failed to fetch games', 5 * 1000 )
+	}
+
+	console.log( 'fill games res', res )
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -137,7 +280,8 @@ const fill = async( type, scroll_top ) => {
 
 const loaded = {
 	library: false,
-	gallery: false
+	gallery: false,
+	game: false,
 }
 
 
@@ -233,6 +377,11 @@ for( const tab of tabs ){
 			fill('library', true ).catch( err => { console.log( err )})
 		}else if( cat.match(/galler/) && !loaded.gallery ){
 			fill('gallery', true ).catch( err => { console.log( err )})
+		}else if( cat.match(/game/) && !loaded.game ){
+			fill_games().catch( err => { 
+				hal('error', err.msg || 'failed to fetch games', 5 * 1000 )
+				console.log( err )
+			})
 		}else{
 			// console.log('non-ajax tab: ', cat )
 		}
