@@ -38,6 +38,12 @@ import { Modal } from './helpers/Modal.js?v=112'
 
 import init_scene from './helpers/init_scene.js?v=112'
 
+// import { HDRCubeTextureLoader } from '../inc/HDRCubeTextureLoader.js?v=112';
+
+
+
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -117,6 +123,14 @@ const shortcode_values = [
 	'has_snow',
 	'has_blizzard',
 
+	'show_hdr',
+
+	'hdr_courtyard',
+	'hdr_castle', 
+	'hdr_galaxy', 
+	'hdr_bridge', 
+	'hdr_park', 
+
 	'has_fog',
 	'fog_density',
 	'fog_color',
@@ -191,6 +205,13 @@ export default init => {
 
 	gallery.light_pos = init.light_pos || gallery.light_pos
 	gallery.light_coords = process_split( gallery.light_pos )
+
+	gallery.hdr_courtyard = val_boolean( init.hdr_courtyard, false )
+	gallery.hdr_castle = val_boolean( init.hdr_castle, false )
+	gallery.hdr_galaxy = val_boolean( init.hdr_galaxy, false )
+	gallery.hdr_bridge = val_boolean( init.hdr_bridge, false )
+	gallery.hdr_park = val_boolean( init.hdr_park, false )
+	gallery.show_hdr = val_boolean( init.show_hdr, false )
 
 	gallery.ground_dimensions = init.ground_dimensions || gallery.ground_dimensions
 	gallery.ground_coords = process_split( gallery.ground_dimensions )
@@ -329,7 +350,7 @@ export default init => {
 
 		// corrections
 		if( gallery.ground_tex_guid ){
-			if( gallery.CAMERA.position.y < gallery.cam_bottom ) gallery.CAMERA.position.y = gallery.cam_bottom
+			// if( gallery.CAMERA.position.y < gallery.cam_bottom ) gallery.CAMERA.position.y = gallery.cam_bottom
 		}
 
 		requestAnimationFrame( animate_controls )
@@ -668,6 +689,15 @@ export default init => {
 		gallery.ambience = form.querySelector('.ambience input[type=range]').value
 		gallery.ambient_color = form.querySelector('.ambience input[type=color]').value
 
+		// hdr
+		gallery.hdr_courtyard = form.querySelector('input[name=hdr_courtyard]').checked
+		gallery.hdr_castle = form.querySelector('input[name=hdr_castle]').checked
+		gallery.hdr_galaxy = form.querySelector('input[name=hdr_galaxy]').checked
+		gallery.hdr_bridge = form.querySelector('input[name=hdr_bridge]').checked
+		gallery.hdr_park = form.querySelector('input[name=hdr_park]').checked
+
+		gallery.show_hdr = form.querySelector('input[name=show_hdr]').checked
+
 		// lensflare
 		gallery.has_lensflare = form.querySelector('input[name=has_lensflare]').checked
 
@@ -894,8 +924,6 @@ export default init => {
 
 				})
 
-				// blorb
-
 				// need to render inital checkboxes here too
 
 			}
@@ -992,6 +1020,21 @@ export default init => {
 		// ambient intensity
 		form.querySelector('.ambience input[type=range]').value = gallery.ambience
 		form.querySelector('.ambience input[type=color]').value = gallery.ambient_color
+
+		// hdr
+		const hdr_courtyard = form.querySelector('input[name=hdr_courtyard]')
+		hdr_courtyard.checked = gallery.hdr_courtyard
+		const hdr_castle = form.querySelector('input[name=hdr_castle]')
+		hdr_castle.checked = gallery.hdr_castle
+		const hdr_galaxy = form.querySelector('input[name=hdr_galaxy]')
+		hdr_galaxy.checked = gallery.hdr_galaxy
+		const hdr_bridge = form.querySelector('input[name=hdr_bridge]')
+		hdr_bridge.checked = gallery.hdr_bridge
+		const hdr_park = form.querySelector('input[name=hdr_park]')
+		hdr_park.checked = gallery.hdr_park
+
+		const show_hdr = form.querySelector('input[name=show_hdr]')
+		show_hdr.checked = gallery.show_hdr
 
 		// bg color
 		// readout
@@ -1101,6 +1144,14 @@ export default init => {
 			}
 		}, 200 )
 
+	}
+
+
+
+	gallery.get_hdr = () => {
+		for( const key of Object.keys( gallery ) ){
+			if( key.match(/^hdr_/) && gallery[ key ] ) return key
+		}
 	}
 
 
@@ -1342,6 +1393,12 @@ export default init => {
 
 			// console.log('1')
 
+		}else if( target_ele.name && target_ele.name.match(/^hdr_/) ){
+
+			for( const input of target_ele.parentElement.parentElement.querySelectorAll('input') ){
+				if( input.name.match(/^hdr_/) && input.name !== target_ele.name ) input.checked = false
+			}
+
 		}
 
 	}
@@ -1440,7 +1497,16 @@ export default init => {
 
 
 
-
+	gallery.applyEnvMap = ( envMap, model ) => {
+		model.traverse( child => {
+			if( child.material ){
+				child.material.envMap = envMap 
+				// child.material.reflectivity = 3
+				// child.material.combine = MixOperation // Multiply / AddOperation
+				// child.material.shininess = 300
+			}
+		})
+	}
 
 
 	gallery.align = () => { // for image overlays

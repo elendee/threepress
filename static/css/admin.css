@@ -81,7 +81,7 @@
     align-items: center;
     cursor: pointer;
 
-/*     background: #2271b1; */
+    background: #2271b1;
     color: white;
     user-select: none;
 }
@@ -122,7 +122,9 @@
 	max-width: 500px;
 }
 
-
+#threepress-upload-types>div:first-of-type{
+	display: none;
+}
 
 #browse-threepress a{
 	margin-top: 10px;

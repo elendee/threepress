@@ -20,6 +20,15 @@ import {
     TextureLoader,
     AnimationMixer,
     AnimationClip,
+
+    // hdr:
+    ACESFilmicToneMapping,
+    UnsignedByteType,
+	LinearFilter,
+	PMREMGenerator,
+	CubeTextureLoader,
+	sRGBEncoding,
+
     // MeshDepthMaterial,
     // RGBADepthPacking,
     Mesh,
@@ -41,6 +50,27 @@ import {
 
 import { GLTFLoader } from '../../inc/GLTFLoader.js?v=112'
 
+import { HDRCubeTextureLoader } from '../../inc/HDRCubeTextureLoader.js?v=112';
+
+
+
+const hdr_map = {
+	hdr_courtyard: 'pisaHDR', //'pisaHDR'
+	hdr_bridge: 'Bridge2',
+	hdr_park: 'Park2',
+	hdr_sun: 'skyboxsun25deg',
+	hdr_castle: 'SwedishRoyalCastle',
+	hdr_galaxy: 'MilkyWay',
+}
+
+const hdr_suffixes = {
+	hdr_courtyard: [ 'px.hdr', 'nx.hdr', 'py.hdr', 'ny.hdr', 'pz.hdr', 'nz.hdr' ],
+	hdr_bridge: [ 'posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg' ],
+	hdr_park: [ 'posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg' ],
+	hdr_sun: [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ],
+	hdr_castle: [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ],
+	hdr_galaxy: [ 'dark-s_px.jpg', 'dark-s_nx.jpg', 'dark-s_py.jpg', 'dark-s_ny.jpg', 'dark-s_pz.jpg', 'dark-s_nz.jpg' ],
+}
 
 
 
@@ -166,6 +196,8 @@ export default async( gallery ) => { // init_scene
 		gallery.LIGHT.shadow.mapSize.height = gallery.ground_coords.z * 200;
 
 	}
+
+
 
 
 
@@ -302,6 +334,82 @@ export default async( gallery ) => { // init_scene
 
 			gallery.AMBIENT = new AmbientLight( gallery.ambient_color || 0xffffff, gallery.ambience / 10 )
 			gallery.SCENE.add( gallery.AMBIENT )
+
+		}
+
+		// hrd (has to wait for model, cant be with lights)
+
+		const hdr = gallery.get_hdr()
+
+		let envMap, cubeMap
+
+		if( hdr ){
+
+			gallery.RENDERER.physicallyCorrectLights = true
+			gallery.RENDERER.toneMapping = ACESFilmicToneMapping;
+
+			
+			const hdrImgUrls = hdr_suffixes[ hdr ]
+			const folder = hdr_map[ hdr ]
+
+			let hdrCubeRenderTarget
+
+			const isHDR = hdrImgUrls[0].match(/.hdr$/)
+
+			if( isHDR ){
+
+				cubeMap = new HDRCubeTextureLoader()
+				.setPath( THREEPRESS.plugin_url + '/assets/env-maps/' + folder + '/') 
+				.setDataType( UnsignedByteType )
+				.load( hdrImgUrls, () => {
+
+					hdrCubeRenderTarget = pmremGenerator.fromCubemap( cubeMap );
+
+					cubeMap.encoding = sRGBEncoding;
+
+					cubeMap.magFilter = LinearFilter;
+					cubeMap.needsUpdate = true;
+
+					envMap = hdrCubeRenderTarget.texture
+
+					gallery.SCENE.environment = envMap
+
+					gallery.applyEnvMap( envMap, model )
+
+				})
+
+			}else{
+
+				cubeMap = new CubeTextureLoader()
+				.setPath( THREEPRESS.plugin_url + '/assets/env-maps/' + folder + '/') 
+				// .setDataType( UnsignedByteType )
+				.load( hdrImgUrls, () => {
+
+					hdrCubeRenderTarget = pmremGenerator.fromCubemap( cubeMap );
+
+					cubeMap.encoding = sRGBEncoding;
+
+					envMap = hdrCubeRenderTarget.texture
+
+					gallery.SCENE.environment = envMap
+
+					gallery.applyEnvMap( envMap, model )
+
+				})
+
+			}
+
+			gallery.SCENE.background = null
+			if( gallery.show_hdr ) gallery.SCENE.background = cubeMap;
+
+
+			const pmremGenerator = new PMREMGenerator( gallery.RENDERER ); 
+			pmremGenerator.compileCubemapShader();
+
+			// const envScene = new DebugEnvironment();
+			// generatedCubeRenderTarget = pmremGenerator.fromScene( envScene )
+
+			// gallery.RENDERER.toneMappingExposure = 5;
 
 		}
 

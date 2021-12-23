@@ -234,7 +234,7 @@ export default ( gallery, output_container ) => {
 	}
 	const lensflare = lib.build_option('checkbox', 'has_lensflare', true, 'lensflare', false, true )
 	const intensity = lib.build_option('range', 'intensity', 5, false, false, false, {
-		min: 1,
+		min: 0,
 		max: 15,
 	})
 
@@ -261,6 +261,24 @@ export default ( gallery, output_container ) => {
 	amb_section.appendChild( amb_color )
 	light.appendChild( amb_section )
 
+	// hdr
+	const hdr = build_category('hdr')
+
+	const hdr_courtyard = lib.build_option('checkbox', 'hdr_courtyard', false, 'courtyard', false, false )
+	hdr.appendChild( hdr_courtyard )
+	const hdr_galaxy = lib.build_option('checkbox', 'hdr_galaxy', false, 'galaxy', false, false )
+	hdr.appendChild( hdr_galaxy )
+	const hdr_bridge = lib.build_option('checkbox', 'hdr_bridge', false, 'bridge', false, false )
+	hdr.appendChild( hdr_bridge )
+	const hdr_park = lib.build_option('checkbox', 'hdr_park', false, 'park', false, false )
+	hdr.appendChild( hdr_park )
+	const hdr_castle = lib.build_option('checkbox', 'hdr_castle', false, 'castle', false, false )
+	hdr.appendChild( hdr_castle )
+
+	hdr.appendChild( document.createElement('br') )
+	const show_hdr = lib.build_option('checkbox', 'show_hdr', false, 'show HDR image as background', false, false )
+	hdr.appendChild( show_hdr )
+	light_section.appendChild( hdr )
 
 	// bloom
 	const bloom = build_category('bloom')
