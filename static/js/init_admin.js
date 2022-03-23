@@ -1,15 +1,15 @@
-// import hal from '../hal.js?v=112'
+// import hal from '../hal.js?v=121'
 
-import ThreepressGallery from './ThreepressGallery.js?v=112'
+import ThreepressGallery from './ThreepressGallery.js?v=121'
 
 import {
 	ModelRow,
 	fetch_wrap,
 	tstack,
 	hal,
-} from './lib.js?v=112'
+} from './lib.js?v=121'
 
-import build_form from './build_form.js?v=112'
+import build_form from './build_form.js?v=121'
 
 
 tstack('init_admin')
@@ -32,6 +32,7 @@ const add_model = wrap.querySelector('#add-toggle')
 const upload_types = wrap.querySelector('#threepress-upload-types')
 const add_gallery = wrap.querySelector('#create-toggle')
 
+
 // action buttons
 const model_upload = wrap.querySelector('form#upload-model')
 const browse_threepress = wrap.querySelector('form#browse-threepress')
@@ -46,7 +47,7 @@ const games_content = wrap.querySelector('#tab-games')
 
 const gallery_container = document.querySelector('#gallery-container')
 
-
+const root = 'https://arcade.threepress.shop'
 
 
 

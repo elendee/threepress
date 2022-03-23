@@ -3,9 +3,9 @@ Contributors: kerryoco
 Tags: threejs, 3d model, gltf, woocommerce, ecommerce
 Donate link: http://threepress.shop/donate
 Requires at least: 4.0
-Tested up to: 5.8.1
+Tested up to: 5.9
 Requires PHP: 5.6
-Stable tag: 1.1.2
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,38 +50,25 @@ All the galleries on a given page will be available in the global variable `THRE
 2. Added in v1.0 - heightmaps, fog and sunlight
 
 == Changelog ==
-= 0.1 =
-* Initial release.
-= 0.2 =
-* server: allow for various db prefixes 
-* client: upgrade http model loads to match location
-= 0.3 =
-* switch to js generated gallery form for portability
-= 0.3.1 =
-* support integration with Threepress for Woocommerce
-= 0.4.0 =
-* Sun added 
-* wp.media include fixed
-* editor form polish
-=  0.4.1 =
-* bloom effect added
-=  0.4.2 =
-* version fix
-= 1.0.0 =
-* core features added to editor - fog, heightmaps, shadows.  Also editor UI update.
-= 1.0.1 = 
-* allow 10x more model 'float' granularity for ground contact
-= 1.0.2 = 
-* cleaner cam / light / ground positioning code, and bugfixes
-* UI tweaks
-= 1.0.3 =
-* added snow
-* saving coordinates bugfix
-= 1.1.0 =
-* ambient lights
-* animations
-= 1.1.1 =
-* animation GUI bugfixes
+= 1.2.1 = 
+* activation error fixed
+= 1.2.0 =
+* basic HDR images available
 = 1.1.2 =
 * animation display bugfix
 * multiple threejs versions
+= 1.1.1 =
+* animation GUI bugfixes
+= 1.1.0 =
+* ambient lights
+* animations
+= 1.0.3 =
+* added snow
+* saving coordinates bugfix
+= 1.0.2 = 
+* cleaner cam / light / ground positioning code, and bugfixes
+* UI tweaks
+= 1.0.1 = 
+* allow 10x more model 'float' granularity for ground contact
+= 1.0.0 =
+* core features added to editor - fog, heightmaps, shadows.  Also editor UI update.

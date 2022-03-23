@@ -1,10 +1,10 @@
-import ThreepressGallery from './ThreepressGallery.js?v=112'
-// import BROKER from './helpers/EventBroker.js?v=112'
+import ThreepressGallery from './ThreepressGallery.js?v=121'
+// import BROKER from './helpers/EventBroker.js?v=121'
 
 import {
 	Box3,
 	Vector3,
-} from '../inc/three.module.js?v=112'
+} from '../inc/three.module.js?v=121'
 
 
 // ------------------------------------------------------------ declarations

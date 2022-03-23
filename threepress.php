@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Threepress 
  * Plugin URI: https://threepress.shop
- * Version: 1.1.2
+ * Version: 1.2.1
  * Description: Generate 3D gallery shortcodes powered by three.js
  * Text Domain: threepress
  * License:           GPL v2 or later
@@ -37,7 +37,7 @@ require_once( ABSPATH . 'wp-includes/pluggable.php' );
 
 $threepress_dir = plugins_url( '', __FILE__ );
 
-$threepress_version = '1.0.1';
+$threepress_version = '1.2.1';
 
 $threepress_settings = [];
 
@@ -48,7 +48,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    public static function activate(){
 			global $wpdb;
 
-	    	$sql = $wpdb->prepare('SHOW TABLES LIKE "threepress_shortcodes"');
+	    	$sql = $wpdb->prepare('SHOW TABLES LIKE "threepress_shortcodes"', array() );
 	    	$has_table = $wpdb->query( $sql );
 	    	
 	    	if( $has_table ){  // Threepress has been previously activated
@@ -93,17 +93,17 @@ if ( !class_exists( 'Threepress' ) ) {
  	    	global $threepress_version;
     		wp_enqueue_style( 
 				'threepress-global-css', 
-				plugins_url('/static/css/global.css?v=112' . $threepress_version, __FILE__ ), 
+				plugins_url('/static/css/global.css?v=120' . $threepress_version, __FILE__ ), 
 				array()
 			);
 			wp_enqueue_style( 
 				'threepress-modal-css', 
-				plugins_url('/static/css/modal.css?v=112' . $threepress_version, __FILE__ ), 
+				plugins_url('/static/css/modal.css?v=120' . $threepress_version, __FILE__ ), 
 				array()
 			);	    	
     		wp_enqueue_script( 
 				'threepress-global-js', 
-				plugins_url( '/static/js/global.js?v=112' . $threepress_version, __FILE__ ),
+				plugins_url( '/static/js/global.js?v=120' . $threepress_version, __FILE__ ),
 				array()
 			);
 
@@ -146,7 +146,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	global $threepress_version;
     		wp_enqueue_script( 
 				'threepress-base-js', 
-				plugins_url( '/static/js/init_base.js?v=112' . $threepress_version, __FILE__ ),
+				plugins_url( '/static/js/init_base.js?v=120' . $threepress_version, __FILE__ ),
 				array() 
 			);
 	    }
@@ -156,7 +156,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	global $threepress_version;
     		wp_enqueue_script( 
 				'threepress-admin-js', 
-				plugins_url( '/static/js/init_admin.js?v=112' . $threepress_version, __FILE__ ),
+				plugins_url( '/static/js/init_admin.js?v=120' . $threepress_version, __FILE__ ),
 				array()
 			);
 
@@ -167,7 +167,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	global $threepress_version;
 			wp_enqueue_style( 
 				'threepress-admin-css', 
-				plugins_url('/static/css/admin.css?v=112' . $threepress_version, __FILE__ ), 
+				plugins_url('/static/css/admin.css?v=120' . $threepress_version, __FILE__ ), 
 				array()
 			);
 

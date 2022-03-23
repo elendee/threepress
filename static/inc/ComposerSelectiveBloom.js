@@ -10,10 +10,10 @@ import {
 
 import {
 	EffectComposer,
-} from './EffectComposer.js?v=040'
-import { ShaderPass } from './ShaderPass.js?v=040'
-import { RenderPass } from './RenderPass.js?v=040'
-import { UnrealBloomPass } from './UnrealBloomPass.js?v=040'
+} from './EffectComposer.js?v=121'
+import { ShaderPass } from './ShaderPass.js?v=121'
+import { RenderPass } from './RenderPass.js?v=121'
+import { UnrealBloomPass } from './UnrealBloomPass.js?v=121'
 
 
 

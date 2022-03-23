@@ -356,6 +356,10 @@ div.gallery-section:last-of-type{
 	max-width: 30px;
 }
 
+#tab-games .threepress-row{
+	margin-bottom: 40px;
+}
+
 #extension-menu{
 	width: 100%;
 }
