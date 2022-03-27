@@ -104,8 +104,8 @@ const default_binds = {
 		},
 
 		turn2: {
-			starboard: 39, // arr left
-			port: 37, // arr right
+			starboard: 37, // arr left
+			port: 39, // arr right
 		},
 
 		strafe: {

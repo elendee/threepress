@@ -50,26 +50,16 @@ const handle_keydown = ( e ) => {
 			switch( e.keyCode ){
 
 			case BINDS.world.walk.forward: 
-				BROKER.publish('MOVE_KEY', {
-					type: 'walking',
-					state: 1,
-				})
-				break;
-
-			case BINDS.world.walk.back:
-				BROKER.publish('MOVE_KEY', {
-					type: 'walking',
-					state: -1,
-				})
-				break;
-
 			case BINDS.world.walk2.forward: 
 				BROKER.publish('MOVE_KEY', {
 					type: 'walking',
 					state: 1,
 				})
+				// up / down arrow keys - not good in a browser
+				if( e.keyCode === 38 || e.keyCode === 40 ) e.preventDefault()
 				break;
 
+			case BINDS.world.walk.back:
 			case BINDS.world.walk2.back:
 				BROKER.publish('MOVE_KEY', {
 					type: 'walking',
@@ -213,19 +203,6 @@ const handle_keyup = ( e ) => {
 
 			// walk
 			case BINDS.world.walk.forward:
-				BROKER.publish('MOVE_KEY', { // all the cosmetics
-					type: 'walking',
-					state: 0,
-				})
-				break
-
-			case BINDS.world.walk.back:
-				BROKER.publish('MOVE_KEY', {
-					type: 'walking',
-					state: 0,
-				})
-				break
-
 			case BINDS.world.walk2.forward:
 				BROKER.publish('MOVE_KEY', { // all the cosmetics
 					type: 'walking',
@@ -233,6 +210,7 @@ const handle_keyup = ( e ) => {
 				})
 				break
 
+			case BINDS.world.walk.back:
 			case BINDS.world.walk2.back:
 				BROKER.publish('MOVE_KEY', {
 					type: 'walking',

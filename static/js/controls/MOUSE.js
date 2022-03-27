@@ -245,6 +245,8 @@ const set_cam_state = state => {
 
 const camera_look_home = () => {
 	// 
+	if( !PLAYER.GROUP ) return
+	// console.log('ya.. runs')
 	CAMERA.lookAt( new Vector3().copy( PLAYER.GROUP.position ).add( CAMERA.fixture.position ) )
 	// ORIGIN
 	// CAMERA.rotation.z = -Math.PI
@@ -412,6 +414,7 @@ RENDERER.domElement.addEventListener('contextmenu', event => event.preventDefaul
 
 BROKER.subscribe('MOUSE_UNPAN', unpan_cam )
 BROKER.subscribe('QUERY_DROP_TARGET', query_drop )
+BROKER.subscribe('CAMERA_LOOK_HOME', camera_look_home )
 
 
 RENDERER.domElement.addEventListener('mouseout', e => { 

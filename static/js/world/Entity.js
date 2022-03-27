@@ -228,29 +228,12 @@ class Entity {
 		}
 		// turning
 		if( this.state.turning > 0 ){
-			this.GROUP.rotation.y += 1 * delta_seconds
+			this.GROUP.rotateY( 1.5 * delta_seconds )
+			// rotation.y -= 1.5 * delta_seconds
 		}else if( this.state.turning < 0 ){
-			this.GROUP.rotation.y -= 1 * delta_seconds
+			this.GROUP.rotateY( -1.5 * delta_seconds )
+			// this.GROUP.rotation.y += 1.5 * delta_seconds
 		}
-
-		// // pos
-		// if( this.lerpto.position.count ){
-		// 	console.log('lerp pos')
-		// 	this.GROUP.position.lerp( this.lerpto.position.vec, .05 )
-		// 	this.lerpto.position.count--
-		// }
-		// // rot
-		// if( this.lerpto.rotation.count ){
-		// 	console.log('lerp rot')
-		// 	this.GROUP.rotation.y -= ( this.GROUP.rotation.y - this.lerpto.rotation.rad ) * .95
-		// 	this.lerpto.rotation.count--
-		// }
-		// // quat
-		// if( this.lerpto.quaternion.count ){
-		// 	console.log('lerp quat')
-		// 	this.GROUP.quaternion.slerp( this.lerpto.quat, .05 )
-		// 	this.lerpto.quaternion.count--
-		// }
 
 	}
 

@@ -241,6 +241,10 @@ const init_entry = async( event ) => {
 
 	CAMERA.lookAt( CAMERA.fixture.position )
 
+	setTimeout(() => {
+		BROKER.publish('CAMERA_LOOK_HOME')
+	}, 2000)
+
 	// BROKER.publish('CONTROLS_TARGET', {
 	// 	target: PLAYER.GROUP.position,
 	// })

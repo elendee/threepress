@@ -43,9 +43,12 @@ document.addEventListener('mouseup', () => {
 	document.removeEventListener('mousemove', track_slider )
 })
 
+let rBound, relativeMouseHeight
 const track_slider = e => {
-	ele.style.height = Math.min( window.innerHeight - 10, Math.max( window.innerHeight - e.clientY, 40 ) ) + 'px'
-	console.log( e, ele.style.height )
+	rBound = RENDERER.domElement.parentElement.getBoundingClientRect()
+	relativeMouseHeight = e.clientY - rBound.top
+	ele.style.height = Math.min( rBound.height - 10, Math.max( rBound.height - relativeMouseHeight, 40 ) ) + 'px'
+	// console.log( e, ele.style.height )
 }
 
 
@@ -132,16 +135,6 @@ class Bubble {
 
 	update_position(){
 
-		// let object
-		// if( PLAYER.uuid === this.sender_uuid ){
-		// 	object = PLAYER
-		// }else if( TOONS[ this.sender_uuid ] ){
-		// 	object = TOONS[ this.sender_uuid ]
-		// // }else if( npcs[ this.sender_uuid ] ){
-		// 	// object = npcs[ this.sender_uuid ]
-		// }else{
-		// 	return false
-		// }
 		const object = TOONS[ this.sender_uuid ]
 		if( !object ){
 			console.log('no chat bubble')
@@ -149,23 +142,22 @@ class Bubble {
 		}
 
 		copy_vector.copy( object.GROUP.position )
-		// if( this.self ){
-		// 	copy_vector.copy( object.GROUP.position )
-		// }else{
-		// 	copy_vector.copy( object.GROUP.position )
-		// }
 
 		// map to normalized device coordinate (NDC) space
 		copy_vector.project( CAMERA )
-		// copy_vector.project( window.TOON.MODEL )
 
 		this.wrapper_bound = RENDERER.domElement.getBoundingClientRect()
 		// map to 2D screen space
-		copy_vector.x = Math.round( (   copy_vector.x + 1 ) * this.wrapper_bound.width * STATE.blur_divisor / 2 )  
-		copy_vector.y = Math.round( ( - copy_vector.y + 1 ) * this.wrapper_bound.height * STATE.blur_divisor / 2 ) 
+		// copy_vector.x = Math.round( (   copy_vector.x + 1 ) * this.wrapper_bound.width * STATE.blur_divisor / 2 )  
+		// copy_vector.y = Math.round( ( - copy_vector.y + 1 ) * this.wrapper_bound.height * STATE.blur_divisor / 2 ) 
+		copy_vector.x = Math.round( (   copy_vector.x + 1 ) * this.wrapper_bound.width / 2 )  
+		copy_vector.y = Math.round( ( - copy_vector.y + 1 ) * this.wrapper_bound.height / 2 ) 
 		// copy_vector.z = Math.round( ( - copy_vector.y + 1 ) * canvas.height / 2 )
 		copy_vector.z = 0;
 		// copy_vector.y = 0;
+
+		// console.log( copy_vector.x, copy_vector.y )
+		// console.log( this.wrapper_bound.width )
 
 		this.posX = copy_vector.x + bubble_offset.x // window.blaX || 50
 		this.posY = copy_vector.y - bubble_offset.y // window.blaY || 0
@@ -326,6 +318,10 @@ const chat_send = event => {
 
 
 
+
+
+
+
 const print_help = () => {
 
 	const help = new Chat({
@@ -335,11 +331,11 @@ const print_help = () => {
 // "/t " for Tell (only your target will receive it)
 		msg: `
 commands:
-"/s " for Say (nearby - also the default)
+"/s " for Say (or leave empty - it's default)
 "/y " for Yell (everyone in gallery will hear it)
-
-Click the hammer to view available spots to post your art
 `
+// Click the hammer to view available spots to post your art
+
 	})
 
 	content.appendChild( help.ele )
@@ -395,31 +391,6 @@ const append_chat = ele => {
 
 
 const add_chat = event => {
-	// sender_uuid
-	// chat_type
-	// msg
-
-	// if( event.chat_type === 'system' ){
-
-	// 	const chat = new Chat({
-	// 		sender: 'system',
-	// 		type: 'system',
-	// 		msg: event.msg,
-	// 	})
-	// 	append_chat( chat.ele )
-	// 	return true
-	// }
-
-	// let sender, self, handle
-	// if( TOONS[ event.sender_uuid ] ){
-	// 	sender = TOONS[ event.sender_uuid ]
-	// // }else if( npcs[ event.sender_uuid ] ){
-	// // 	sender = npcs[ event.sender_uuid ]
-	// }
-	// else if( event.sender_uuid === PLAYER.uuid ){
-	// 	self = true
-	// 	sender = PLAYER
-	// } 
 
 	const { sender_uuid, chat_type, msg, color } = event
 
@@ -430,7 +401,7 @@ const add_chat = event => {
 	}
 	const handle = sender.handle
 	const player1 = sender_uuid === PLAYER.uuid
-	
+
 	const chat = new Chat({
 		sender: handle,
 		color: color,
@@ -466,6 +437,11 @@ const add_chat = event => {
 	begin_bubbles()
 
 }
+
+
+
+
+
 
 
 
