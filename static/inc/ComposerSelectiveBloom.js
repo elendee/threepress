@@ -5,7 +5,7 @@ import {
 	ShaderMaterial,
 	DoubleSide,
 	MeshBasicMaterial,
-} from './three.module.js'
+} from './three.module.js?v=121'
 
 
 import {

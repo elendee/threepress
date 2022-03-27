@@ -93,17 +93,17 @@ if ( !class_exists( 'Threepress' ) ) {
  	    	global $threepress_version;
     		wp_enqueue_style( 
 				'threepress-global-css', 
-				plugins_url('/static/css/global.css?v=120' . $threepress_version, __FILE__ ), 
+				plugins_url('/static/css/global.css?v=121' . $threepress_version, __FILE__ ), 
 				array()
 			);
 			wp_enqueue_style( 
 				'threepress-modal-css', 
-				plugins_url('/static/css/modal.css?v=120' . $threepress_version, __FILE__ ), 
+				plugins_url('/static/css/modal.css?v=121' . $threepress_version, __FILE__ ), 
 				array()
 			);	    	
     		wp_enqueue_script( 
 				'threepress-global-js', 
-				plugins_url( '/static/js/global.js?v=120' . $threepress_version, __FILE__ ),
+				plugins_url( '/static/js/global.js?v=121' . $threepress_version, __FILE__ ),
 				array()
 			);
 
@@ -146,7 +146,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	global $threepress_version;
     		wp_enqueue_script( 
 				'threepress-base-js', 
-				plugins_url( '/static/js/init_base.js?v=120' . $threepress_version, __FILE__ ),
+				plugins_url( '/static/js/init_base.js?v=121' . $threepress_version, __FILE__ ),
 				array() 
 			);
 	    }
@@ -156,7 +156,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	global $threepress_version;
     		wp_enqueue_script( 
 				'threepress-admin-js', 
-				plugins_url( '/static/js/init_admin.js?v=120' . $threepress_version, __FILE__ ),
+				plugins_url( '/static/js/init_admin.js?v=121' . $threepress_version, __FILE__ ),
 				array()
 			);
 
@@ -167,7 +167,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	global $threepress_version;
 			wp_enqueue_style( 
 				'threepress-admin-css', 
-				plugins_url('/static/css/admin.css?v=120' . $threepress_version, __FILE__ ), 
+				plugins_url('/static/css/admin.css?v=121' . $threepress_version, __FILE__ ), 
 				array()
 			);
 
@@ -277,6 +277,13 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	<div ' . $id . ' class="threepress-gallery">
 	    		<pre class="threepress-gallery-data">' . json_encode($attr) . '</pre>
 	    	</div>';
+
+	    }
+
+
+	    public static function shortcode_world( $attr, $content, $name ){
+
+    		return '<div id="threepress-world"></div>';
 
 	    }
 
@@ -630,6 +637,7 @@ if ( !class_exists( 'Threepress' ) ) {
 	add_filter('upload_mimes', 'Threepress::allow_glb');
 
 	add_shortcode('threepress', 'Threepress::shortcode');
+	add_shortcode('threepress_world', 'Threepress::shortcode_world');
 
 	register_activation_hook( __FILE__, 'Threepress::activate' );
 

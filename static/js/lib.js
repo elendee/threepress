@@ -1,5 +1,4 @@
 import ThreepressGallery from './ThreepressGallery.js?v=121'
-// import BROKER from './helpers/EventBroker.js?v=121'
 
 import {
 	Box3,
@@ -13,8 +12,6 @@ import {
 const alert_contain = document.createElement('div')
 alert_contain.id = 'alert-contain-3p'
 document.body.appendChild( alert_contain )
-
-
 
 
 
@@ -947,6 +944,18 @@ const validate_number = ( ...args ) => {
 }
 
 
+let bbox
+const get_bbox = mesh => {
+	if( !mesh.isMesh && !mesh.isObject3D ){
+		console.log('invalid mesh dimensions for bbox', mesh )
+		return new Vector3(1,1,1)
+	}
+	bbox = new Box3().setFromObject( mesh )
+	return bbox
+}
+
+
+
 export {
 
 	// base ui functions
@@ -995,5 +1004,6 @@ export {
 	sleep,
 	process_split,
 
+	get_bbox,
 }
 

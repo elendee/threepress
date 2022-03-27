@@ -7,6 +7,9 @@ tstack('init_base')
 import ThreepressGallery from './ThreepressGallery.js?v=121'
 
 
+
+
+
 // ------------------------------------------------------------ declarations
 
 const viewers = document.querySelectorAll('.threepress-gallery')
@@ -22,6 +25,7 @@ if( !THREEPRESS ){
 	return
 }
 
+// primary lookup for Threepress scenes:
 let raw, scene
 for( const viewer of viewers ){
 	raw = viewer.querySelector('.threepress-gallery-data')
@@ -38,7 +42,19 @@ for( const viewer of viewers ){
 
 	gallery_front.display( viewer )
 
-}	
+}
+
+
+
+// load Threepress World conditionally:
+const world_ele = document.getElementById('threepress-world')
+if( world_ele ){
+	import( THREEPRESS.plugin_url + '/static/js/add_world.js?v=121')
+	.catch( err => {
+		console.log('error initializing world: ', err )
+	})
+}
+
 
 })();
 

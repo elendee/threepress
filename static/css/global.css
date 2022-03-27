@@ -306,6 +306,7 @@
 	box-sizing: border-box;
 }
 
+
 @media screen and (max-width: 800px){
 	.threepress-row .column{
 		max-width: 100%;
