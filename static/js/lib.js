@@ -6,6 +6,32 @@ import {
 } from '../inc/three.module.js?v=121'
 
 
+
+
+const logging = false
+const tstack = file => {
+	if( logging ) console.log('threepress stack: ', file )
+}
+tstack('lib.js')
+
+
+
+const URLS = localStorage.getItem('threepress-arcade-urls')
+THREEPRESS.ARCADE = THREEPRESS.ARCADE || {}
+if( URLS ){
+	THREEPRESS.ARCADE.URLS = JSON.parse( URLS )
+}else{
+	THREEPRESS.ARCADE.URLS = {
+		websocket: 'wss://arcade.threepress.shop:9001/ws',
+		https: 'https://arcade.threepress.shop',
+	}
+}
+
+
+
+
+
+
 // ------------------------------------------------------------ declarations
 
 
@@ -501,10 +527,7 @@ const get_row = ( container, id ) => {
 
 
 
-const logging = false
-const tstack = file => {
-	if( logging ) console.log('threepress stack: ', file )
-}
+
 
 
 
@@ -956,6 +979,8 @@ const get_bbox = mesh => {
 
 
 
+
+
 export {
 
 	// base ui functions
@@ -1005,5 +1030,6 @@ export {
 	process_split,
 
 	get_bbox,
+
 }
 

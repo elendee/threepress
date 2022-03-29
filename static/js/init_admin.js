@@ -47,7 +47,6 @@ const games_content = wrap.querySelector('#tab-games')
 
 const gallery_container = document.querySelector('#gallery-container')
 
-const root = 'https://arcade.threepress.shop'
 
 
 
@@ -136,7 +135,7 @@ const build_game_row = game => {
 	image.classList.add('threepress-column')
 
 	const img = document.createElement('img')
-	img.src = 'https://arcade.threepress.shop/resource/image/' + game.img_url
+	img.src = THREEPRESS.ARCADE.URLS.https + '/image/' + game.img_url
 
 	image.appendChild( img )
 
@@ -196,7 +195,7 @@ const build_game_row = game => {
 		linkout.target='_blank'
 		linkout.classList.add('button')
 		linkout.innerHTML = '+'
-		linkout.href = root + '/game/' + game.name + '?d=' + location.host
+		linkout.href = THREEPRESS.ARCADE.URLS.https + '/game/' + game.name + '?d=' + location.host
 
 		link_column.appendChild( linkout )
 
@@ -227,12 +226,11 @@ const fill_games = async() => {
 
 	loaded.game = true
 
-	// const url = root + '/game_listing'
-	const url = 'https://arcade.threepress.shop/game_listing'
-
 	// console.log('fetch games: ', url )
 
-	const res = await fetch_wrap( url, 'post', { add_purchased: true })
+	const res = await fetch_wrap( THREEPRESS.ARCADE.URLS.https + '/game_listing', 'post', { 
+		add_purchased: true,
+	})
 	if( !res ){
 		hal('error', 'error fetching games', 5 * 1000)
 		return

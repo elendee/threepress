@@ -14,6 +14,11 @@ import {
 	Quaternion,
 } from '../../inc/three.module.js?v=121'
 import CAMERA from './CAMERA.js?v=121'
+// import AnimationStudio from '../helpers/AnimationStudio.js?v=121'
+
+
+
+const ANIM_STEP = 50
 
 
 
@@ -49,19 +54,36 @@ class Entity {
 		// }
 	}
 
-	async construct_model(){
+
+	hydrate( data ){
+		for( const key in data ){
+			// console.log('hydrating player: ', key )
+			this[ key]= data[ key ]
+		}
+	}
+
+
+	deconstruct_model(){
+		this.GROUP.remove( this.GROUP.MODEL )
+		delete this.GROUP.MODEL // may need to make a `destruct_model` method here
+	}
+
+	async construct_model( is_update ){
 
 		const entity = this
 
 		const slug = entity.world_slug || entity.some_other_slug || 'unknown'
 		const modeltype = entity.world_modeltype || 'unknown'
-		const filetype = entity.world_filetype || 'unknown'
 
 		const gltf = new GLTFLoader()
 
 		await new Promise(( resolve, reject ) => {
 
-			const filepath = 'https://arcade.threepress.shop/resource/world-models/' + modeltype + '/' + slug + '.' + filetype
+			console.log('loading: ', slug, modeltype )
+
+			const filepath = THREEPRESS.ARCADE.URLS.https + '/resource/world-models/' + modeltype + '/' + slug
+
+			console.log('loading: ', filepath )
 
 			gltf.load( filepath, 
 
@@ -69,38 +91,41 @@ class Entity {
 
 					console.log('entity load: ', obj )
 
-					let add_anim
-					if( obj.animations && obj.animations.length ) add_anim = true
-
 					if( modeltype === 'quaternius_low'){
 
-						if( add_anim ){
-							entity.animation = {
-								mixer: new AnimationMixer( obj.scene ),
-								clips: obj.animations,
+						// handle CREATE / UPDATE of model
+						if( is_update ){
+							entity.GROUP.remove( entity.MODEL )
+							delete entity.animation
+						}else{
+							entity.GROUP = new Group()
+						}
+						entity.MODEL = obj.scene
+
+						// shadows
+						entity.MODEL.traverse(ele => {
+							// or, ele.isMesh
+							if( ele.name.match(/cube/i)){
+								ele.castShadow = true
 							}
+						})
+						entity.GROUP.add( entity.MODEL )	
+
+						// animations
+						if( obj.animations && obj.animations.length ){
+							entity.add_animation( obj, entity.standard_actions, entity.animation_map[ modeltype ] )
 						}
 
-						entity.MODEL = obj.scene
-						entity.GROUP = new Group()
-						entity.GROUP.add( entity.MODEL )
-
+						// done
 						resolve()
 
-					}else{ // currently same, but for example ...
+					}else{
 
-						if( add_anim ){
-							entity.animation = {
-								mixer: new AnimationMixer( obj.scene ),
-								clips: obj.animations,
-							}							
-						}
+						// ( probably the same as ^^ )
 
-						entity.MODEL = obj.scene
-						entity.GROUP = new Group()
-						entity.GROUP.add( entity.MODEL )
+						console.log('unhandled model type..', modeltype, obj)
 
-						resolve( obj.scene )
+						resolve()
 
 					}
 
@@ -128,54 +153,114 @@ class Entity {
 	}
 
 
-	list_anims(){
-		if( !this.animation ){
-			console.log('none')
+
+	add_animation( model, desired_animations, animation_map ){
+
+		if( !model || !desired_animations || !animation_map ){
+			console.log( 'invalid AnimationStudio', desired_animations, animation_map, model )
 			return
 		}
-		for( const clip of this.animation.clips ){
-			console.log( clip.name )
+
+		this.animation = {
+			mixer: new AnimationMixer( model.scene ),
+			clips: model.animations,
+			actions: {},
+			fades: {},
 		}
+	
+		let local_name
+		for( const type of desired_animations ){
+			// if( !this.standard_actions[ type ]) continue
+			local_name = animation_map[ type ]
+			const clip = AnimationClip.findByName( this.animation.clips, local_name )
+			if( !clip ){
+				console.log('animation map failed to find: ', type )
+				continue
+			}
+			this.animation.actions[ type ] = this.animation.mixer.clipAction( clip )
+			this.animation.actions[ type ].enabled = true
+		}
+
+
 	}
 
-	animate( name, state ){
-		// validate
+
+	clearFade( name ){
+		clearInterval( this.animation.fades[ name ].interval )
+		clearTimeout( this.animation.fades[ name ].timeout )
+		delete this.animation.fades[ name ]
+	}
+
+
+	animate( name, state, fadeN ){
 		if( !this.animation ) return
 		if( !name && !state ){
 			this.list_anims()
 			return
 		}
-		const clip = AnimationClip.findByName( this.animation.clips, name )
-		if( !clip ){
-			console.log('missing anim clip', this, this.anim_clip )
+		const action = this.animation.actions[ name ]
+		if( !action ){
+			console.log('action not found: ', name )
 			return
 		}
-		// start
-		if( state ){ 
-			const action = this.animation.mixer.clipAction( clip )
-			this.ongoing_anims[ name ] = action
-			action.enabled = true
-			action.play()
-		// stop
-		}else{ 
-			for( const type in this.ongoing_anims ){
-				if( type === name ){
-					this.ongoing_anims[ type ].fadeOut(1)
-					setTimeout(()=>{
-						if( this.ongoing_anims[ type ] ){
-							this.ongoing_anims[ type ].stop()
-						}else{
-							// already deleted.. should be ok
-						}
-						delete this.ongoing_anims[ type ]
-						if( !Object.keys( this.ongoing_anims ).length ){
-							this.rest()
-						}
-					}, 1000)
-					return
-				}
-			}
+
+		// console.log( name, state, fadeN )
+
+		let fades, step
+		if( typeof fadeN === 'number' ){
+			fades = this.animation.fades
 		}
+
+		if( state ){
+			if( action.isRunning() ){
+				console.log('action still running; skip: ' + name )
+				return
+			}
+
+			if( fades ){
+				action.weight = 0
+				action.enabled = true
+				// step = ANIM_STEP / fadeN
+				step = fadeN / ANIM_STEP
+
+				if( fades[ name ] ) this.clearFade( name )
+				fades[ name ] = {}
+				fades[ name ].interval = setInterval(() => {
+					action.weight += step
+				}, ANIM_STEP )
+				fades[ name ].timeout = setTimeout(() => {
+					this.clearFade( name )
+					console.log('end fade in ', name )
+				}, fadeN )
+			}else{
+				console.log('insta anim: ', name, state )
+			}
+
+			action.play() // maybe else() this ????????
+
+		}else{
+
+			if( fades ){
+				// action.weight = 0
+				// action.enabled = true
+				step = fadeN / ANIM_STEP
+				
+				if( fades[ name ] ) this.clearFade( name )
+				fades[ name ] = {}
+				fades[ name ].interval = setInterval(() => {
+					action.weight -= step
+				}, ANIM_STEP )
+				fades[ name ].timeout = setTimeout(() => {
+					this.clearFade( name )
+					console.log('end fade out ', name )
+				}, fadeN )
+			}else{
+				action.stop()
+				console.log('insta anim: ', name, state )
+			}
+
+		}
+	
 	}
 
 
@@ -184,24 +269,24 @@ class Entity {
 			called whenever no anims are detected
 		*/
 		if( !this.animation ) return
-		// handle my cache
-		for( const type in this.ongoing_anims ){
-			this.ongoing_anims[ type ].fadeOut(1)
-		}
-		// use built in method
-		setTimeout(() => {
-			this.animation.mixer.stopAllAction()
-			this.animate('Idle', true)
-		}, 1000)
+
+		this.animation.mixer.stopAllAction()
+		this.animation.actions.idle?.play?.()
+
 	}
 
 
-	hydrate( data ){
-		for( const key in data ){
-			// console.log('hydrating player: ', key )
-			this[ key]= data[ key ]
+	list_anims(){
+		if( !this.animation ){
+			console.log('no animation')
+			return
+		}
+		for( const clip of this.animation.clips ){
+			console.log( clip.name )
 		}
 	}
+
+
 
 
 

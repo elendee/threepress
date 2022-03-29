@@ -3,12 +3,29 @@ import BROKER from './WorldBroker.js?v=121'
 import STATE from './STATE.js?v=121'
 
 const player = new Player()
-player.need_stream = false
 
-player.animation_map = { // game actions -> animation names
-	'walking': 'Walk',
-	'strafing': 'Walk',
-	'turning': 'Walk',
+player.need_stream = false
+player.standard_actions = [
+	'walking',
+	'strafing',
+	'turning',
+	'idle',
+	'running',
+	'jump',
+	'attack',
+]
+
+player.animation_map = { 
+	/*
+		game actions -> the embedded animation names for that modeltype
+	*/
+	quaternius_low: {
+		'walking': 'Walk',
+		'strafing': 'Walk',
+		'turning': 'Walk',
+		'idle': 'Idle',
+	},
+
 }
 
 THREEPRESS.PLAYER1 = player
@@ -93,26 +110,29 @@ const send_immediate = event => {
 }
 
 
-
+const last_states = {}
+let diffed
 const handle_key = event => {
 	/*
 		main handler
 	*/
 	const { type, state } = event
 
+	diffed = last_states[ type ] !== state
+
 	// set state
-	player.state[ type ] = state
+	player.state[ type ] = last_states[ type ] = state
 
 	// check for keyUPS (end immediate)
 	if( send_immediate( event )){
 		player.send_update()
 	// normal moves:
 	}else{
-		player.need_stream = true
+		if( diffed ) player.need_stream = true
 	}
 
 	// set animate
-	player.animate( player.animation_map[ type ], state )
+	if( diffed ) player.animate( type, state !== 0 , 1000 )
 
 }
 

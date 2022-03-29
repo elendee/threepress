@@ -372,7 +372,7 @@ const handle_keyup = ( e ) => {
 
 
 const handle_mouseout = e => {
-	for( const action in PLAYER.animation_map ){
+	for( const action in PLAYER.animation_map[ PLAYER.world_modeltype ] ){
 		BROKER.publish('MOVE_KEY', {
 			type: action,
 			state: 0,

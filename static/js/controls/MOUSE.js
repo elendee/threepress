@@ -145,7 +145,9 @@ function click_up( e ){
 			
 		case 3: // right
 			tracking_look = false
-			PLAYER.animate( PLAYER.animation_map.turning, false )
+			// const anim_map = PLAYER.animation_map[ PLAYER.world_modeltype ]
+			// if( !anim_map ) return
+			PLAYER.animate('turning', false )
 			document.removeEventListener('mousemove', track_look )
 			// clearInterval( PLAYER.sending_track )
 			// delete PLAYER.sending_track 
@@ -180,7 +182,7 @@ function click_down( e ){
 			currentX = e.clientX
 			currentY = e.clientY
 			tracking_look = true
-			PLAYER.animate( PLAYER.animation_map.turning, true)
+			PLAYER.animate( 'turning', true)
 			document.addEventListener('mousemove', track_look )
 			break;
 		default: break;
@@ -420,17 +422,26 @@ BROKER.subscribe('CAMERA_LOOK_HOME', camera_look_home )
 RENDERER.domElement.addEventListener('mouseout', e => { 
 	click_up({ which: 3, caller: 'mouseout' }) 
 	click_up({ which: 1, caller: 'mouseout' }) 
-	BROKER.publish('WORLD_SET_ACTIVE', { state: false } )	
+	BROKER.publish('WORLD_SET_ACTIVE', { 
+		state: false 
+	})	
 })
-document.addEventListener('mouseout', e => { 
-	click_up({ which: 3, caller: 'mouseout' }) 
-	click_up({ which: 1, caller: 'mouseout' }) 
-	BROKER.publish('WORLD_SET_ACTIVE', { state: false } )	
-})
+
+
+// document.addEventListener('mouseout', e => { 
+// 	console.log('doc out')
+// 	click_up({ which: 3, caller: 'mouseout' }) 
+// 	click_up({ which: 1, caller: 'mouseout' }) 
+// 	BROKER.publish('WORLD_SET_ACTIVE', { 
+// 		state: false 
+// 	})	
+// })
 
 
 document.addEventListener('visibilitychange', event => {
-	BROKER.publish('WORLD_SET_ACTIVE', { state: document.visibilityState !== 'visible' } )
+	BROKER.publish('WORLD_SET_ACTIVE', { 
+		state: document.visibilityState !== 'visible' 
+	})
 	// Howler.mute( document.visibilityState !== 'visible' )
 })
 

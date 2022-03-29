@@ -30,7 +30,6 @@ const animate = () => {
 	// CONTROLS.update()
 
 	// CAMERA.position
-
 	requestAnimationFrame( animate )
 
 	RENDERER.render( SCENE, CAMERA )
@@ -39,12 +38,6 @@ const animate = () => {
 }
 
 
-// const update_target = event => {
-// 	const { target } = event
-// 	CONTROLS.target = target
-// }
-
-// BROKER.subscribe('CONTROLS_TARGET', update_target )
 
 
 export default animate

@@ -2,18 +2,16 @@
 #threepress-world{
 	border:  3px solid transparent;
 }
-/* #threepress-world:hover{
-	border:  2px solid #606060;
-} */
+#threepress-world *{
+	font-family: monospace;
+}
+
 #threepress-world-canvas{
 	width:  100%;
 }
 #threepress-world.threepress-world-active{
 	border: 3px solid rgba(0,0,0,.3);
 }
-/* #threepress-world-canvas:hover{
-	border:  5px solid rgba(0, 0, 0, .3);
-} */
 
 #threepress-ui-wrapper{
 	position: absolute;
@@ -29,12 +27,62 @@
 	pointer-events: initial;
 }
 
+#threepress-admin-toggle{
+	position: absolute;
+	background: white;
+	padding: 10px;
+	top: 0;
+	right: 0;
+	cursor: pointer;
+}
 
+#threepress-world .threepress-modal{
+	position: absolute;
+}
+#threepress-world .threepress-modal *{
+	box-sizing: border-box;
+}
+#threepress-world .threepress-modal-content{
+	position: relative;
+	background: transparent;
+	pointer-event: none;
+}
 
-
-
-
-
+#threepress-admin-world-nav{
+	position: absolute;
+	height: 30px;
+	width: 100%;
+	top: 0;
+	left: 0;
+	background: lightgrey;
+	text-align: center;
+	pointer-events: initial;
+}
+.threepress-admin-tab.threepress-button{
+	display: inline-block;
+	margin: 0 5px;
+	padding: 5px;
+	line-height: 1rem;
+}
+.threepress-admin-tab.selected{
+	background: #99ffff;
+}
+.threepress-admin-section{
+	padding-top: 50px;
+	max-height: 50vh;
+	overflow-y: auto;
+	pointer-events: initial;
+	display: none;
+	background: white;
+	width: 100%;
+	padding: 50px 10px 10px 10px;
+}
+.threepress-admin-section.selected{
+	display: inline-block;
+}
+.threepress-toon-listing{
+	cursor: pointer;
+}
 
 
 
@@ -71,28 +119,19 @@
     left: 0;
     width: 100%;
     height: calc( 100% - 30px);
-/*     position; */
-    background: rgba(0, 0, 0, .7);
+    background: rgba(0, 0, 0, .8);
     overflow-y: auto;
+	opacity: .2
 }
-/* #threepress-chat-prefix{
-    position: absolute;
-    bottom: 0px;
-    display: inline-block;
-    width: 49px;
-    height: 29px;
-    background: rgba(0, 0, 0, .7);
-    border: 0px;
-    border-top: 1px solid lightgrey;
-    border-right: 1px solid lightgrey;
-} */
+#threepress-chat:hover #threepress-chat-content{
+	opacity: 1;
+}
+
 #threepress-chat-input{
     position: absolute;
     bottom: 0px;
     width: 100%;
-/*     width:calc(100% - 50px); */
     height: 30px;
-/*     left: 50px; */
     padding: 0 5px;
     border: 0px;
     background: rgba(0, 0, 0, .9);
@@ -104,9 +143,7 @@
 }
 
 .chat-msg>div{
-/*     display: inline-block; */
     padding: 0 5px;
-/*     vertical-align: top; */
 }
 .chat-msg{
     font-size: .9rem;
@@ -161,4 +198,55 @@
 }
 .chat-bubble.tell{
 	color: violet;
+}
+
+
+
+
+
+.threepress-modal.modal-type-admin .cat{
+    width: 200px;
+}
+#keys-guide .cat{
+	width: auto;
+	margin: 25px 0;
+}
+.threepress-modal.modal-type-admin .cat-title{
+	background: teal;
+	color: white;
+	padding: 2px 4px;;
+}
+.threepress-modal.modal-type-admin .subcat-title{
+	color: #ea16f9;
+}
+.threepress-modal.modal-type-admin span{
+	font-weight: bold;
+}
+.threepress-modal.modal-type-admin .subcat{
+	padding-left: 10px;
+	margin: 10px 0;
+}
+.threepress-modal.modal-type-admin .subsubcat{
+	padding-left: 10px;
+}
+.threepress-modal.modal-type-admin .subsubcat:last-of-type{
+	margin-bottom: 8px;
+}
+.threepress-modal.modal-type-admin .bottom-left{
+	position: absolute;
+	bottom: 20px;
+	left: 20px;
+}
+.threepress-modal.modal-type-admin .modal-row{
+	margin: 10px 0;
+}
+
+.threepress-modal.modal-type-admin .left-panel div{
+	cursor: pointer;
+}
+.threepress-modal.modal-type-admin .menu-toggle{
+	color: aliceblue;
+}
+.threepress-modal.modal-type-admin .column{
+	min-height: 100%;
 }

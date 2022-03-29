@@ -35,8 +35,6 @@ import HUD from './world_ui/HUD.js?v=121'
 
 lib.tstack('add_world')
 
-
-
 // basic init
 const eles = document.querySelectorAll('#threepress-world')
 const world_ele = eles[0] // ( already checked in init_base.js )
@@ -44,6 +42,11 @@ world_ele.innerHTML = ''
 world_ele.appendChild( RENDERER.domElement )
 // SCENE.add( CAMERA ) // ( move to player on load )
 SCENE.add( LIGHT.hemispherical )
+SCENE.add( LIGHT.directional )
+SCENE.add( LIGHT.directional.target )
+
+
+
 if( eles.length > 1 ){
 	console.log('too many Threepress World elements found', eles )
 	// lib.hal('error', 'currently only one Threepress world is allowed per page', 5 * 1000 )
@@ -129,6 +132,8 @@ const init_toon = async( event, toon_data, is_player1 ) => {
 
 	PLAYER.begin_pulse()
 
+	if( is_player1 ) LIGHT.track( PLAYER, true )
+
 }
 
 
@@ -152,9 +157,10 @@ const init_world = async( world_data ) => {
 			if( 0 && world_data._plane_color ){
 				planemat.color.set( world_data._plane_color )
 			}else{
-				planemat.map = texLoader.load('https://arcade.threepress.shop/resource/texture/tile.jpg')
+				planemat.map = texLoader.load( THREEPRESS.ARCADE.URLS.https +  '/resource/texture/tile.jpg')
 			}
 			const plane = new Mesh( planegeo, planemat )
+			plane.receiveShadow = true
 			plane.rotation.x = -Math.PI /2
 			plane.scale.multiplyScalar( 100 )
 			SCENE.add( plane )
@@ -294,75 +300,12 @@ const ping_toon = uuid => {
 }
 
 
-// const handle_walk = event => {
-// 	const { type, state, uuid, data } = event
-// 	const toon = TOONS[ uuid ]
-// 	if( !toon ) return ping_toon( uuid )
-// 	if( !toon.GROUP ) return // pre-load
-
-// 	toon.animate('Walk', state )
-// 	toon.state.walking = state
-
-// 	const { pos, quat } = data
-// 	toon.GROUP.position.set( pos.x, pos.y, pos.z )
-// 	toon.GROUP.quaternion.set( quat._x, quat._y, quat._z, quat._w )
-// 	// toon.lerpto.position.count = 100
-// 	// toon.lerpto.position.vec.set( pos.x, pos.y, pos.z )
-
-// }
-
-// const handle_turn = event => {
-
-// 	const { type, state, uuid, data } = event
-// 	// const rad = data
-// 	const toon = TOONS[ uuid ]
-// 	if( !toon ) return ping_toon( uuid )
-// 	if( !toon.GROUP || !data ) return // pre-
-// 	// if( toon.player1 ) return // always client authoritative
-
-// 	toon.animate('Walk', state )
-// 	setTimeout(()=>{
-// 		toon.animate('Walk')
-// 	}, 500 )
-
-// 	console.log('data: ', data )
-
-// 	const { quat } = data
-
-// 	toon.GROUP.quaternion.set( quat._x, quat._y, quat._z, quat._w )
-// 	// rotation.y = rad
-
-// 	// console.log('receiving turn:', rad )
-// // 	toon.state.turning = state
-
-// // 	toon.GROUP.rotation.y = rad
-// // 	// toon.lerpto.rotation.count = 50
-// // 	// toon.lerpto.rotation.rad = rad
-// // 	// set( pos.x, pos.y, pos.z )
-// }
-
-// const handle_strafe = event => {
-// 	const { type, state, uuid, data } = event
-// 	const toon = TOONS[ uuid ]
-// 	if( !toon ) return ping_toon( uuid )
-// 	if( !toon.GROUP ) return // pre-load
-
-// 	toon.animate('Walk', state )
-// 	toon.state.strafing = state
-
-// 	const { pos, quat } = data
-// 	toon.GROUP.position.set( pos.x, pos.y, pos.z )
-// 	toon.GROUP.quaternion.set( quat._x, quat._y, quat._z, quat._w )
-// 	// toon.GROUP.position.set( pos.x, pos.y, pos.z )
-// 	// toon.lerpto.position.count = 100
-// 	// toon.lerpto.position.vec.set( pos.x, pos.y, pos.z )
-
-// }
-
 
 
 const handle_core = event => {
 	const { uuid, p, q, s, force } = event
+
+	// p q s - position quaternion state[walking|strafing]
 
 	// console.log( event )
 
@@ -371,10 +314,9 @@ const handle_core = event => {
 	if( !toon ) return ping_toon( uuid )
 	if( !toon.GROUP ) return // pre-load
 
-	toon.animate('Walk', s.s || s.w )
+	toon.animate('walk', s.s || s.w )
 	toon.state.strafing = s.s
 	toon.state.walking = s.w
-
 
 	// pos
 	if( toon.lerping ){
@@ -407,6 +349,34 @@ const handle_core = event => {
 
 
 
+const update_toon_model = event => {
+	const { toon } = event
+	const le_toon = TOONS[ toon.uuid ]
+	if( !le_toon ){
+		console.log('missing toon for update: ', toon)
+		return
+	}
+
+	le_toon.deconstruct_model()
+
+	le_toon.world_slug = toon.world_slug
+	le_toon.world_modeltype = toon.world_modeltype
+
+	le_toon.construct_model( true )
+	.then( res => {
+
+		console.log('updated toon ', le_toon )
+
+
+		// CAMERA. blorb
+	})
+
+}
+
+
+
+
+
 
 const set_active = event => {
 	const { state } = event
@@ -419,11 +389,14 @@ const set_active = event => {
 }
 
 
+
 BROKER.subscribe('WORLD_SET_ACTIVE', set_active )
 BROKER.subscribe('WORLD_INIT', init_entry )
 BROKER.subscribe('TOON_INIT', init_toon )
 BROKER.subscribe('WORLD_ADD_VOXEL', add_voxel )
 BROKER.subscribe('TOON_CORE', handle_core )
+BROKER.subscribe('TOON_UPDATE_MODEL', update_toon_model )
 // BROKER.subscribe('TOON_WALK', handle_walk )
 // BROKER.subscribe('TOON_TURN', handle_turn )
 // BROKER.subscribe('TOON_STRAFE', handle_strafe )
+

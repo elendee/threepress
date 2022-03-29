@@ -50,9 +50,9 @@ for( const viewer of viewers ){
 const world_ele = document.getElementById('threepress-world')
 if( world_ele ){
 	import( THREEPRESS.plugin_url + '/static/js/add_world.js?v=121')
-	.catch( err => {
-		console.log('error initializing world: ', err )
-	})
+	// .catch( err => {
+	// 	console.log('error initializing world: ', err )
+	// })
 }
 
 

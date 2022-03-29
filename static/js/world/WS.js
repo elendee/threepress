@@ -11,15 +11,14 @@ let bound = 0
 let packet, SOCKET 
 
 
-// const url = 'wss://arcade.threepress.shop/ws:9011'
-const url = 'ws://localhost:9001/ws'
+
 
 
 const init = ele => {
 
 	spinner.show( ele )
 
-	SOCKET = new WebSocket( url )
+	SOCKET = new WebSocket( THREEPRESS.ARCADE.URLS.websocket )
 
 	SOCKET.onmessage = function( msg ){
 
@@ -65,6 +64,10 @@ const init = ele => {
 
 			case 'chat':
 				BROKER.publish('CHAT_ADD', packet )
+				break;
+
+			case 'update_toon_model':
+				BROKER.publish('TOON_UPDATE_MODEL', packet )
 				break;
 
 			case 'hal':
