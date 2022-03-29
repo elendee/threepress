@@ -1,7 +1,7 @@
 import BINDS from './BINDS.js?v=121'
 import BROKER from '../world/WorldBroker.js?v=121'
 import STATE from '../world/STATE.js?v=121'
-import RENDERER from '../world/RENDERER.js?v=121'
+// import RENDERER from '../world/RENDERER.js?v=121'
 import PLAYER from '../world/PLAYER.js?v=121'
 
 
@@ -49,20 +49,20 @@ const handle_keydown = ( e ) => {
 
 			switch( e.keyCode ){
 
-			case BINDS.world.walk.forward: 
-			case BINDS.world.walk2.forward: 
+			case BINDS.world.run.forward: 
+			case BINDS.world.run2.forward: 
 				BROKER.publish('MOVE_KEY', {
-					type: 'walking',
+					type: e.shiftKey ? 'walking' : 'running',
 					state: 1,
 				})
 				// up / down arrow keys - not good in a browser
 				if( e.keyCode === 38 || e.keyCode === 40 ) e.preventDefault()
 				break;
 
-			case BINDS.world.walk.back:
-			case BINDS.world.walk2.back:
+			case BINDS.world.run.back:
+			case BINDS.world.run2.back:
 				BROKER.publish('MOVE_KEY', {
-					type: 'walking',
+					type: e.shiftKey ? 'walking' : 'running',
 					state: -1,
 				})
 				break;
@@ -70,14 +70,14 @@ const handle_keydown = ( e ) => {
 			case BINDS.world.turn.port: 
 				BROKER.publish('MOVE_KEY', {
 					type: 'turning',
-					state: -1,
+					state: 1,
 				})
 				break;
 
 			case BINDS.world.turn.starboard: 
 				BROKER.publish('MOVE_KEY', {
 					type: 'turning',
-					state: 1,
+					state: -1,
 				})
 				break;
 
@@ -202,18 +202,26 @@ const handle_keyup = ( e ) => {
 			*/
 
 			// walk
-			case BINDS.world.walk.forward:
-			case BINDS.world.walk2.forward:
-				BROKER.publish('MOVE_KEY', { // all the cosmetics
+			case BINDS.world.run.forward:
+			case BINDS.world.run2.forward:
+				BROKER.publish('MOVE_KEY', {
 					type: 'walking',
+					state: 0,
+				})
+				BROKER.publish('MOVE_KEY', {
+					type: 'running',
 					state: 0,
 				})
 				break
 
-			case BINDS.world.walk.back:
-			case BINDS.world.walk2.back:
+			case BINDS.world.run.back:
+			case BINDS.world.run2.back:
 				BROKER.publish('MOVE_KEY', {
 					type: 'walking',
+					state: 0,
+				})
+				BROKER.publish('MOVE_KEY', {
+					type: 'running',
 					state: 0,
 				})
 				break
@@ -370,14 +378,26 @@ const handle_keyup = ( e ) => {
 }
 
 
-
+const world = document.getElementById('threepress-world')
+let worldbound
 const handle_mouseout = e => {
-	for( const action in PLAYER.animation_map[ PLAYER.world_modeltype ] ){
-		BROKER.publish('MOVE_KEY', {
-			type: action,
-			state: 0,
-		})
+	// console.log( '>>', e.target )
+	if( e.target.id == 'threepress-world'){
+		worldbound = world.getBoundingClientRect()
+		if( e.clientY > worldbound.top || 
+			e.clientY < worldbound.bottom || 
+			e.clientX > worldbound.right || 
+			e.clientX < worldbound.left ){
+				PLAYER.rest()
+				// click_up({ which: 3, caller: 'mouseout' }) 
+				// click_up({ which: 1, caller: 'mouseout' }) 
+				BROKER.publish('WORLD_SET_ACTIVE', { 
+					state: false 
+				})	
+				BROKER.publish('CLICKUP')
+		}
 	}
+	// if( e.target.id == 'threepress-world-canvas') PLAYER.rest()
 }
 
 
@@ -396,6 +416,28 @@ const keys = {
 
 
 
+
+
+
+
+
+
+const handle_move_key = event => {
+	/*
+		passes through here just to be proper..
+	*/
+	const { type, state } = event
+
+	PLAYER.set_move_state( type, state )
+
+}
+
+
+
+
+
+
+BROKER.subscribe('MOVE_KEY', handle_move_key )
 
 
 export default keys

@@ -43,20 +43,20 @@ const init = ele => {
 				BROKER.publish('TOON_CORE', packet )
 				break;
 
-			case 'walk':
-				console.log("deprecated ws packet: ", packet )
-				// BROKER.publish('TOON_WALK', packet )
-				break;
+			// case 'walk':
+			// 	console.log("deprecated ws packet: ", packet )
+			// 	// BROKER.publish('TOON_WALK', packet )
+			// 	break;
 
-			case 'turn':
-				console.log("deprecated ws packet: ", packet )
-				// BROKER.publish('TOON_TURN', packet )
-				break;
+			// case 'turn':
+			// 	console.log("deprecated ws packet: ", packet )
+			// 	// BROKER.publish('TOON_TURN', packet )
+			// 	break;
 
-			case 'strafe':
-				console.log("deprecated ws packet: ", packet )
-				// BROKER.publish('TOON_STRAFE', packet )
-				break;
+			// case 'strafe':
+			// 	console.log("deprecated ws packet: ", packet )
+			// 	// BROKER.publish('TOON_STRAFE', packet )
+			// 	break;
 
 			case 'pong_toon':
 				BROKER.publish('TOON_INIT', packet)

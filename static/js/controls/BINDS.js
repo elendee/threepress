@@ -88,19 +88,19 @@ const default_binds = {
 
 	world: {
 
-		walk: {
+		run: {
 			forward: 87, // w
 			back: 83, // s
 		},
 
-		walk2: {
+		run2: {
 		 	forward: 40, // arr up
 		 	back: 38 // arr down
 		},
 
 		turn: {
-			starboard: 65, // a
-			port: 68, // d
+			port: 65, // a
+			starboard: 68, // d
 		},
 
 		turn2: {

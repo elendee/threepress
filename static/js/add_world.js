@@ -31,7 +31,7 @@ import MOUSE from './controls/MOUSE.js?v=121'
 import CHAT from './world_ui/CHAT.js?v=121'
 import TARGET from './world_ui/TARGET.js?v=121'
 import HUD from './world_ui/HUD.js?v=121'
-
+import varLogger from './helpers/varLogger.js?v=121'
 
 lib.tstack('add_world')
 
@@ -40,6 +40,8 @@ const eles = document.querySelectorAll('#threepress-world')
 const world_ele = eles[0] // ( already checked in init_base.js )
 world_ele.innerHTML = ''
 world_ele.appendChild( RENDERER.domElement )
+world_ele.appendChild( varLogger )
+
 // SCENE.add( CAMERA ) // ( move to player on load )
 SCENE.add( LIGHT.hemispherical )
 SCENE.add( LIGHT.directional )
@@ -103,8 +105,10 @@ const init_toon = async( event, toon_data, is_player1 ) => {
 	// console.log('init toon toon_data:', toon_data, is_player1 )
 
 	if( is_player1 ){
+
 		PLAYER.hydrate( toon_data )
 		PLAYER.player1 = true
+
 	}
 
 	const toon = is_player1 ? PLAYER : new Player( toon_data )
@@ -132,7 +136,25 @@ const init_toon = async( event, toon_data, is_player1 ) => {
 
 	PLAYER.begin_pulse()
 
-	if( is_player1 ) LIGHT.track( PLAYER, true )
+	if( is_player1 ){
+
+		LIGHT.track( PLAYER, true )
+
+		BROKER.publish('LOGGER_LOG', {
+			parent_obj: PLAYER.animation.actions,
+			keys: ['walking', 'running', 'idle'],
+			callback: value => {
+				return value?.isRunning?.()
+			}
+		})
+		setTimeout(() => {
+			BROKER.publish('LOGGER_STATE', { 
+				state: true,
+				ms: 500,
+			} )			
+		}, 1000 )
+
+	}
 
 }
 
@@ -305,17 +327,22 @@ const ping_toon = uuid => {
 const handle_core = event => {
 	const { uuid, p, q, s, force } = event
 
-	// p q s - position quaternion state[walking|strafing]
+	// p q s - position quaternion state[walking|strafing|running]
 
-	// console.log( event )
+	console.log( s )
 
 	if( PLAYER.uuid === uuid && !force ) return
+
 	const toon = TOONS[ uuid ]
 	if( !toon ) return ping_toon( uuid )
 	if( !toon.GROUP ) return // pre-load
 
-	toon.animate('walk', s.s || s.w )
+	toon.animate('running', s.r, 500 )
+	toon.animate('walking', s.w, 500 )
+	toon.animate('strafing', s.s, 500 )
+	
 	toon.state.strafing = s.s
+	toon.state.running = s.r
 	toon.state.walking = s.w
 
 	// pos

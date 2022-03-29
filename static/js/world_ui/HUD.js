@@ -123,6 +123,8 @@ const build_toon_listing = res => {
 	wrapper.appendChild( img )
 	wrapper.addEventListener('click', () => {
 		if( !confirm('set this to be your new toon?') ) return
+		const close = document.querySelector('.threepress-modal-close')
+		if( close ) close.click()
 		BROKER.publish('SOCKET_SEND', {
 			type: 'update_toon_model',
 			modeltype: modeltype,

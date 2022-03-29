@@ -147,7 +147,7 @@ function click_up( e ){
 			tracking_look = false
 			// const anim_map = PLAYER.animation_map[ PLAYER.world_modeltype ]
 			// if( !anim_map ) return
-			PLAYER.animate('turning', false )
+			PLAYER.animate('turning', false, 1000 )
 			document.removeEventListener('mousemove', track_look )
 			// clearInterval( PLAYER.sending_track )
 			// delete PLAYER.sending_track 
@@ -404,6 +404,11 @@ function check_clickable( obj ){
 
 
 
+const click_up_both = event => {
+	click_up({ which: 3, caller: 'mouseout' }) 
+	click_up({ which: 1, caller: 'mouseout' }) 	
+}
+
 
 
 
@@ -414,21 +419,23 @@ RENDERER.domElement.addEventListener('mouseup', click_up )
 
 RENDERER.domElement.addEventListener('contextmenu', event => event.preventDefault())
 
-BROKER.subscribe('MOUSE_UNPAN', unpan_cam )
-BROKER.subscribe('QUERY_DROP_TARGET', query_drop )
-BROKER.subscribe('CAMERA_LOOK_HOME', camera_look_home )
+// RENDERER.domElement.addEventListener('mouseout', e => { 
+// 	// return // dev
+// 	click_up({ which: 3, caller: 'mouseout' }) 
+// 	click_up({ which: 1, caller: 'mouseout' }) 
+// 	BROKER.publish('WORLD_SET_ACTIVE', { 
+// 		state: false 
+// 	})	
+// })
 
-
-RENDERER.domElement.addEventListener('mouseout', e => { 
-	click_up({ which: 3, caller: 'mouseout' }) 
-	click_up({ which: 1, caller: 'mouseout' }) 
+document.addEventListener('visibilitychange', event => {
 	BROKER.publish('WORLD_SET_ACTIVE', { 
-		state: false 
-	})	
+		state: document.visibilityState !== 'visible' 
+	})
+	// Howler.mute( document.visibilityState !== 'visible' )
 })
 
-
-// document.addEventListener('mouseout', e => { 
+// document.addEventListener('mouseout', e => {  // fires on everythign
 // 	console.log('doc out')
 // 	click_up({ which: 3, caller: 'mouseout' }) 
 // 	click_up({ which: 1, caller: 'mouseout' }) 
@@ -438,15 +445,10 @@ RENDERER.domElement.addEventListener('mouseout', e => {
 // })
 
 
-document.addEventListener('visibilitychange', event => {
-	BROKER.publish('WORLD_SET_ACTIVE', { 
-		state: document.visibilityState !== 'visible' 
-	})
-	// Howler.mute( document.visibilityState !== 'visible' )
-})
-
-
-
+BROKER.subscribe('MOUSE_UNPAN', unpan_cam )
+BROKER.subscribe('QUERY_DROP_TARGET', query_drop )
+BROKER.subscribe('CAMERA_LOOK_HOME', camera_look_home )
+BROKER.subscribe('CLICKUP', click_up_both )
 
 
 

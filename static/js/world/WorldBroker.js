@@ -30,7 +30,7 @@ class MessageBroker {
 
 }
 
-const broker = new MessageBroker()
+const broker = THREEPRESS.BROKER = new MessageBroker()
 
 export default broker
 

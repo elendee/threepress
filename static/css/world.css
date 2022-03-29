@@ -1,6 +1,17 @@
+#threepress-varlogger{
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	padding: 10px;
+	z-index: 9;
+	background: white;
+	opacity: .5;
+	pointer-events: none;
+}
 
 #threepress-world{
 	border:  3px solid transparent;
+	opacity: .7;
 }
 #threepress-world *{
 	font-family: monospace;
@@ -10,7 +21,8 @@
 	width:  100%;
 }
 #threepress-world.threepress-world-active{
-	border: 3px solid rgba(0,0,0,.3);
+	border: 3px solid rgba(50,20,20,.3);
+	opacity: 1;
 }
 
 #threepress-ui-wrapper{
@@ -189,7 +201,7 @@
 	border: 1px solid;
 	font-size: 14px;
 	color: lightgrey;
-	width: 100%;
+/* 	width: 100%; */
 	max-width: 400px;
 }
 

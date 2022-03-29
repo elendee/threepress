@@ -1,4 +1,4 @@
-
+import BROKER from './WorldBroker.js?v=121'
 import {
 	hal,
 	get_bbox,
@@ -21,7 +21,6 @@ import CAMERA from './CAMERA.js?v=121'
 const ANIM_STEP = 50
 
 
-
 class Entity {
 	
 	constructor( init ){
@@ -29,14 +28,13 @@ class Entity {
 		this.ongoing_anims = {}
 		this.state = {
 			walking: 0,
+			running: 0,
 			strafing: 0,
-			// turning: 0,
-			// moved: {
-			// 	x: false,
-			// 	y: false,
-			// 	z: false,
-			// },
 		}
+		this.last_states = {}
+		this.state_diffed = 0
+		this.previously_strafing = false
+		this.previously_walking = false
 		// might need later for server corrections.. maybe not though:
 		// this.lerpto = {
 		// 	position: {
@@ -63,9 +61,54 @@ class Entity {
 	}
 
 
+
+
+
+	update( delta_seconds ){
+
+		// animations
+		if( this.anim_mixer ){
+			this.anim_mixer.update( delta_seconds )
+			// console.log('anim')
+		}
+
+		// movement
+		// running
+		if( this.state.running > 0 ){
+			this.GROUP.translateZ( this.speed * delta_seconds )
+		}else if( this.state.running < 0 ){
+			this.GROUP.translateZ( -this.speed * delta_seconds )
+		} 
+		// walking
+		else if( this.state.walking > 0 ){
+			this.GROUP.translateZ( this.speed * delta_seconds * .5 )
+		}else if( this.state.walking < 0 ){
+			this.GROUP.translateZ( -this.speed * delta_seconds * .5 )
+		}
+		// strafing
+		else if( this.state.strafing > 0 ){
+			this.GROUP.translateX( -this.speed * delta_seconds )
+		}else if( this.state.strafing < 0 ){
+			this.GROUP.translateX( this.speed * delta_seconds )
+		}
+		
+		// turning
+		if( this.state.turning > 0 ){
+			this.GROUP.rotateY( 1.5 * delta_seconds )
+			// rotation.y -= 1.5 * delta_seconds
+		}else if( this.state.turning < 0 ){
+			this.GROUP.rotateY( -1.5 * delta_seconds )
+			// this.GROUP.rotation.y += 1.5 * delta_seconds
+		}
+
+	}
+
 	deconstruct_model(){
 		this.GROUP.remove( this.GROUP.MODEL )
 		delete this.GROUP.MODEL // may need to make a `destruct_model` method here
+		delete this.world_modeltype
+		delete this.world_slug
+		delete this.animation
 	}
 
 	async construct_model( is_update ){
@@ -100,7 +143,9 @@ class Entity {
 						}else{
 							entity.GROUP = new Group()
 						}
+
 						entity.MODEL = obj.scene
+						entity.GROUP.add( entity.MODEL )	
 
 						// shadows
 						entity.MODEL.traverse(ele => {
@@ -109,11 +154,12 @@ class Entity {
 								ele.castShadow = true
 							}
 						})
-						entity.GROUP.add( entity.MODEL )	
 
 						// animations
 						if( obj.animations && obj.animations.length ){
-							entity.add_animation( obj, entity.standard_actions, entity.animation_map[ modeltype ] )
+							const map = entity.animation_map[ modeltype ]
+							console.log('adding anim map: ', map )
+							entity.add_animation( obj, map )
 						}
 
 						// done
@@ -154,10 +200,12 @@ class Entity {
 
 
 
-	add_animation( model, desired_animations, animation_map ){
+	add_animation( model, animation_map ){
 
-		if( !model || !desired_animations || !animation_map ){
-			console.log( 'invalid AnimationStudio', desired_animations, animation_map, model )
+		if( !model || !animation_map ){
+			console.log( 'invalid animation init' )
+			console.log( 'animation_map', animation_map )
+			console.log( 'model', model )
 			return
 		}
 
@@ -168,112 +216,88 @@ class Entity {
 			fades: {},
 		}
 	
-		let local_name
-		for( const type of desired_animations ){
-			// if( !this.standard_actions[ type ]) continue
-			local_name = animation_map[ type ]
-			const clip = AnimationClip.findByName( this.animation.clips, local_name )
+		let given_name, clip
+		for( const type of Object.keys( animation_map ) ){
+			given_name = animation_map[ type ]?.localized
+			clip = AnimationClip.findByName( this.animation.clips, given_name )
 			if( !clip ){
-				console.log('animation map failed to find: ', type )
-				continue
+				if( type === 'running' ){ // ( a weird edge case - no 'Run' available )
+					clip = AnimationClip.findByName( this.animation.clips, 'Run_Carry' )
+				}
+				if( !clip ){
+					console.log('animation map failed to find: ', type )
+					continue					
+				}
+
 			}
 			this.animation.actions[ type ] = this.animation.mixer.clipAction( clip )
-			this.animation.actions[ type ].enabled = true
 		}
 
 
 	}
 
 
-	clearFade( name ){
-		clearInterval( this.animation.fades[ name ].interval )
-		clearTimeout( this.animation.fades[ name ].timeout )
-		delete this.animation.fades[ name ]
-	}
-
-
-	animate( name, state, fadeN ){
-		if( !this.animation ) return
-		if( !name && !state ){
-			this.list_anims()
-			return
-		}
-		const action = this.animation.actions[ name ]
-		if( !action ){
-			console.log('action not found: ', name )
-			return
-		}
-
-		// console.log( name, state, fadeN )
-
-		let fades, step
-		if( typeof fadeN === 'number' ){
-			fades = this.animation.fades
-		}
-
-		if( state ){
-			if( action.isRunning() ){
-				console.log('action still running; skip: ' + name )
-				return
-			}
-
-			if( fades ){
-				action.weight = 0
-				action.enabled = true
-				// step = ANIM_STEP / fadeN
-				step = fadeN / ANIM_STEP
-
-				if( fades[ name ] ) this.clearFade( name )
-				fades[ name ] = {}
-				fades[ name ].interval = setInterval(() => {
-					action.weight += step
-				}, ANIM_STEP )
-				fades[ name ].timeout = setTimeout(() => {
-					this.clearFade( name )
-					console.log('end fade in ', name )
-				}, fadeN )
-			}else{
-				console.log('insta anim: ', name, state )
-			}
-
-			action.play() // maybe else() this ????????
-
-		}else{
-
-			if( fades ){
-				// action.weight = 0
-				// action.enabled = true
-				step = fadeN / ANIM_STEP
-				
-				if( fades[ name ] ) this.clearFade( name )
-				fades[ name ] = {}
-				fades[ name ].interval = setInterval(() => {
-					action.weight -= step
-				}, ANIM_STEP )
-				fades[ name ].timeout = setTimeout(() => {
-					this.clearFade( name )
-					console.log('end fade out ', name )
-				}, fadeN )
-			}else{
-				action.stop()
-				console.log('insta anim: ', name, state )
-			}
-
-		}
-	
-	}
-
-
-	rest(){
-		/*
-			called whenever no anims are detected
+	send_state_immediate( type, state ){
+		/* 
+			check for movement "ends" (keyUPS, when previously keyDOWN ) 
+			send END packet immediately to stop rubber banding
 		*/
-		if( !this.animation ) return
+		if( type === 'walking' ){
+			if( state ){
+				this.previously_walking = true
+				return false
+			}
+			if( this.previously_walking ){ // ( not walking now and was before )
+				this.previously_walking = false
+				return true
+			}
+		}else if( type === 'strafing' ){
+			if( state ){
+				this.previously_strafing = true
+				return false
+			}
+			if( this.previously_strafing ){ // ( not walking now and was before )
+				this.previously_strafing = false
+				return true
+			}
+		}
 
-		this.animation.mixer.stopAllAction()
-		this.animation.actions.idle?.play?.()
+		// ( can skip turning check )
+
+		return false
 
 	}
+
+
+
+	set_move_state( type, state ){
+		/*
+			this is called solely by keydowns currently
+			but here for abstraction
+
+		*/
+
+		this.state_diffed = this.last_states[ type ] !== state
+
+		// set state
+		this.state[ type ] = this.last_states[ type ] = state
+
+		// check for keyUPS (end immediate)
+		if( this.send_state_immediate( type, state )){
+			this.send_update()
+		// normal moves:
+		}else{
+			if( this.state_diffed ) this.need_stream = true
+		}
+
+		// set animate
+		const fade_time = this.animation_map[ this.world_modeltype ][ type ].fade
+		// console.log( type, fade_time )
+		if( this.state_diffed ) this.animate( type, state !== 0 , fade_time || 0 )
+
+	}
+
+
 
 
 	list_anims(){
@@ -290,40 +314,93 @@ class Entity {
 
 
 
-	update( delta_seconds ){
 
-		// animations
-		if( this.anim_mixer ){
-			this.anim_mixer.update( delta_seconds )
-			// console.log('anim')
+	// --------------- top level animation controls ---------------
+
+	clearFade( name ){
+		clearInterval( this.animation.fades[ name ] )
+		// clearTimeout( this.animation.fades[ name ].timeout ) // deprecated
+		delete this.animation.fades[ name ]
+	}
+
+
+	animate( name, state, fadeN ){
+		if( !this.animation || !name || typeof fadeN !== 'number' ){
+			console.log('invalid fade', name )
+			return
+		}
+		const action = this.animation.actions[ name ]
+		if( !action ){
+			console.log('action not found: ', name )
+			return
 		}
 
-		// movement
-		// walking
-		if( this.state.walking > 0 ){
-			this.GROUP.translateZ( this.speed * delta_seconds )
-		}else if( this.state.walking < 0 ){
-			this.GROUP.translateZ( -this.speed * delta_seconds )
+		console.log( name, state, fadeN )
+
+		let fades, step
+		if( typeof fadeN === 'number' ){
+			fades = this.animation.fades
 		}
-		// strafing
-		if( this.state.strafing > 0 ){
-			this.GROUP.translateX( -this.speed * delta_seconds )
-		}else if( this.state.strafing < 0 ){
-			this.GROUP.translateX( this.speed * delta_seconds )
-		}
-		// turning
-		if( this.state.turning > 0 ){
-			this.GROUP.rotateY( 1.5 * delta_seconds )
-			// rotation.y -= 1.5 * delta_seconds
-		}else if( this.state.turning < 0 ){
-			this.GROUP.rotateY( -1.5 * delta_seconds )
-			// this.GROUP.rotation.y += 1.5 * delta_seconds
+
+		if( state ){ // animate 'on'
+			// if( action.isRunning() ){
+			// 	console.log('action still running; skip: ' + name + ', weight: ' + action.weight )
+			// 	return
+			// }
+
+			action.weight = 0
+			action.enabled = true
+			step = ANIM_STEP / fadeN
+
+			if( fades[ name ] ) this.clearFade( name )
+			fades[ name ] = setInterval(() => {
+				action.weight = Math.min( 1, action.weight + step )
+				if( action.weight >= 1 ) this.clearFade( name )
+			}, ANIM_STEP )
+
+			// maybe else() this 
+			action.play() 
+
+		}else{ // animate 'off'
+
+			step = ANIM_STEP / fadeN
+			if( fades[ name ] ) this.clearFade( name )
+			fades[ name ] = setInterval(() => {
+				action.weight = Math.max( 0, action.weight - step )
+				if( action.weight <= 0 ){
+					this.clearFade( name )
+					action.stop()
+				}
+			}, ANIM_STEP )
+
 		}
 
 	}
 
 
+	rest(){
+		/*
+			called whenever no anims are detected
+		*/
+		if( !this.animation ) return
 
+		// this.animation.mixer.stopAllAction()
+		// const fade_time = this.animation_map[ this.world_modeltype ].idle.fade
+		this.animate('idle', true, 500 ) // fade_time || 0
+		setTimeout(() => {
+			for( const type in this.animation_map[ this.world_modeltype ] ){
+				if( type === 'idle' ) continue
+				this.set_move_state( type, 0 )
+				// BROKER.publish('MOVE_KEY', {
+				// 	type: action,
+				// 	state: 0,
+				// })
+			}			
+		}, 800)
+
+	}
+
+	// --------------- end top level animation controls ---------------
 
 }
 

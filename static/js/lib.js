@@ -978,7 +978,9 @@ const get_bbox = mesh => {
 }
 
 
-
+const trim = ( flo, n ) => {
+	return Number( flo.toFixed( n ) )
+}
 
 
 export {
@@ -1030,6 +1032,6 @@ export {
 	process_split,
 
 	get_bbox,
-
+	trim,
 }
 
