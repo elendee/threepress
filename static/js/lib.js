@@ -22,7 +22,7 @@ if( URLS ){
 	THREEPRESS.ARCADE.URLS = JSON.parse( URLS )
 }else{
 	THREEPRESS.ARCADE.URLS = {
-		websocket: 'wss://arcade.threepress.shop:9001/ws',
+		websocket: 'wss://arcade.threepress.shop:9011/ws',
 		https: 'https://arcade.threepress.shop',
 	}
 }
