@@ -129,7 +129,7 @@ const build_game_row = game => {
 
 	const row = document.createElement('div')
 	row.classList.add('threepress-row')
-	row.setAttribute('data-name', game.name )
+	row.setAttribute('data-slug', game.slug )
 
 	const image = document.createElement('div')
 	image.classList.add('threepress-column')
@@ -148,8 +148,8 @@ const build_game_row = game => {
 	description.classList.add('threepress-column')
 	description.innerHTML = game.description || 'no description'
 
-	row.appendChild( image )
 	row.appendChild( name )
+	row.appendChild( image )
 	row.appendChild( description )
 
 	let purchase_area = document.createElement('div')
@@ -174,7 +174,7 @@ const build_game_row = game => {
 
 		// key.addEventListener('keyup', e => {
 		// 	if( e.keyCode === 13 ){
-		// 		save_key( game.name, key.value )
+		// 		save_key( game.slug, key.value )
 		// 	}
 		// })
 
@@ -182,7 +182,7 @@ const build_game_row = game => {
 		// save.classList.add('button')
 		// save.innerHTML = 'unlock'
 		// save.addEventListener('click', () => {
-		// 	save_key( game.name, key.value )
+		// 	save_key( game.slug, key.value )
 		// })
 		// save_column.appendChild( save )
 		// purchase_area.appendChild( save_column )
@@ -190,22 +190,24 @@ const build_game_row = game => {
 		const link_column = document.createElement('div')
 		link_column.classList.add('threepress-column')
 
-		const linkout = document.createElement('a')
-		linkout.id = 'linkout'
-		linkout.target='_blank'
-		linkout.classList.add('button')
-		linkout.innerHTML = '+'
-		linkout.href = THREEPRESS.ARCADE.URLS.https + '/game/' + game.name + '?d=' + location.host
+		// const linkout = document.createElement('a')
+		// linkout.id = 'linkout'
+		// linkout.target='_blank'
+		// linkout.classList.add('button')
+		// linkout.innerHTML = '+'
+		// linkout.href = THREEPRESS.ARCADE.URLS.https + '/game/' + game.slug + '?d=' + location.host
 
-		link_column.appendChild( linkout )
+		// link_column.appendChild( linkout )
 
 		purchase_area.prepend( link_column )
 
-		const desc = document.createElement('div')
-		desc.classList.add('threepress-column')
-		desc.innerHTML = 'visit ' + game.name + ' at Threepress Arcade'
+		const link = document.createElement('a')
+		link.href = THREEPRESS.ARCADE.URLS.https + '/game/' + game.slug // + '?d=' + location.host
+		link.target='_blank'
+		link.classList.add('threepress-column', 'button')
+		link.innerHTML = 'visit ' + game.slug + ' at Threepress Arcade'
 
-		purchase_area.appendChild( desc )
+		purchase_area.appendChild( link )
 
 	}
 
@@ -235,6 +237,9 @@ const fill_games = async() => {
 		hal('error', 'error fetching games', 5 * 1000)
 		return
 	}
+
+	console.log( 'fill games res', res )
+
 	if( res.success ){
 		if( res.games ){
 			for( const r of res.games ){
@@ -246,8 +251,6 @@ const fill_games = async() => {
 	}else if( res.msg ){
 		hal('error', res.msg || 'failed to fetch games', 5 * 1000 )
 	}
-
-	console.log( 'fill games res', res )
 
 }
 

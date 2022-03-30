@@ -358,6 +358,7 @@ div.gallery-section:last-of-type{
 
 #tab-games .threepress-row{
 	margin-bottom: 40px;
+	cursor: initial;
 }
 
 #extension-menu{

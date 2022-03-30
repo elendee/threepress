@@ -263,7 +263,7 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	    	$id = '';
 
-	    	if( $attr['name'] ){
+	    	if( isset( $attr['name'] ) ){
 	    		$id = 'id="threepress-gallery-' . $attr['name'] . '"';
 	    	}
 
