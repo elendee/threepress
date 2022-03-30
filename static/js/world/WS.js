@@ -57,9 +57,12 @@ const init = ele => {
 			// 	console.log("deprecated ws packet: ", packet )
 			// 	// BROKER.publish('TOON_STRAFE', packet )
 			// 	break;
+			case 'remove_user':
+				BROKER.publish('TOON_REMOVE', packet )
+				break;			
 
 			case 'pong_toon':
-				BROKER.publish('TOON_INIT', packet)
+				BROKER.publish('TOON_INIT', packet )
 				break;
 
 			case 'chat':

@@ -177,10 +177,10 @@ const handle_keyup = ( e ) => {
 	// console.log( 'keyup: ', state, e.keyCode ) // keylog
 
 	switch( e.keyCode ){
-		case BINDS.global.close:
-			BROKER.publish('STEP_CLOSE', { esc: true })
-			global_handled = true
-			break;
+		// case BINDS.global.close:
+		// 	BROKER.publish('STEP_CLOSE', { esc: true })
+		// 	global_handled = true
+		// 	break;
 		case 17: // ctrl
 			STATE.ctrl_down = false
 			break;
@@ -311,13 +311,13 @@ const handle_keyup = ( e ) => {
 				BROKER.publish('MOUSE_UNPAN')
 				break;
 
-			case BINDS.world.targeting.find: 
-				BROKER.publish('TARGET_CLOSEST', { find: true })
-				break;
+			// case BINDS.world.targeting.find: 
+			// 	BROKER.publish('TARGET_CLOSEST', { find: true })
+			// 	break;
 
-			case BINDS.world.targeting.ships:
-				BROKER.publish('TARGET_CLOSEST', { ship: true })
-				break;
+			// case BINDS.world.targeting.ships:
+			// 	BROKER.publish('TARGET_CLOSEST', { ship: true })
+			// 	break;
 
 			case BINDS.world.hyperjump:
 				BROKER.publish('SYSTEM_REQUEST_JUMP')

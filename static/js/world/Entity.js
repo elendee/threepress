@@ -335,7 +335,7 @@ class Entity {
 			return
 		}
 
-		console.log( name, state, fadeN )
+		// console.log( name, state, fadeN )
 
 		let fades, step
 		if( typeof fadeN === 'number' ){

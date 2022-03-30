@@ -112,17 +112,19 @@ const build_toon_listing = res => {
 
 	const { filename, modeltype } = res
 
+	const formatted = filename.replace(/_/g, ' ').replace(/.gltf/i, '').replace(/.glb/i, '').replace(/.fbx/i, '')
+
 	const wrapper = document.createElement('div')
 	wrapper.classList.add('threepress-toon-listing')
 	// wrapper.setAttribute('data-slug', filename )
 	const namediv = document.createElement('div')
-	namediv.innerHTML = filename.replace(/_/g, ' ').replace(/.gltf/i, '').replace(/.glb/i, '').replace(/.fbx/i, '')
-	const img = document.createElement('img')
-	img.src = THREEPRESS.ARCADE.URLS.https + '/resource/world-model-img/' + filename + '.jpg'
+	namediv.innerHTML = formatted
 	wrapper.appendChild( namediv )
-	wrapper.appendChild( img )
+	// const img = document.createElement('img')
+	// img.src = THREEPRESS.ARCADE.URLS.https + '/resource/world-model-img/' + filename + '.jpg'
+	// wrapper.appendChild( img )
 	wrapper.addEventListener('click', () => {
-		if( !confirm('set this to be your new toon?') ) return
+		// if( !confirm('set ' + formatted + ' to be your new toon?') ) return
 		const close = document.querySelector('.threepress-modal-close')
 		if( close ) close.click()
 		BROKER.publish('SOCKET_SEND', {

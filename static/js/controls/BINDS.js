@@ -68,7 +68,7 @@ const default_binds = {
 
 	global: {
 
-		close: 27,
+		// close: 27,
 
 		chat: 13,
 
@@ -80,9 +80,9 @@ const default_binds = {
 
 		send: 13,
 
-		hail: 72, // h
+		// hail: 72, // h
 
-		party: 89, // y
+		// party: 89, // y
 		
 	},
 
@@ -113,22 +113,22 @@ const default_binds = {
 			starboard: 69, // e
 		},
 		
-		actions: {
-			one: 49,
-			two: 50,
-			three: 51,
-			four: 52
-		},
+		// actions: {
+		// 	one: 49,
+		// 	two: 50,
+		// 	three: 51,
+		// 	four: 52
+		// },
 
-		interact: 76, // l
+		// interact: 76, // l
 
-		targeting: {
+		// targeting: {
 
-			find: 70, // f
+		// 	find: 70, // f
 
-			ships: 84, // t
+		// 	ships: 84, // t
 
-		},
+		// },
 
 		// hotkeys: {
 		// 	pilot: 80, // p

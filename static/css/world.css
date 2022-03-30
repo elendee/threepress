@@ -85,7 +85,7 @@
 	overflow-y: auto;
 	pointer-events: initial;
 	display: none;
-	background: white;
+	background: grey;
 	width: 100%;
 	padding: 50px 10px 10px 10px;
 }
@@ -95,7 +95,9 @@
 .threepress-toon-listing{
 	cursor: pointer;
 }
-
+.threepress-toon-listing:hover{
+	background: rgba(255, 255, 255, .2)
+}
 
 
 /*chat*/

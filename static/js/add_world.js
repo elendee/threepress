@@ -31,7 +31,7 @@ import MOUSE from './controls/MOUSE.js?v=121'
 import CHAT from './world_ui/CHAT.js?v=121'
 import TARGET from './world_ui/TARGET.js?v=121'
 import HUD from './world_ui/HUD.js?v=121'
-import varLogger from './helpers/varLogger.js?v=121'
+// import varLogger from './helpers/varLogger.js?v=121'
 
 lib.tstack('add_world')
 
@@ -40,7 +40,7 @@ const eles = document.querySelectorAll('#threepress-world')
 const world_ele = eles[0] // ( already checked in init_base.js )
 world_ele.innerHTML = ''
 world_ele.appendChild( RENDERER.domElement )
-world_ele.appendChild( varLogger )
+// world_ele.appendChild( varLogger )
 
 // SCENE.add( CAMERA ) // ( move to player on load )
 SCENE.add( LIGHT.hemispherical )
@@ -105,10 +105,13 @@ const init_toon = async( event, toon_data, is_player1 ) => {
 	// console.log('init toon toon_data:', toon_data, is_player1 )
 
 	if( is_player1 ){
-
 		PLAYER.hydrate( toon_data )
 		PLAYER.player1 = true
-
+	}else{
+		if( TOONS[ toon_data.uuid ] ){
+			console.log('toon already exists', toon_data.uuid.substr(0,4) )
+			return
+		}
 	}
 
 	const toon = is_player1 ? PLAYER : new Player( toon_data )
@@ -271,6 +274,10 @@ const init_entry = async( event ) => {
 
 	setTimeout(() => {
 		BROKER.publish('CAMERA_LOOK_HOME')
+		BROKER.publish('SOCKET_SEND', {
+			type: 'ping_toon',
+			all: true
+		})
 	}, 2000)
 
 	// BROKER.publish('CONTROLS_TARGET', {
@@ -329,7 +336,7 @@ const handle_core = event => {
 
 	// p q s - position quaternion state[walking|strafing|running]
 
-	console.log( s )
+	// console.log( s )
 
 	if( PLAYER.uuid === uuid && !force ) return
 
@@ -391,16 +398,28 @@ const update_toon_model = event => {
 
 	le_toon.construct_model( true )
 	.then( res => {
-
 		console.log('updated toon ', le_toon )
-
-
-		// CAMERA. blorb
+		le_toon.rest()
 	})
 
 }
 
 
+
+
+const remove_toon = event => {
+	const{ uuid } = event
+	const toon = TOONS[ uuid ]
+	if( !toon ){
+		console.log('no toon for delete: ', uuid )
+		return
+	}
+
+	const group = toon.GROUP
+	SCENE.remove( group )
+	delete TOONS[ uuid ]
+
+}
 
 
 
@@ -419,10 +438,13 @@ const set_active = event => {
 
 BROKER.subscribe('WORLD_SET_ACTIVE', set_active )
 BROKER.subscribe('WORLD_INIT', init_entry )
-BROKER.subscribe('TOON_INIT', init_toon )
 BROKER.subscribe('WORLD_ADD_VOXEL', add_voxel )
+
+BROKER.subscribe('TOON_INIT', init_toon )
 BROKER.subscribe('TOON_CORE', handle_core )
 BROKER.subscribe('TOON_UPDATE_MODEL', update_toon_model )
+BROKER.subscribe('TOON_REMOVE', remove_toon )
+
 // BROKER.subscribe('TOON_WALK', handle_walk )
 // BROKER.subscribe('TOON_TURN', handle_turn )
 // BROKER.subscribe('TOON_STRAFE', handle_strafe )

@@ -135,7 +135,7 @@ const build_game_row = game => {
 	image.classList.add('threepress-column')
 
 	const img = document.createElement('img')
-	img.src = THREEPRESS.ARCADE.URLS.https + '/image/' + game.img_url
+	img.src = THREEPRESS.ARCADE.URLS.https + '/resource/image/' + game.img_url
 
 	image.appendChild( img )
 
@@ -203,7 +203,7 @@ const build_game_row = game => {
 
 		const desc = document.createElement('div')
 		desc.classList.add('threepress-column')
-		desc.innerHTML = 'add ' + game.name + ' to your site'
+		desc.innerHTML = 'visit ' + game.name + ' at Threepress Arcade'
 
 		purchase_area.appendChild( desc )
 
