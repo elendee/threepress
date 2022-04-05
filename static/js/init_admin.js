@@ -200,7 +200,9 @@ const fill_games = async() => {
 
 	// console.log('fetch games: ', url )
 
-	const res = await fetch_wrap( THREEPRESS.ARCADE.URLS.https + '/game_listing', 'get')
+	const res = await fetch_wrap( THREEPRESS.ARCADE.URLS.https + '/game_listing', 'post', {
+		domain: location.href,
+	})
 	if( !res ){
 		hal('error', 'error fetching games', 5 * 1000)
 		return
