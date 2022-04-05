@@ -387,6 +387,12 @@ div.gallery-section:last-of-type{
 	vertical-align: top
 }
 
+.threepress-purchase-area{
+	margin: 10px 0;
+}
+.threepress-purchase-area div{
+	margin: 10px 0;
+}
 
 
 @media screen and (max-width: 800px){

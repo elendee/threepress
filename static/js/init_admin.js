@@ -7,6 +7,7 @@ import {
 	fetch_wrap,
 	tstack,
 	hal,
+	format_date
 } from './lib.js?v=121'
 
 import build_form from './build_form.js?v=121'
@@ -125,7 +126,7 @@ const fill = async( type, scroll_top ) => {
 
 const build_game_row = game => {
 
-	console.log( game )
+	if( location.href.match(/localhost/) ) console.log( game )
 
 	const row = document.createElement('div')
 	row.classList.add('threepress-row')
@@ -155,61 +156,30 @@ const build_game_row = game => {
 	let purchase_area = document.createElement('div')
 	purchase_area.classList.add('threepress-column', 'threepress-purchase-area')
 
-	const save_column = document.createElement('div')
-	save_column.classList.add('threepress-column')
-
-	// const key = document.createElement('input')
-	// key.type = 'text'
-	// key.placeholder = 'enter your code here'
-	// save_column.appendChild( key )
-
-	if( game.purchased ){
-
-		purchase_area.innerHTML = '<span style="color: green">active</span>'
+	if( game.remaining ){
+		if( game.remaining > 0 ){
+			const days = Math.floor( game.remaining / 1000 / 60/ 60/ 24 )
+			purchase_area.innerHTML = `<div style="color: green">days remaining: ${ days }</div>`
+		}else{
+			if( game.last_pay ){
+				const exp = Math.floor( game.remaining / 1000 / 60 / 60/ 24 ) * -1
+				purchase_area.innerHTML = `<div style="color: orange">expired for: ${ exp } days</div>`				
+			}else{
+				purchase_area.innerHTML = `<div style="color: orange">unknown last payment</div>`				
+			}
+		}
 		row.classList.add('threepress-purchased')
-		// key.value = game.magic_key
-		// key.setAttribute('readonly', true )
-
 	}else{
-
-		// key.addEventListener('keyup', e => {
-		// 	if( e.keyCode === 13 ){
-		// 		save_key( game.slug, key.value )
-		// 	}
-		// })
-
-		// const save = document.createElement('div')
-		// save.classList.add('button')
-		// save.innerHTML = 'unlock'
-		// save.addEventListener('click', () => {
-		// 	save_key( game.slug, key.value )
-		// })
-		// save_column.appendChild( save )
-		// purchase_area.appendChild( save_column )
-
-		const link_column = document.createElement('div')
-		link_column.classList.add('threepress-column')
-
-		// const linkout = document.createElement('a')
-		// linkout.id = 'linkout'
-		// linkout.target='_blank'
-		// linkout.classList.add('button')
-		// linkout.innerHTML = '+'
-		// linkout.href = THREEPRESS.ARCADE.URLS.https + '/game/' + game.slug + '?d=' + location.host
-
-		// link_column.appendChild( linkout )
-
-		purchase_area.prepend( link_column )
-
-		const link = document.createElement('a')
-		link.href = THREEPRESS.ARCADE.URLS.https + '/game/' + game.slug // + '?d=' + location.host
-		link.target='_blank'
-		link.classList.add('threepress-column', 'button')
-		link.innerHTML = 'visit ' + game.slug + ' at Threepress Arcade'
-
-		purchase_area.appendChild( link )
-
+		purchase_area.innerHTML = `<div style="color: orange">not active this domain</div>`				
 	}
+
+	const link = document.createElement('a')
+	link.href = THREEPRESS.ARCADE.URLS.https + '/game/' + game.slug // + '?d=' + location.host
+	link.target='_blank'
+	link.classList.add('threepress-column', 'button')
+	link.innerHTML = 'visit ' + game.name + ' at Threepress Arcade'
+
+	purchase_area.appendChild( link )
 
 	row.appendChild( purchase_area )
 
@@ -230,15 +200,13 @@ const fill_games = async() => {
 
 	// console.log('fetch games: ', url )
 
-	const res = await fetch_wrap( THREEPRESS.ARCADE.URLS.https + '/game_listing', 'post', { 
-		add_purchased: true,
-	})
+	const res = await fetch_wrap( THREEPRESS.ARCADE.URLS.https + '/game_listing', 'get')
 	if( !res ){
 		hal('error', 'error fetching games', 5 * 1000)
 		return
 	}
 
-	console.log( 'fill games res', res )
+	// console.log( 'fill games res', res )
 
 	if( res.success ){
 		if( res.games ){

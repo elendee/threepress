@@ -330,18 +330,24 @@ const fetch_wrap = ( url, method, body, no_spinner ) => {
 
 		if( !no_spinner ) spinner.show()
 
-		jQuery.ajax({
-			url : url,
-			data : body,
-			method : method,
-		})
+		let data = {}
+
+		if( method.match(/post/i)){
+			data.url = url
+			data.data = body
+			data.method = method
+		}else{
+			data = url
+		}
+
+		jQuery.ajax( data )
 		.then( res => {
 			if( typeof res === 'string' ){
 				try{
 					const r = JSON.parse( res )
 					resolve( r )
 				}catch( e ){
-					console.log( res )
+					console.log( 'err parse fetch_wrap: ', res )
 					reject( e )
 				}				
 			}else if( typeof res === 'object' ){
@@ -983,6 +989,42 @@ const trim = ( flo, n ) => {
 }
 
 
+const format_date = ( type, date, granular, apply_TZ ) => {
+	// granular just applies hours / min / seconds
+	// validity
+	let date_obj = new Date( date )
+	if( !date || date_obj.toString().match(/invalid/i) ){
+		return 'null or invalid date'
+	}
+
+	// timezone
+	if( apply_TZ ){
+		const offset = new Date().getTimezoneOffset() * 60 * 1000
+		const new_ms = date_obj.getTime() - offset
+		date_obj = new Date( new_ms )
+	}
+
+	// format
+	let res = ''
+
+	switch ( type ){
+
+		case 'slashes':
+			res = ( date_obj.getMonth() + 1 ) + '/' + date_obj.getDate() + '/' + ( date_obj.getYear() - 100 )
+			if( granular ) res += ' - ' + date_obj.getHours() + ':' + date_obj.getMinutes() + ':' + date_obj.getSeconds()
+			break;
+
+		default: 
+			break;
+
+	}
+
+	return res
+
+}
+
+
+
 export {
 
 	// base ui functions
@@ -1033,5 +1075,8 @@ export {
 
 	get_bbox,
 	trim,
+
+	format_date,
+
 }
 
