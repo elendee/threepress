@@ -7,7 +7,8 @@ import {
 	fetch_wrap,
 	tstack,
 	hal,
-	format_date
+	format_date,
+	get_domain,
 } from './lib.js?v=121'
 
 import build_form from './build_form.js?v=121'
@@ -198,10 +199,12 @@ const fill_games = async() => {
 
 	loaded.game = true
 
-	// console.log('fetch games: ', url )
+	const url = THREEPRESS.ARCADE.URLS.https + '/game_listing'
 
-	const res = await fetch_wrap( THREEPRESS.ARCADE.URLS.https + '/game_listing', 'post', {
-		domain: location.href,
+	console.log('requesting: ', location.href )
+
+	const res = await fetch_wrap( url, 'post', {
+		domain: get_domain( location.href ),
 	})
 	if( !res ){
 		hal('error', 'error fetching games', 5 * 1000)

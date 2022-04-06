@@ -1024,6 +1024,16 @@ const format_date = ( type, date, granular, apply_TZ ) => {
 }
 
 
+const get_domain = value => {
+	if( typeof value !== 'string' ){
+		log('flag', 'what is value', value)
+	}
+	if( value.match(/localhost/i) ) return 'localhost'
+	const match = ( value || '' ).match(/(?:\w+\.)+\w+/)
+	// const match = value.match(/(?!(w+)\.)\w*(?:\w+\.)+\w+/) // (exclude www)
+	return ( match ? match[0] : '' ).toLowerCase()
+}
+
 
 export {
 
@@ -1078,5 +1088,6 @@ export {
 
 	format_date,
 
+	get_domain,
 }
 
