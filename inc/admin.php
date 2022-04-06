@@ -91,10 +91,8 @@
 
 
     <div id='tab-games' class='section'>
-    	<h3>
-    		Games: 
-    		<!--a href="https://threepress.shop/product-category/extension/" target="_blank">https://threepress.shop/extensions</a-->
-    	</h3>
+    	<div id='server-messaging'>
+    	</div>
 
     </div>
 

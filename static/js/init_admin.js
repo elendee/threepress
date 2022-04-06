@@ -127,9 +127,9 @@ const fill = async( type, scroll_top ) => {
 
 const build_game_row = game => {
 
-	console.log('info to game row', game )
-
-	if( location.href.match(/localhost/) ) console.log( game )
+	if( location.href.match(/localhost/) ){
+		console.log( 'info to game row: ', game )
+	}
 
 	const row = document.createElement('div')
 	row.classList.add('threepress-row')
@@ -201,24 +201,40 @@ const build_game_row = game => {
 
 const fill_games = async() => {
 
+	// ---------- server messagin ------------
+	/*
+		no need to await
+	*/
+
+	fetch_wrap( THREEPRESS.ARCADE.URLS.https + '/game_messaging', 'get')
+	.then( res => {
+		if( res && res.success ){
+			const messaging = document.getElementById('server-messaging')
+			if( !messaging ){
+				console.log('could not find server msg block')
+				return
+			}
+			messaging.innerHTML = res.html
+		}else{
+			console.log( res )
+		}
+	})
+
+	// ---------- the main funciton ----------
+
 	loaded.game = true
 
 	const url = THREEPRESS.ARCADE.URLS.https + '/game_listing'
 
-	// const domain = get_domain( location.href )
-
-	// console.log('requesting: ', location.href, domain )
+	// console.log('requesting: ', url )
 
 	const res = await fetch_wrap( url, 'get')
-	// , {
-	// 	domain: domain,
-	// })
 	if( !res ){
 		hal('error', 'error fetching games', 5 * 1000)
 		return
 	}
 
-	console.log( 'fill games res', res )
+	// console.log( 'fill games res', res )
 
 	if( res.success ){
 		if( res.games && res.games.length ){
@@ -242,6 +258,8 @@ const fill_games = async() => {
 	}else if( res.msg ){
 		hal('error', res.msg || 'failed to fetch games', 5 * 1000 )
 	}
+
+
 
 }
 

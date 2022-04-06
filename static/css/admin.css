@@ -394,6 +394,10 @@ div.gallery-section:last-of-type{
 	margin: 10px 0;
 }
 
+#server-messaging{
+	background: rgba(255, 0, 0, .1);
+	padding: 10px;
+}
 
 @media screen and (max-width: 800px){
 	.threepress-options-category .selection{
