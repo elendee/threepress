@@ -1,5 +1,5 @@
 
-import Entity from './Entity.js?v=121'
+import Entity from './Entity.js?v=130'
 
 
 class Player extends Entity {

@@ -7,14 +7,14 @@
 // add to init_scene
 
 
-import * as composer from '../inc/composer/ComposerSelectiveBloom.js?v=121'
+import * as composer from '../inc/composer/ComposerSelectiveBloom.js?v=130'
 
 import {
 	Scene,
-} from '../inc/three.module.js?v=121'
+} from '../inc/three.module.js?v=130'
 import {
 	GLTFLoader,
-} from '../inc/GLTFLoader.js?v=121'
+} from '../inc/GLTFLoader.js?v=130'
 
 import {
 	media_selector,
@@ -32,13 +32,13 @@ import {
 	validate_number,
 	random_hex,
 	// require_length,
-} from './lib.js?v=121'
+} from './lib.js?v=130'
 
-import { Modal } from './helpers/Modal.js?v=121'
+import { Modal } from './helpers/Modal.js?v=130'
 
-import init_scene from './helpers/init_scene.js?v=121'
+import init_scene from './helpers/init_scene.js?v=130'
 
-// import { HDRCubeTextureLoader } from '../inc/HDRCubeTextureLoader.js?v=121';
+// import { HDRCubeTextureLoader } from '../inc/HDRCubeTextureLoader.js?v=130';
 
 
 

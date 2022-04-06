@@ -1,4 +1,4 @@
-import BROKER from '../world/WorldBroker.js?v=121'
+import BROKER from '../world/WorldBroker.js?v=130'
 
 const ele = document.createElement('div')
 ele.id = 'threepress-varlogger'

@@ -1,11 +1,11 @@
-import RENDERER from '../world/RENDERER.js?v=121'
-import BROKER from '../world/WorldBroker.js?v=121'
-import { Modal } from '../helpers/Modal.js?v=121'
-import BINDS from '../controls/BINDS.js?v=121'
+import RENDERER from '../world/RENDERER.js?v=130'
+import BROKER from '../world/WorldBroker.js?v=130'
+import { Modal } from '../helpers/Modal.js?v=130'
+import BINDS from '../controls/BINDS.js?v=130'
 import { 
 	fetch_wrap,
 	hal,
-} from '../lib.js?v=121'
+} from '../lib.js?v=130'
 
 
 let wrapper

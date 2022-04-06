@@ -1,9 +1,9 @@
-import ThreepressGallery from './ThreepressGallery.js?v=121'
+import ThreepressGallery from './ThreepressGallery.js?v=130'
 
 import {
 	Box3,
 	Vector3,
-} from '../inc/three.module.js?v=121'
+} from '../inc/three.module.js?v=130'
 
 
 

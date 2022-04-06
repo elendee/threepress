@@ -5,7 +5,7 @@ Donate link: http://threepress.shop/donate
 Requires at least: 4.0
 Tested up to: 5.9
 Requires PHP: 5.6
-Stable tag: 1.2.1
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,6 +50,9 @@ All the galleries on a given page will be available in the global variable `THRE
 2. Added in v1.0 - heightmaps, fog and sunlight
 
 == Changelog ==
+= 1.3.0 =
+* Threepress World, multiplayer chat, initial rollout
+* non-fatal undefined variable in threepress.php fixed
 = 1.2.1 = 
 * activation error fixed
 = 1.2.0 =

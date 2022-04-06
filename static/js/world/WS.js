@@ -1,10 +1,10 @@
-import PLAYER from './PLAYER.js?v=121'
+import PLAYER from './PLAYER.js?v=130'
 import {
 	// random_hex,
 	hal,
 	spinner,
-} from '../lib.js?v=121'
-import BROKER from './WorldBroker.js?v=121'
+} from '../lib.js?v=130'
+import BROKER from './WorldBroker.js?v=130'
 
 
 let bound = 0

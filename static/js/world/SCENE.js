@@ -7,7 +7,7 @@ import {
 	// MeshLambertMaterial,
 	// Mesh,
 	// DoubleSide,
-} from '../../inc/three.module.js?v=121'
+} from '../../inc/three.module.js?v=130'
 
 
 const scene = new Scene()

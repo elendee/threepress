@@ -1,6 +1,6 @@
 import {
 	Color
-} from '../three.module.js?v=121'
+} from '../three.module.js?v=130'
 import { Pass } from './Pass.js';
 
 class RenderPass extends Pass {

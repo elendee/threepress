@@ -1,13 +1,13 @@
-import PLAYER from '../world/PLAYER.js?v=121'
-import CAMERA from '../world/CAMERA.js?v=121'
-import RAYCASTER from './RAYCASTER.js?v=121'
-import RENDERER from '../world/RENDERER.js?v=121'
-import SCENE from '../world/SCENE.js?v=121'
+import PLAYER from '../world/PLAYER.js?v=130'
+import CAMERA from '../world/CAMERA.js?v=130'
+import RAYCASTER from './RAYCASTER.js?v=130'
+import RENDERER from '../world/RENDERER.js?v=130'
+import SCENE from '../world/SCENE.js?v=130'
 import {
 	Vector3,
 } from '../../inc/three.module.js'
-import BROKER from '../world/WorldBroker.js?v=121'
-import STATE from '../world/STATE.js?v=121'
+import BROKER from '../world/WorldBroker.js?v=130'
+import STATE from '../world/STATE.js?v=130'
 
 // const buttons = ['left', 'middle', 'right']
 

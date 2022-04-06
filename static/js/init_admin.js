@@ -1,6 +1,6 @@
-// import hal from '../hal.js?v=121'
+// import hal from '../hal.js?v=130'
 
-import ThreepressGallery from './ThreepressGallery.js?v=121'
+import ThreepressGallery from './ThreepressGallery.js?v=130'
 
 import {
 	ModelRow,
@@ -9,9 +9,9 @@ import {
 	hal,
 	// format_date,
 	// get_domain,
-} from './lib.js?v=121'
+} from './lib.js?v=130'
 
-import build_form from './build_form.js?v=121'
+import build_form from './build_form.js?v=130'
 
 
 tstack('init_admin')
@@ -145,7 +145,7 @@ const build_game_row = game => {
 
 	const name = document.createElement('div')
 	name.classList.add('threepress-column')
-	name.innerHTML = '<h3>' + game.name + '</h3>'
+	name.innerHTML = `<h3>world: ${game.name}</h3>`
 	name.title = 'game name'
 
 	const description = document.createElement('div')
@@ -183,8 +183,15 @@ const build_game_row = game => {
 	link.target='_blank'
 	link.classList.add('threepress-column', 'button')
 	link.innerHTML = 'visit Threepress Arcade'
-
 	purchase_area.appendChild( link )
+
+	const version = document.createElement('div')
+	version.classList.add('clarification')
+	version.innerHTML = `
+	Server version: ${game.version}<br>
+	Threepress version: ${THREEPRESS.version}<br>
+	Keep plugin updated to ensure best performance.`
+	purchase_area.appendChild( version )
 
 	row.appendChild( purchase_area )
 

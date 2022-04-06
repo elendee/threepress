@@ -1,4 +1,4 @@
-import * as lib from './lib.js?v=121'
+import * as lib from './lib.js?v=130'
 // three stuff
 import {
 	Vector3,
@@ -9,29 +9,29 @@ import {
     MeshBasicMaterial,
     PlaneBufferGeometry,
     TextureLoader,
-} from '../inc/three.module.js?v=121'
-import SCENE from './world/SCENE.js?v=121'
-import RENDERER from './world/RENDERER.js?v=121'
-import CAMERA from './world/CAMERA.js?v=121'
-import LIGHT from './world/LIGHT.js?v=121'
+} from '../inc/three.module.js?v=130'
+import SCENE from './world/SCENE.js?v=130'
+import RENDERER from './world/RENDERER.js?v=130'
+import CAMERA from './world/CAMERA.js?v=130'
+import LIGHT from './world/LIGHT.js?v=130'
 // engine stuff
-import animate from './world/animate.js?v=121'
-import BROKER from './world/WorldBroker.js?v=121'
-import WS from './world/WS.js?v=121'
+import animate from './world/animate.js?v=130'
+import BROKER from './world/WorldBroker.js?v=130'
+import WS from './world/WS.js?v=130'
 // game stuff
-import STATE from './world/STATE.js?v=121'
-import Player from './world/Player.js?v=121'
+import STATE from './world/STATE.js?v=130'
+import Player from './world/Player.js?v=130'
 // registers
-import PLAYER from './world/PLAYER.js?v=121'
-import TOONS from './world/TOONS.js?v=121'
+import PLAYER from './world/PLAYER.js?v=130'
+import TOONS from './world/TOONS.js?v=130'
 // controls
-import KEYS from './controls/KEYS.js?v=121'
-import BINDS from './controls/BINDS.js?v=121'
-import MOUSE from './controls/MOUSE.js?v=121'
-import CHAT from './world_ui/CHAT.js?v=121'
-import TARGET from './world_ui/TARGET.js?v=121'
-import HUD from './world_ui/HUD.js?v=121'
-// import varLogger from './helpers/varLogger.js?v=121'
+import KEYS from './controls/KEYS.js?v=130'
+import BINDS from './controls/BINDS.js?v=130'
+import MOUSE from './controls/MOUSE.js?v=130'
+import CHAT from './world_ui/CHAT.js?v=130'
+import TARGET from './world_ui/TARGET.js?v=130'
+import HUD from './world_ui/HUD.js?v=130'
+// import varLogger from './helpers/varLogger.js?v=130'
 
 lib.tstack('add_world')
 
@@ -56,7 +56,7 @@ if( eles.length > 1 ){
 
 	const style = document.createElement('link')
 	style.rel = 'stylesheet'
-	style.href = THREEPRESS.plugin_url + '/static/css/world.css?v=121'
+	style.href = THREEPRESS.plugin_url + '/static/css/world.css?v=130'
 	document.head.appendChild( style )
 
 	const wrapper = document.createElement('div')

@@ -1,7 +1,7 @@
 import {
 	ShaderMaterial,
 	UniformsUtils
-} from './three.module.js?v=121';
+} from './three.module.js?v=130';
 import { Pass } from './Pass.js';
 
 var ShaderPass = function ( shader, textureID ) {
