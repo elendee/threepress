@@ -248,7 +248,11 @@ const init_entry = async( event ) => {
 
 	console.log('world init: ', event )
 	
-	const { type, world, toon } = event	
+	const { type, world, toon, version } = event	
+
+	if( version !== THREEPRESS.version ){
+		lib.hal('error', 'Threepress version does not match server - update plugin to avoid bugs', 20 * 1000 )
+	}
 
 	if( !world ){
 		console.log('missing ground init')

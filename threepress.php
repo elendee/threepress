@@ -111,6 +111,7 @@ if ( !class_exists( 'Threepress' ) ) {
 					'plugin_url' => plugins_url( '', __FILE__ ), //plugins_url(), // '/static/js/global.js', __FILE__
 					'home_url' => home_url(),
 					'ajaxurl' => admin_url( 'global-ajax.php' ),
+					'version' => $threepress_version,
 				)
 			);
 

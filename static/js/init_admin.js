@@ -7,8 +7,8 @@ import {
 	fetch_wrap,
 	tstack,
 	hal,
-	format_date,
-	get_domain,
+	// format_date,
+	// get_domain,
 } from './lib.js?v=121'
 
 import build_form from './build_form.js?v=121'
@@ -127,19 +127,21 @@ const fill = async( type, scroll_top ) => {
 
 const build_game_row = game => {
 
+	console.log('info to game row', game )
+
 	if( location.href.match(/localhost/) ) console.log( game )
 
 	const row = document.createElement('div')
 	row.classList.add('threepress-row')
 	row.setAttribute('data-slug', game.slug )
 
-	const image = document.createElement('div')
-	image.classList.add('threepress-column')
+	// const image = document.createElement('div')
+	// image.classList.add('threepress-column')
 
-	const img = document.createElement('img')
-	img.src = THREEPRESS.ARCADE.URLS.https + '/resource/image/' + game.img_url
+	// const img = document.createElement('img')
+	// img.src = THREEPRESS.ARCADE.URLS.https + '/resource/image/' + game.img_url
 
-	image.appendChild( img )
+	// image.appendChild( img )
 
 	const name = document.createElement('div')
 	name.classList.add('threepress-column')
@@ -151,7 +153,7 @@ const build_game_row = game => {
 	description.innerHTML = game.description || 'no description'
 
 	row.appendChild( name )
-	row.appendChild( image )
+	// row.appendChild( image )
 	row.appendChild( description )
 
 	let purchase_area = document.createElement('div')
@@ -160,7 +162,9 @@ const build_game_row = game => {
 	if( game.remaining ){
 		if( game.remaining > 0 ){
 			const days = Math.floor( game.remaining / 1000 / 60/ 60/ 24 )
-			purchase_area.innerHTML = `<div style="color: green">days remaining: ${ days }</div>`
+			purchase_area.innerHTML = `<div style="color: green">days remaining: ${ days }</div>
+			<div>use shortcode <code>[threepress_world]</code> to embed on a page</div>
+`
 		}else{
 			if( game.last_pay ){
 				const exp = Math.floor( game.remaining / 1000 / 60 / 60/ 24 ) * -1
@@ -175,10 +179,10 @@ const build_game_row = game => {
 	}
 
 	const link = document.createElement('a')
-	link.href = THREEPRESS.ARCADE.URLS.https + '/game/' + game.slug // + '?d=' + location.host
+	link.href = THREEPRESS.ARCADE.URLS.https + '/' // + '?d=' + location.host
 	link.target='_blank'
 	link.classList.add('threepress-column', 'button')
-	link.innerHTML = 'visit ' + game.name + ' at Threepress Arcade'
+	link.innerHTML = 'visit Threepress Arcade'
 
 	purchase_area.appendChild( link )
 
@@ -201,25 +205,39 @@ const fill_games = async() => {
 
 	const url = THREEPRESS.ARCADE.URLS.https + '/game_listing'
 
-	console.log('requesting: ', location.href )
+	// const domain = get_domain( location.href )
 
-	const res = await fetch_wrap( url, 'post', {
-		domain: get_domain( location.href ),
-	})
+	// console.log('requesting: ', location.href, domain )
+
+	const res = await fetch_wrap( url, 'get')
+	// , {
+	// 	domain: domain,
+	// })
 	if( !res ){
 		hal('error', 'error fetching games', 5 * 1000)
 		return
 	}
 
-	// console.log( 'fill games res', res )
+	console.log( 'fill games res', res )
 
 	if( res.success ){
-		if( res.games ){
+		if( res.games && res.games.length ){
 			for( const r of res.games ){
 				games_content.appendChild( build_game_row( r ))
 			}		
 		}else{
-			console.log( 'no games (' + res.games + ')')
+			const expl = document.createElement('div')
+			expl.innerHTML = `
+<div style="max-width: 200px">
+	<img src="${ THREEPRESS.ARCADE.URLS.https }/resource/image/quaternius-chat.jpg">
+</div>
+<p>Threepress World is a shortcode that you can embed anywhere on your site to instantly support a 3d multiplayer world for visitors to your site.</p>
+<p>Head to <a href="${ THREEPRESS.ARCADE.URLS.https }" target='_blank'>Threepress Arcade</a> for a free trial.</p>
+<p>The backend is supported by the Threepress Arcade server, where you will also get admin controls for your domain's world.</p>
+<p>After pasting a verification code on your site, you will be able to embed <code>[threepress_world]</code> anywhere on your site.</p>
+<p>Models are provided by <a href="https://quaternius.com" target="_blank">Quaternius</a></p>
+`
+			games_content.appendChild( expl )
 		}
 	}else if( res.msg ){
 		hal('error', res.msg || 'failed to fetch games', 5 * 1000 )
