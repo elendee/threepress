@@ -27,18 +27,40 @@ const track_look = e => { // ( right click )
 	diffX = e.clientX - currentX
 	diffY = e.clientY - currentY
 
-	PLAYER.GROUP.rotateY( -diffX / 300 )
 	// PLAYER.GROUP.rotateX( diffY / 300 )
-
-	// BROKER.publish('STREAM_SET')
-	CAMERA.position.y += diffY / 20 // moved to pan
-
-	// console.log( diffX, diffY )
 
 	currentY = e.clientY
 	currentX = e.clientX
-	
-	camera_look_home()
+
+	// BROKER.publish('STREAM_SET')
+	PLAYER.GROUP.rotateY( -diffX / 300 )
+
+	if( !STATE.first_person ){
+
+		CAMERA.position.y += diffY / 20 // moved to pan
+		camera_look_home()
+
+	}else{
+
+		// PLAYER.GROUP.rotateY( -diffX / 300 )
+		// const vec3 = new Vector3()
+		// CAMERA.getWorldDirection( vec3 )
+		// vec3.add( PLAYER.GROUP.position )
+		// PLAYER.GROUP.lookAt( vec3 )
+		// PLAYER.GROUP.rotation.x = PLAYER.GROUP.rotation.z = 0
+		// console.log( vec3 )
+
+		// CAMERA.rotation.x -= diffY / 200
+		// const newx = Math.min( Math.PI / 2, Math.max( -Math.PI / 2, 
+		CAMERA.rotation.x += diffY / 200 
+		// CAMERA.rotation.x = Math.min( Math.PI/2, CAMERA.rotation.x )
+		// CAMERA.rotation.x = Math.max( -Math.PI/2, CAMERA.rotation.x )
+		// console.log( newx )
+		// CAMERA.rotation.x = newx
+
+	}
+
+	// console.log( diffX, diffY )
 
 	// if( !PLAYER.sending_track ){
 	// 	BROKER.publish('SOCKET_SEND', {
@@ -60,6 +82,11 @@ let panned = false
 const pan_look = e => { // ( left click )
 
 	// console.log('pan look ', panned )
+
+	if( STATE.first_person ){
+		track_look( e )
+		return 
+	}
 
 	if( tracking_look ){
 		console.log('tracking look abort')
@@ -228,7 +255,7 @@ function mouse_wheel( e ){
 
 		move_wheel_amount( scroll_dist, 'in' )
 
-		if( CAMERA.position.length() < 5 ){ // GLOBAL.RENDER.MIN_CAM
+		if( CAMERA.position.length() < MIN_DIST + 1 ){ // GLOBAL.RENDER.MIN_CAM
 			set_cam_state( true )
 		}
 
@@ -240,6 +267,18 @@ function mouse_wheel( e ){
 
 
 const set_cam_state = state => {
+	if( !PLAYER.GROUP ) return
+	if( state ){
+		STATE.first_person = true
+		CAMERA.position.set(0,0,-1)
+		PLAYER.GROUP.visible = false
+		CAMERA.rotation.x = Math.PI
+	}else{
+		STATE.first_person = false
+		CAMERA.position.set(0,5,-10)
+		PLAYER.GROUP.visible = true
+	}
+	// CAMERA.rotation.x = 0
 	console.log('skipping set_cam_state ', state )
 }
 

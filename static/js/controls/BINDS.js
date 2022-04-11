@@ -113,12 +113,12 @@ const default_binds = {
 			starboard: 69, // e
 		},
 		
-		// actions: {
-		// 	one: 49,
-		// 	two: 50,
-		// 	three: 51,
-		// 	four: 52
-		// },
+		actions: {
+			one: 49,
+			two: 50,
+			three: 51,
+			four: 52
+		},
 
 		// interact: 76, // l
 

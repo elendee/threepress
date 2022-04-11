@@ -162,23 +162,30 @@ class Bubble {
 		this.posX = copy_vector.x + bubble_offset.x // window.blaX || 50
 		this.posY = copy_vector.y - bubble_offset.y // window.blaY || 0
 
-		this.bound = this.ele.getBoundingClientRect()
+		if( this.self ){
 
+			this.ele.style.top = Math.min( this.posY, this.wrapper_bound.height / 2 ) + 'px'
+			this.ele.style.left = this.wrapper_bound.width / 2 + 30 + 'px'
 
-		if( this.posX + this.bound.width > this.wrapper_bound.width ){
-			this.ele.style.left = 'auto'
-			this.ele.style.right = '0px'
 		}else{
-			this.ele.style.left = this.posX + 'px'
-			this.ele.style.right = 'auto'
-		}
 
-		if( this.posY + this.bound.height > this.wrapper_bound.height ){
-			this.ele.style.top = 'auto'
-			this.ele.style.bottom = '0px'
-		}else{
-			this.ele.style.top = this.posY + 'px'
-			this.ele.style.bottom = 'auto'
+			this.bound = this.ele.getBoundingClientRect()
+
+			if( this.posX + this.bound.width > this.wrapper_bound.width ){
+				this.ele.style.left = 'auto'
+				this.ele.style.right = '0px'
+			}else{
+				this.ele.style.left = this.posX + 'px'
+				this.ele.style.right = 'auto'
+			}
+
+			if( this.posY + this.bound.height > this.wrapper_bound.height ){
+				this.ele.style.top = 'auto'
+				this.ele.style.bottom = '0px'
+			}else{
+				this.ele.style.top = this.posY + 'px'
+				this.ele.style.bottom = 'auto'
+			}
 		}
 
 	}

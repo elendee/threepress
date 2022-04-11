@@ -170,71 +170,85 @@ const init_toon = async( event, toon_data, is_player1 ) => {
 
 const init_world = async( world_data ) => {
 
-	switch( world_data.ground ){
+	// switch( world_data.worldtype ){
 
-		case 'plane':
+	// 	case 'plane':
 
-			const planegeo = new PlaneBufferGeometry(1)
-			const planemat = new MeshLambertMaterial({
-				// color: world_data._plane_color,
-				// side: DoubleSide,
-			})
-			if( 0 && world_data._plane_color ){
-				planemat.color.set( world_data._plane_color )
-			}else{
-				planemat.map = texLoader.load( THREEPRESS.ARCADE.URLS.https +  '/resource/texture/tile.jpg')
-			}
-			const plane = new Mesh( planegeo, planemat )
-			plane.receiveShadow = true
-			plane.rotation.x = -Math.PI /2
-			plane.scale.multiplyScalar( 100 )
-			SCENE.add( plane )
-			break;
+	const tilegeo = new PlaneBufferGeometry(1)
+	const tilemat = new MeshLambertMaterial({
+		// color: world_data._plane_color,
+		// side: DoubleSide,
+	})
+	tilemat.map = texLoader.load( THREEPRESS.ARCADE.URLS.https +  '/resource/texture/tile.jpg')
+	const tiles = new Mesh( tilegeo, tilemat )
+	tiles.receiveShadow = true
+	tiles.rotation.x = -Math.PI /2
+	tiles.position.y += .05
+	tiles.scale.multiplyScalar( 100 )
+	SCENE.add( tiles )
 
-		case 'voxel':
 
-			const { voxel_mats, voxels, scale } = world_data
+	const groundgeo = new PlaneBufferGeometry(1)
+	const groundmat = new MeshLambertMaterial({
+		color: 'rgb(50, 100, 20)',
+		// color: world_data._plane_color,
+		// side: DoubleSide,
+	})
+	// groundmat.map = texLoader.load( THREEPRESS.ARCADE.URLS.https +  '/resource/texture/tile.jpg')
+	const ground = new Mesh( groundgeo, groundmat )
+	ground.receiveShadow = true
+	ground.rotation.x = -Math.PI /2
+	ground.scale.multiplyScalar( 1000 )
+	SCENE.add( ground )
 
-			if( !voxel_mats || !voxels || !scale ){
-				console.log('missing voxel data: ', voxel_mats, voxels, scale)
-				return
-			}
 
-			// ___ scale
-			WORLD.voxel_scale = scale
 
-			// ___ mats 
-			/* 
-			-- name
-			-- type
-			-- color
-			server-sent voxels must be tagged with a key of an existing voxel mat
-			*/
-			for( const mat of voxel_mats ){
-				const{ name, type, color } = mat
-				if( !name || !type || !color ){
-					console.log('voxel mat data missing', mat )
-					continue
-				}
-				WORLD.voxel_mats[ mat.name ] = new voxel_type_map[ mat.type ]({
-					color: mat.color,
-				})
-			}
+			// break;
 
-			// ___ the voxels
-			let i = 0
-			for( const v of voxels ){
-				setTimeout(()=>{
-					BROKER.publish('WORLD_ADD_VOXEL', { data: v })
-				}, i * 100)
-				i++
-			}
-			break;
+	// 	case 'voxel':
 
-		default: 
-			console.log('unknown ground type: ', world_data )
-			break;
-	}
+	// 		const { voxel_mats, voxels, scale } = world_data
+
+	// 		if( !voxel_mats || !voxels || !scale ){
+	// 			console.log('missing voxel data: ', voxel_mats, voxels, scale)
+	// 			return
+	// 		}
+
+	// 		// ___ scale
+	// 		WORLD.voxel_scale = scale
+
+	// 		// ___ mats 
+	// 		/* 
+	// 		-- name
+	// 		-- type
+	// 		-- color
+	// 		server-sent voxels must be tagged with a key of an existing voxel mat
+	// 		*/
+	// 		for( const mat of voxel_mats ){
+	// 			const{ name, type, color } = mat
+	// 			if( !name || !type || !color ){
+	// 				console.log('voxel mat data missing', mat )
+	// 				continue
+	// 			}
+	// 			WORLD.voxel_mats[ mat.name ] = new voxel_type_map[ mat.type ]({
+	// 				color: mat.color,
+	// 			})
+	// 		}
+
+	// 		// ___ the voxels
+	// 		let i = 0
+	// 		for( const v of voxels ){
+	// 			setTimeout(()=>{
+	// 				BROKER.publish('WORLD_ADD_VOXEL', { data: v })
+	// 			}, i * 100)
+	// 			i++
+	// 		}
+	// 		break;
+
+	// 	default: 
+	// 		console.log('unknown worldtype: ', world_data )
+	// 		break;
+	// }
 
 }
 
@@ -255,7 +269,7 @@ const init_entry = async( event ) => {
 	}
 
 	if( !world ){
-		console.log('missing ground init')
+		console.log('missing world init')
 		return
 	}
 	if( !toon ){
