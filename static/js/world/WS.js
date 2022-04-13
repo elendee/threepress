@@ -73,6 +73,18 @@ const init = ele => {
 				BROKER.publish('TOON_UPDATE_MODEL', packet )
 				break;
 
+			case 'pong_object':
+				BROKER.publish('WORLD_HANDLE_OBJ', packet )
+				break;
+
+			case 'pong_is_admin':
+				BROKER.publish('WORLD_PONG_ADMIN', packet )
+				break;
+
+			case 'begin_install':
+				BROKER.publish('WORLD_BEGIN_INSTALL', packet )
+				break;
+
 			case 'hal':
 				hal( packet.msg_type || 'standard', packet.msg || '(unknown server message)', packet.time || 5000 )
 				break;

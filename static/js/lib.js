@@ -44,7 +44,7 @@ document.body.appendChild( alert_contain )
 
 
 
-const hal = ( type, msg, time ) => {
+const hal = THREEPRESS.hal = ( type, msg, time ) => {
 
 	let icon = ''
 
@@ -786,6 +786,28 @@ const set_radio = result => {
 }
 
 
+const random_entry = source => {
+
+	if( Array.isArray( source )){
+		return source[ random_range( 0, source.length - 1, true ) ]
+	}else if( source && typeof source === 'object'){
+		return source[ random_entry( Object.keys( source ) ) ]
+	}
+	return ''
+}
+
+
+
+const random_range = ( low, high, int ) => {
+
+	if( low >= high ) return low
+
+	return int ? Math.floor( low + ( Math.random() * ( high - low ) ) ) : low + ( Math.random() * ( high - low ) )
+
+}
+
+
+
 const random_vector = ( min, max ) => {
 
 	const range = Math.abs( max - min )
@@ -973,14 +995,14 @@ const validate_number = ( ...args ) => {
 }
 
 
-let bbox
+// let bbox
 const get_bbox = mesh => {
 	if( !mesh.isMesh && !mesh.isObject3D ){
 		console.log('invalid mesh dimensions for bbox', mesh )
 		return new Vector3(1,1,1)
 	}
-	bbox = new Box3().setFromObject( mesh )
-	return bbox
+	
+	return new Box3().setFromObject( mesh )
 }
 
 
@@ -1065,6 +1087,8 @@ export {
 	set_radio,
 	random_hex,
 	random_vector,
+	random_entry,
+	random_range,
 	diff,
 	coord_range,
 	require_length,
@@ -1089,5 +1113,6 @@ export {
 	format_date,
 
 	get_domain,
+
 }
 

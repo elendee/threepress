@@ -24,6 +24,7 @@ import Player from './world/Player.js?v=130'
 // registers
 import PLAYER from './world/PLAYER.js?v=130'
 import TOONS from './world/TOONS.js?v=130'
+import OBJECTS from './world/OBJECTS.js?v=130'
 // controls
 import KEYS from './controls/KEYS.js?v=130'
 import BINDS from './controls/BINDS.js?v=130'
@@ -31,6 +32,9 @@ import MOUSE from './controls/MOUSE.js?v=130'
 import CHAT from './world_ui/CHAT.js?v=130'
 import TARGET from './world_ui/TARGET.js?v=130'
 import HUD from './world_ui/HUD.js?v=130'
+// import FOREST from './world/forest.js?v=130'
+import FactoryObject from './world/FactoryObject.js?v=130'
+import SKYBOX from './world/SKYBOX.js?v=130'
 // import varLogger from './helpers/varLogger.js?v=130'
 
 lib.tstack('add_world')
@@ -122,7 +126,7 @@ const init_toon = async( event, toon_data, is_player1 ) => {
 	// 	console.log( 'hydrated new toon: ', toon )
 	// }
 
-	switch( toon_data.world_modeltype ){
+	switch( toon_data.modeltype ){
 
 		case 'quaternius_low':
 			await toon.construct_model()
@@ -142,6 +146,8 @@ const init_toon = async( event, toon_data, is_player1 ) => {
 	if( is_player1 ){
 
 		LIGHT.track( PLAYER, true )
+
+		CAMERA.fixture.position.y = PLAYER.bbox.max.y
 
 		BROKER.publish('LOGGER_LOG', {
 			parent_obj: PLAYER.animation.actions,
@@ -168,15 +174,26 @@ const init_toon = async( event, toon_data, is_player1 ) => {
 
 
 
-const init_world = async( world_data ) => {
+const init_world = async( world_obj ) => {
 
-	// switch( world_data.worldtype ){
+	const { 
+		description,
+		domain,
+		name,
+	} = world_obj
+
+	if( !location.href.match( new RegExp( domain, 'i' ) ) ){
+		hal('error', 'invalid world data', 5000)
+		return
+	}
+
+	// switch( world_obj.worldtype ){
 
 	// 	case 'plane':
 
 	const tilegeo = new PlaneBufferGeometry(1)
 	const tilemat = new MeshLambertMaterial({
-		// color: world_data._plane_color,
+		// color: world_obj._plane_color,
 		// side: DoubleSide,
 	})
 	tilemat.map = texLoader.load( THREEPRESS.ARCADE.URLS.https +  '/resource/texture/tile.jpg')
@@ -191,7 +208,7 @@ const init_world = async( world_data ) => {
 	const groundgeo = new PlaneBufferGeometry(1)
 	const groundmat = new MeshLambertMaterial({
 		color: 'rgb(50, 100, 20)',
-		// color: world_data._plane_color,
+		// color: world_obj._plane_color,
 		// side: DoubleSide,
 	})
 	// groundmat.map = texLoader.load( THREEPRESS.ARCADE.URLS.https +  '/resource/texture/tile.jpg')
@@ -201,13 +218,21 @@ const init_world = async( world_data ) => {
 	ground.scale.multiplyScalar( 1000 )
 	SCENE.add( ground )
 
+	BROKER.publish('SOCKET_SEND', {
+		type: 'ping_trees',
+	})
 
+	BROKER.publish('SOCKET_SEND', {
+		type: 'ping_pillars',
+	})
+
+	SCENE.add( SKYBOX )
 
 			// break;
 
 	// 	case 'voxel':
 
-	// 		const { voxel_mats, voxels, scale } = world_data
+	// 		const { voxel_mats, voxels, scale } = world_obj
 
 	// 		if( !voxel_mats || !voxels || !scale ){
 	// 			console.log('missing voxel data: ', voxel_mats, voxels, scale)
@@ -246,7 +271,7 @@ const init_world = async( world_data ) => {
 	// 		break;
 
 	// 	default: 
-	// 		console.log('unknown worldtype: ', world_data )
+	// 		console.log('unknown worldtype: ', world_obj )
 	// 		break;
 	// }
 
@@ -411,13 +436,15 @@ const update_toon_model = event => {
 
 	le_toon.deconstruct_model()
 
-	le_toon.world_slug = toon.world_slug
-	le_toon.world_modeltype = toon.world_modeltype
+	le_toon.slug = toon.slug
+	le_toon.modeltype = toon.modeltype
 
 	le_toon.construct_model( true )
 	.then( res => {
 		console.log('updated toon ', le_toon )
 		le_toon.rest()
+	}).catch( err => {
+		console.log( err )
 	})
 
 }
@@ -453,6 +480,58 @@ const set_active = event => {
 }
 
 
+const handle_obj = event => {
+
+	const { obj } = event 
+
+	if( OBJECTS[ obj.uuid ]){
+		console.log('obj already exists', OBJECTS[ obj.uuid ] )
+		return
+	}
+
+	const object = FactoryObject( obj )
+
+	if( !object ){
+		console.log('failed to construct: ', obj )
+		return 
+	}
+
+	if( object.isEntity ){ // toons, ... , ?
+		// debugger
+		object.construct_model()
+		.then( res => {
+			// debugger
+			// console.log( res )
+			// console.log( object )
+			SCENE.add( object.GROUP )
+			object.GROUP.position.set( object.x || 0, object.y || 0, object.z || 0 )
+
+		})		
+		.catch( err => {
+			console.log( err )
+		})
+
+	}else if( object.type === 'pillar' ){ // pillars 
+
+		THREEPRESS.PILLARS = THREEPRESS.PILLARS || {}
+		THREEPRESS.PILLARS[ obj.uuid ] = obj
+
+		object.construct_model()
+		.then( res => {
+			console.log('loaded pillar')
+			SCENE.add( object.GROUP )
+			object.GROUP.position.x = object.x
+			object.GROUP.position.z = object.z
+			object.GROUP.position.y = ( object.height / 2 ) + 1
+		})
+
+	}else{
+
+		console.log('unhandled construct obj: ', obj )
+	}
+
+}
+
 
 BROKER.subscribe('WORLD_SET_ACTIVE', set_active )
 BROKER.subscribe('WORLD_INIT', init_entry )
@@ -462,7 +541,7 @@ BROKER.subscribe('TOON_INIT', init_toon )
 BROKER.subscribe('TOON_CORE', handle_core )
 BROKER.subscribe('TOON_UPDATE_MODEL', update_toon_model )
 BROKER.subscribe('TOON_REMOVE', remove_toon )
-
+BROKER.subscribe('WORLD_HANDLE_OBJ', handle_obj )
 // BROKER.subscribe('TOON_WALK', handle_walk )
 // BROKER.subscribe('TOON_TURN', handle_turn )
 // BROKER.subscribe('TOON_STRAFE', handle_strafe )

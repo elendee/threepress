@@ -84,14 +84,14 @@ const handle_keydown = ( e ) => {
 			case BINDS.world.turn2.port: 
 				BROKER.publish('MOVE_KEY', {
 					type: 'turning',
-					state: -1,
+					state: 1,
 				})
 				break;
 
 			case BINDS.world.turn2.starboard: 
 				BROKER.publish('MOVE_KEY', {
 					type: 'turning',
-					state: 1,
+					state: -1,
 				})
 				break;
 

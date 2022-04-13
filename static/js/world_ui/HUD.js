@@ -2,9 +2,12 @@ import RENDERER from '../world/RENDERER.js?v=130'
 import BROKER from '../world/WorldBroker.js?v=130'
 import { Modal } from '../helpers/Modal.js?v=130'
 import BINDS from '../controls/BINDS.js?v=130'
+import STATE from '../world/STATE.js?v=130'
 import { 
 	fetch_wrap,
 	hal,
+	random_hex,
+	spinner,
 } from '../lib.js?v=130'
 
 
@@ -15,6 +18,13 @@ toggle.id = 'threepress-admin-toggle'
 toggle.innerHTML = 'menu'
 toggle.addEventListener('click', () => {
 	BROKER.publish('ADMIN_TOGGLE')
+})
+
+const actions = document.createElement('div')
+actions.id = 'threepress-actions-toggle'
+actions.innerHTML = 'actions'
+actions.addEventListener('click', () => {
+	BROKER.publish('ACTIONS_TOGGLE')
 })
 
 const toggle_admin = event => {
@@ -28,6 +38,24 @@ const toggle_admin = event => {
 	add_section( 'toon', modal.content, menu )
 	add_section( 'settings', modal.content, menu )
 	add_section( 'keys', modal.content, menu )
+
+	modal.content.appendChild( menu )
+
+	wrapper.appendChild( modal.ele )
+
+	modal.content.querySelector('.threepress-admin-tab').click()
+
+}
+
+const toggle_actions = event => {
+	const modal = new Modal({
+		type: 'actions'
+	})
+
+	const menu = document.createElement('div')
+	menu.id = 'threepress-actions-world-nav'
+
+	add_section( 'actions', modal.content, menu )
 
 	modal.content.appendChild( menu )
 
@@ -84,6 +112,31 @@ const add_section = ( type, container, menu ) => {
 			section.appendChild( toonlist )
 			break;
 
+
+		case 'actions':
+			const install = document.createElement('div')
+			install.classList.add("threepress-button")
+			install.innerHTML = 'install'
+			install.addEventListener('click', () => {
+				// const close = container.parentElement.querySelector('.threepress-modal-close')
+				// if( close ) close.click()
+				const hash = random_hex( 6 )
+				BROKER.publish('SOCKET_SEND', {
+					type: 'ping_admin_domain',
+					hash: hash,
+				})
+				container.parentElement.setAttribute('data-await-hash', hash )
+				setTimeout(() => {
+					if( container.parentElement.getAttribute('data-await-hash') ){
+					// 	// a valid response will remove hash so this doesn't happen
+						hal('error', 'install request was blocked', 3000 )
+						container.parentElement.removeAttribute('data-await-hash')
+					}
+				}, 3000)
+			})
+			section.appendChild( install )
+			break;
+
 		default: 
 			console.log('admin section not configured yet: ', type )
 			break;
@@ -138,14 +191,103 @@ const build_toon_listing = res => {
 
 
 
+const create_install_form = modal => {
+	const form = document.createElement('div')
+	form.classList.add('threepress-install-form')
+	const expl = document.createElement('div')
+	expl.innerHTML = 'paste the URL of an image (png / jpg / jpeg) or 3d model (glb / gltf)'
+	form.appendChild( expl )
+	const input = document.createElement('input')
+	input.type = 'text'
+	input.placeholder = 'paste URL here'
+	form.appendChild( input )
+	const submit = document.createElement('div')
+	submit.classList.add('threepress-button')
+	submit.innerHTML = 'submit'
+	submit.addEventListener('click', () => {
+		if( !input.value.trim() ) return
+		BROKER.publish('SOCKET_SEND', {
+			type: 'begin_install',
+			url: input.value.trim(),
+		})
+		submit.style['pointer-events'] = 'none'
+		hal('standard', 'querying resource....', 4000 )
+		spinner.show()
+	})
+	form.appendChild( submit )
+	return form
+}
+
+
+
+const allow_upload = event => {
+	const { hash, is_admin } = event
+	const modal = document.querySelector('.threepress-modal[data-await-hash="' + hash + '"]')
+	if( !modal ){
+		console.log('got admin for non-existent modal', is_admin )
+		return
+	}
+	for( const button of modal.querySelectorAll('.threepress-button')){
+		if( button.innerText.match(/install/i)){
+			button.remove()
+		}
+	}
+	modal.removeAttribute('data-await-hash')
+	const section = modal.querySelector('.threepress-admin-section')
+	const form = create_install_form( modal )
+	section.appendChild( form )
+}
+
+
+
+
+const begin_install = event => {
+	const { url, state, msg, resource_type } = event
+	spinner.hide()
+	const modal = document.querySelector('.threepress-modal')	
+	if( !state ){
+		modal?.querySelectorAll('.threepress-button').forEach( ele => {
+			ele.style['pointer-events'] = 'initial'
+		})
+		hal('error', msg, 5000)
+		return
+	}
+	modal?.querySelector('.threepress-modal-close')?.click()
+	spinner.show()
+	console.log('installing... ', resource_type )
+	switch( resource_type ){
+
+		case 'image':
+			// build painting / image model...
+			break;
+		case 'model':
+			// load scultupre model....
+			break;
+
+		default: 
+			console.log('invalid install resource_type', resource_type )
+			break;
+	}
+
+	spinner.hide()
+
+	// assiign to mouse with follow-lerp
+	// show cancel button
+
+
+}
 
 
 const init = () => {
 
 	wrapper = RENDERER.domElement.parentElement
 	wrapper.appendChild( toggle )
+	wrapper.appendChild( actions )
 
 	BROKER.subscribe('ADMIN_TOGGLE', toggle_admin )
+	BROKER.subscribe('ACTIONS_TOGGLE', toggle_actions )
+	BROKER.subscribe('WORLD_PONG_ADMIN', allow_upload )
+	BROKER.subscribe('WORLD_BEGIN_INSTALL', begin_install )
 
 }
 

@@ -2,7 +2,7 @@ import {
 	Scene, 
 	Color, 
 	AxesHelper,
-	// FogExp2, 
+	FogExp2, 
 	// BoxBufferGeometry,
 	// MeshLambertMaterial,
 	// Mesh,
@@ -11,6 +11,8 @@ import {
 
 
 const scene = new Scene()
+
+scene.fog = new FogExp2( 0xccccff, .002 )
 
 export default scene
 

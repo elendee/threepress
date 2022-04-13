@@ -16,7 +16,7 @@ class Modular {
 
 		const modular = this
 
-		const slug = modular.world_slug || modular.some_other_slug || ''
+		const slug = modular.slug || modular.some_other_slug || ''
 		if( !slug ){
 			console.log('Modular missing slug', modular )
 			return
@@ -30,7 +30,7 @@ class Modular {
 
 			const model = await new Promise(( resolve, reject ) => {
 
-				const filepath = THREEPRESS.plugin_url + '/world-models/' + modular.world_type + 's/' + modular.world_slug + '/model.' + modular.world_filetype
+				const filepath = THREEPRESS.plugin_url + '/world-models/' + modular.world_type + 's/' + modular.slug + '/model.' + modular.world_filetype
 
 				gltf.load( filepath, 
 					obj => {

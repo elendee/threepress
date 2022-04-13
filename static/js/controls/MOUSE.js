@@ -5,7 +5,7 @@ import RENDERER from '../world/RENDERER.js?v=130'
 import SCENE from '../world/SCENE.js?v=130'
 import {
 	Vector3,
-} from '../../inc/three.module.js'
+} from '../../inc/three.module.js?v=130'
 import BROKER from '../world/WorldBroker.js?v=130'
 import STATE from '../world/STATE.js?v=130'
 
@@ -19,6 +19,7 @@ const ORIGIN = new Vector3()
 
 let currentX, currentY, diffX, diffY
 let tracking_look = false
+let vert_scalar
 const track_look = e => { // ( right click )
 
 	// console.log( 'track look')
@@ -35,9 +36,18 @@ const track_look = e => { // ( right click )
 	// BROKER.publish('STREAM_SET')
 	PLAYER.GROUP.rotateY( -diffX / 300 )
 
+	if( current_cam_dist > MAX_DIST * .66 ){
+		vert_scalar = 6
+	}else if( current_cam_dist > MAX_DIST * .33 ){
+		vert_scalar = 4
+	}else{
+		vert_scalar = 2
+	}
+
 	if( !STATE.first_person ){
 
-		CAMERA.position.y += diffY / 20 // moved to pan
+		CAMERA.position.y += ( diffY / 20 ) * vert_scalar
+		CAMERA.position.y = Math.min( MAX_DIST, CAMERA.position.y )
 		camera_look_home()
 
 	}else{
@@ -172,7 +182,7 @@ function click_up( e ){
 			
 		case 3: // right
 			tracking_look = false
-			// const anim_map = PLAYER.animation_map[ PLAYER.world_modeltype ]
+			// const anim_map = PLAYER.animation_map[ PLAYER.modeltype ]
 			// if( !anim_map ) return
 			PLAYER.animate('turning', false, 1000 )
 			document.removeEventListener('mousemove', track_look )
@@ -225,6 +235,8 @@ function click_down( e ){
 
 const scroll_dist = new Vector3()
 
+let current_cam_dist = 1
+
 const SCROLL_STEP = 10
 
 function mouse_wheel( e ){
@@ -260,6 +272,8 @@ function mouse_wheel( e ){
 		}
 
 	}
+
+	current_cam_dist = CAMERA.position.distanceTo( CAMERA.fixture.position )
 
 	return true
 
@@ -300,6 +314,7 @@ const projection = new Vector3()
 let dist = new Vector3()
 
 const MIN_DIST = 10
+const MAX_DIST = 300
 
 const move_wheel_amount = ( scroll_dist, dir ) => {
 
@@ -318,7 +333,7 @@ const move_wheel_amount = ( scroll_dist, dir ) => {
 	CAMERA.position.add( scroll_dist ).clampLength( 
 		MIN_DIST,
 		// ( SHIP.dimensions.z / 2 ) * 1.1, 
-		Math.max( MIN_DIST * 10, 500 ) // ( SHIP.dimensions.z / 2 )
+		Math.max( MIN_DIST * 10, MAX_DIST ) // ( SHIP.dimensions.z / 2 )
 		// GLOBAL.RENDER.MAX_CAM
 	)
 

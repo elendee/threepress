@@ -48,6 +48,15 @@ class Player extends Entity {
 	}
 
 
+	traverse_model(){
+		this.MODEL.traverse(ele => {
+			if( ele.name.match(/cube/i)){
+				ele.castShadow = true
+				ele.receiveShadow = true
+			}		
+		})
+	}
+
 
 }
 

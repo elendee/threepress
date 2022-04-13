@@ -39,13 +39,19 @@
 	pointer-events: initial;
 }
 
-#threepress-admin-toggle{
+#threepress-admin-toggle,
+#threepress-actions-toggle{
 	position: absolute;
 	background: white;
-	padding: 10px;
+	padding: 8px;
 	top: 0;
-	right: 0;
+	left: 0;
 	cursor: pointer;
+	font-size: .8rem;
+}
+#threepress-actions-toggle{
+	left: auto;
+	right: 0px;
 }
 
 #threepress-world .threepress-modal{
@@ -60,6 +66,7 @@
 	pointer-event: none;
 }
 
+#threepress-actions-world-nav,
 #threepress-admin-world-nav{
 	position: absolute;
 	height: 30px;
@@ -69,6 +76,10 @@
 	background: lightgrey;
 	text-align: center;
 	pointer-events: initial;
+}
+#threepress-actions-world-nav{
+	left: auto;
+	right: 0px;
 }
 .threepress-admin-tab.threepress-button{
 	display: inline-block;
@@ -91,6 +102,9 @@
 }
 .threepress-admin-section.selected{
 	display: inline-block;
+}
+.threepress-admin-section .threepress-button{
+	margin-right: 5px;
 }
 .threepress-toon-listing{
 	cursor: pointer;
@@ -231,7 +245,7 @@
 	padding: 2px 4px;;
 }
 .threepress-modal.modal-type-admin .subcat-title{
-	color: #ea16f9;
+	color: #f0d3f2;
 }
 .threepress-modal.modal-type-admin span{
 	font-weight: bold;
@@ -263,4 +277,14 @@
 }
 .threepress-modal.modal-type-admin .column{
 	min-height: 100%;
+}
+
+.threepress-install-form,
+.threepress-install-form input,
+.threepress-install-form .threepress-button{
+	margin-top: 20px;
+}
+
+#threepress-world input{
+	color: black;
 }

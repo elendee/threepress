@@ -2,6 +2,7 @@ import BROKER from './WorldBroker.js?v=130'
 import {
 	hal,
 	get_bbox,
+	random_entry,
 } from '../lib.js?v=130'
 import {
 	GLTFLoader,
@@ -10,8 +11,9 @@ import {
 	AnimationClip,
 	AnimationMixer,
 	Group,
-	Vector3,
-	Quaternion,
+	// Vector3,
+	// Quaternion,
+	// MeshLambertMaterial,
 } from '../../inc/three.module.js?v=130'
 import CAMERA from './CAMERA.js?v=130'
 // import AnimationStudio from '../helpers/AnimationStudio.js?v=130'
@@ -19,6 +21,18 @@ import CAMERA from './CAMERA.js?v=130'
 
 
 const ANIM_STEP = 50
+
+const MODEL_CACHE = THREEPRESS.MODEL_CACHE = {}
+
+const standard_modeltypes = ['quaternius_low', 'trees']
+
+const DEBUG = false
+const debug_load = ( ...args ) => {
+	if( DEBUG ){
+		console.warn( ...args )
+	}
+}
+
 
 
 class Entity {
@@ -31,10 +45,12 @@ class Entity {
 			running: 0,
 			strafing: 0,
 		}
+		this.isEntity = true
 		this.last_states = {}
 		this.state_diffed = 0
 		this.previously_strafing = false
 		this.previously_walking = false
+		this.use_cache = init.use_cache
 		// might need later for server corrections.. maybe not though:
 		// this.lerpto = {
 		// 	position: {
@@ -103,11 +119,13 @@ class Entity {
 
 	}
 
+
+
 	deconstruct_model(){
 		this.GROUP.remove( this.GROUP.MODEL )
 		delete this.GROUP.MODEL // may need to make a `destruct_model` method here
-		delete this.world_modeltype
-		delete this.world_slug
+		delete this.modeltype
+		delete this.slug
 		delete this.animation
 	}
 
@@ -115,86 +133,174 @@ class Entity {
 
 		const entity = this
 
-		const slug = entity.world_slug || entity.some_other_slug || 'unknown'
-		const modeltype = entity.world_modeltype || 'unknown'
+		const slug = entity.slug || entity.some_other_slug || 'unknown'
+		const modeltype = entity.modeltype || 'unknown'
 
 		const gltf = new GLTFLoader()
 
-		await new Promise(( resolve, reject ) => {
+		const filepath = THREEPRESS.ARCADE.URLS.https + '/resource/world-models/' + modeltype + '/' + slug
 
-			console.log('loading: ', slug, modeltype )
+		const result = await new Promise(( resolve, reject ) => {
 
-			const filepath = THREEPRESS.ARCADE.URLS.https + '/resource/world-models/' + modeltype + '/' + slug
+			if( this.use_cache && MODEL_CACHE[ filepath ] ){ // cached loads
+				/*
+					--- do not use_cache for models with animations, they will not load them --- 
+				*/
 
-			console.log('loading: ', filepath )
-
-			gltf.load( filepath, 
-
-				obj => {
-
-					console.log('entity load: ', obj )
-
-					if( modeltype === 'quaternius_low'){
-
-						// handle CREATE / UPDATE of model
-						if( is_update ){
-							entity.GROUP.remove( entity.MODEL )
-							delete entity.animation
+				if( MODEL_CACHE[ filepath ] === 'loading' ){ // interim loads
+					/*
+						begin wait; model is loading..
+					*/
+					let count = 0
+					let waiting = setInterval(() => {
+						if( MODEL_CACHE[ filepath] !== 'loading' ){
+							clearInterval( waiting )
+							entity.MODEL = MODEL_CACHE[ filepath ].clone()
+							entity.add_group( is_update )
+							entity.GROUP.add( entity.MODEL )	
+							entity.traverse_model()
+							resolve('loaded from wait: ' + filepath )	
 						}else{
-							entity.GROUP = new Group()
+							debug_load('still waiting', filepath)
 						}
-
-						entity.MODEL = obj.scene
-						entity.GROUP.add( entity.MODEL )	
-
-						// shadows
-						entity.MODEL.traverse(ele => {
-							// or, ele.isMesh
-							if( ele.name.match(/cube/i)){
-								ele.castShadow = true
-							}
-						})
-
-						// animations
-						if( obj.animations && obj.animations.length ){
-							const map = entity.animation_map[ modeltype ]
-							console.log('adding anim map: ', map )
-							entity.add_animation( obj, map )
+						if( count > 20 ){
+							clearInterval( waiting )
+							reject('unable to load from cache: ' + filepath)
 						}
+						count++
+					}, 300)
 
-						// done
-						resolve()
+				}else{ // cached loads
 
-					}else{
+					entity.MODEL = MODEL_CACHE[ filepath ].clone()
+					entity.add_group( is_update )
+					entity.GROUP.add( entity.MODEL )	
+					entity.traverse_model()
+					resolve('loaded from cache: ' + filepath)
 
-						// ( probably the same as ^^ )
-
-						console.log('unhandled model type..', modeltype, obj)
-
-						resolve()
-
-					}
-
-				},
-				xhr => {
-					if( xhr && xhr.type !== 'progress' ) console.log( `bad xhr: ${ modeltype } ${ slug }: ${ xhr.type }` )
-				}, 
-				error => {
-					hal('error', 'error loading model: ', entity.handle || entity.name )
-					console.log( `err ${ modeltype } ${ slug }`, error )
-					reject('model err: ', slug )
 				}
-			)
+
+				/*
+					this does not yet  kick into effect until model is loaded
+					- MOST - models are still going to load un-cached, if requested at once ( trees )
+					fix...
+				*/
+
+			}else{ // no-cache loads AND first-time cache loads
+
+				if( this.use_cache && !MODEL_CACHE[ filepath ]){ // first time cache loads
+					MODEL_CACHE[ filepath] = 'loading'
+					debug_load('beginning cache load:', filepath)
+				}else{
+					debug_load('beginning single load: ', filepath )
+				}
+
+				// console.log('loading: ', slug, modeltype )
+
+
+				gltf.load( filepath, 
+
+					obj => {
+
+						// console.log('gltf loaded: ', obj )
+
+						if( standard_modeltypes.includes( modeltype ) ){
+
+							// handle CREATE / UPDATE of model
+							this.add_group( is_update )
+
+							entity.MODEL = obj.scene
+
+							if( this.use_cache && MODEL_CACHE[ filepath ] === 'loading' ){
+								debug_load('instantiated cache: ', filepath )
+								MODEL_CACHE[ filepath ] = entity.MODEL.clone()
+							}
+
+							entity.GROUP.add( entity.MODEL )	
+							entity.traverse_model()
+
+							// animations
+							if( obj.animations && obj.animations.length ){
+								const map = entity.animation_map[ modeltype ]
+								// console.log('adding anim map: ', filepath )
+								entity.add_animation( obj, map )
+							}
+
+							// done
+							resolve('loaded: ' + filepath )
+
+						}else{
+
+							debug_load('unhandled model type..', modeltype, obj)
+
+							resolve('failed to load: ' + filepath )
+
+						}
+
+					},
+					xhr => {
+						if( xhr && xhr.type !== 'progress' ) console.log( `bad xhr: ${ modeltype } ${ slug }: ${ xhr.type }` )
+					}, 
+					error => {
+						// const report = entity.handle || entity.name || entity.type
+						// hal('error', 'failed to load model: ' + report, 2000 )
+						// console.log( `failed load path: ${ modeltype } ${ slug }` )
+						reject('failed model load: ' + filepath )
+					}
+				)
+			}
+
 		})
+
+		debug_load( result )
 
 		// post processing:
 
 		entity.bbox = get_bbox( entity.MODEL )
-		CAMERA.fixture.position.y = entity.bbox.max.y
 
 		if( entity.animation ) entity.anim_mixer = entity.animation.mixer // ( for anim loop access )
 
 		// post_process( entity )
+
+	}
+
+	add_group( is_update ){
+		if( is_update ){
+			this.GROUP.remove( this.MODEL )
+			delete this.animation
+		}else{
+			this.GROUP = new Group()
+		}
+	}
+
+
+	traverse_model(){
+
+		console.log('class is missing its traverse_model method: ' + this )
+
+		// // shadows
+		// this.MODEL.traverse(ele => {
+
+		// 	switch( this.type ){
+
+		// 		// case 'tree':
+		// 		// 	ele.castShadow = true
+		// 		// 	if( ele.material ) ele.material = random_entry( tree_mats[ this.species ] )
+		// 		// 	break;
+
+		// 		case 'toon':
+		// 			// or, ele.isMesh
+		// 			if( ele.name.match(/cube/i)){
+		// 				ele.castShadow = true
+		// 				ele.receiveShadow = true
+		// 			}
+		// 			break;
+
+		// 		default: 
+
+		// 			break;
+		// 	}
+		// })
 
 	}
 
@@ -291,7 +397,7 @@ class Entity {
 		}
 
 		// set animate
-		const fade_time = this.animation_map[ this.world_modeltype ][ type ].fade
+		const fade_time = this.animation_map[ this.modeltype ][ type ].fade
 		// console.log( type, fade_time )
 		if( this.state_diffed ) this.animate( type, state !== 0 , fade_time || 0 )
 
@@ -385,10 +491,10 @@ class Entity {
 		if( !this.animation ) return
 
 		// this.animation.mixer.stopAllAction()
-		// const fade_time = this.animation_map[ this.world_modeltype ].idle.fade
+		// const fade_time = this.animation_map[ this.modeltype ].idle.fade
 		this.animate('idle', true, 500 ) // fade_time || 0
 		setTimeout(() => {
-			for( const type in this.animation_map[ this.world_modeltype ] ){
+			for( const type in this.animation_map[ this.modeltype ] ){
 				if( type === 'idle' ) continue
 				this.set_move_state( type, 0 )
 				// BROKER.publish('MOVE_KEY', {

@@ -231,40 +231,42 @@ const fill_games = async() => {
 
 	loaded.game = true
 
-	const url = THREEPRESS.ARCADE.URLS.https + '/game_listing'
+	// const url = THREEPRESS.ARCADE.URLS.https + '/game_listing'
 
-	// console.log('requesting: ', url )
+	// // console.log('requesting: ', url )
 
-	const res = await fetch_wrap( url, 'get')
-	if( !res ){
-		hal('error', 'error fetching games', 5 * 1000)
-		return
-	}
+	// const res = await fetch_wrap( url, 'get')
+	// if( !res ){
+	// 	hal('error', 'error fetching games', 5 * 1000)
+	// 	return
+	// }
 
-	// console.log( 'fill games res', res )
+	// // console.log( 'fill games res', res )
 
-	if( res.success ){
-		if( res.games && res.games.length ){
-			for( const r of res.games ){
-				games_content.appendChild( build_game_row( r ))
-			}		
-		}else{
-			const expl = document.createElement('div')
-			expl.innerHTML = `
+	// if( res.success ){
+	// 	if( res.games && res.games.length ){
+	// 		for( const r of res.games ){
+	// 			games_content.appendChild( build_game_row( r ))
+	// 		}		
+	// 	}else{
+	const expl = document.createElement('div')
+	expl.innerHTML = `
 <div style="max-width: 200px">
-	<img src="${ THREEPRESS.ARCADE.URLS.https }/resource/image/quaternius-chat.jpg">
+<img src="${ THREEPRESS.ARCADE.URLS.https }/resource/image/quaternius-chat.jpg">
 </div>
 <p>Threepress World is a shortcode that you can embed anywhere on your site to instantly support a 3d multiplayer world for visitors to your site.</p>
-<p>Head to <a href="${ THREEPRESS.ARCADE.URLS.https }" target='_blank'>Threepress Arcade</a> for a free trial.</p>
-<p>The backend is supported by the Threepress Arcade server, where you will also get admin controls for your domain's world.</p>
+<p>The backend runs on Threepress Arcade server, where you will also get admin controls for your domain's world.</p>
 <p>After pasting a verification code on your site, you will be able to embed <code>[threepress_world]</code> anywhere on your site.</p>
+<p>Head to Threepress Arcade for a free trial:<br>
+<a class='button' href="${ THREEPRESS.ARCADE.URLS.https }" target='_blank'>Threepress Arcade</a>
+</p>
 <p>Models are provided by <a href="https://quaternius.com" target="_blank">Quaternius</a></p>
 `
-			games_content.appendChild( expl )
-		}
-	}else if( res.msg ){
-		hal('error', res.msg || 'failed to fetch games', 5 * 1000 )
-	}
+	games_content.appendChild( expl )
+	// 	}
+	// }else if( res.msg ){
+	// 	hal('error', res.msg || 'failed to fetch games', 5 * 1000 )
+	// }
 
 
 

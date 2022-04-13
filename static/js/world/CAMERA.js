@@ -7,7 +7,7 @@ const camera = new PerspectiveCamera(
 	30, 
 	window.innerWidth / window.innerHeight, 
 	1, 
-	1000
+	12000
 )
 
 THREEPRESS.CAMERA = camera

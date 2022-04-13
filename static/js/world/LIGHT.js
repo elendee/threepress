@@ -17,8 +17,8 @@ import {
 
 
 
-const coords = { x: 10, y: 10, z: 10 }
-const offset = new Vector3( coords.x * 2, coords.y * 3, coords.x * 2 )
+const coords = { x: 20, y: 20, z: 20 }
+const offset = new Vector3( coords.x, coords.y * 5, coords.x )
 
 const hemispherical = new HemisphereLight( 0x5599cc, 0xffffff, .4 )
 const pointlight = new PointLight( 0xffffff )
@@ -28,13 +28,13 @@ directional.position.copy( offset )
 directional.castShadow = true
 
 directional.shadow.camera.near = 1;
-directional.shadow.camera.far = coords.y * 6;
+directional.shadow.camera.far = coords.y * 10;
 
 // bounds
-directional.shadow.camera.left = -coords.x * 5; // * 3
-directional.shadow.camera.right = coords.x * 5; // * 3
-directional.shadow.camera.top = coords.z * 5; // * 3
-directional.shadow.camera.bottom = -coords.z * 5; // * 3
+directional.shadow.camera.left = -coords.x * 10; // * 3
+directional.shadow.camera.right = coords.x * 10; // * 3
+directional.shadow.camera.top = coords.z * 10; // * 3
+directional.shadow.camera.bottom = -coords.z * 10; // * 3
 
 // resolution
 directional.shadow.mapSize.width = coords.x * 50;

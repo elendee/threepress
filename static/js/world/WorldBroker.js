@@ -1,4 +1,7 @@
 
+// events that are purposely off at times:
+const skiplog = ['LOGGER_LOG', 'LOGGER_STATE']
+
 class MessageBroker {
 
 	constructor(){
@@ -10,7 +13,7 @@ class MessageBroker {
 	publish( event, data ){
 
 		if( !this.subscribers[ event ] ){
-			console.log('event with no sub: ', event )
+			if( !skiplog.includes( event ) ) console.log('event with no sub: ', event )
 			return
 		}
 
