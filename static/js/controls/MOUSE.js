@@ -435,7 +435,7 @@ function detect_object_clicked( e, bounds ){
 
 function detect_object_hovered( e, bounds ){
 
-	if( !e.preventDefault ) return { mesh: false }
+	if( !e || !e.preventDefault ) return { intersection: false }
 	e.preventDefault();
 
 	let mx, my
@@ -504,7 +504,7 @@ function scour_clickable( obj ){
 	for( let i = 0; i < 5; i++ ){
 
 		if( !obj.parent ){
-			console.log('no parent', obj )
+			console.log('no parent for click detect', obj )
 			return // 'no parent' 
 		}
 

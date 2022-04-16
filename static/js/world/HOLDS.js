@@ -11,14 +11,13 @@ import {
 	BoxBufferGeometry,
 	MeshLambertMaterial,
 	Mesh,
+	SphereGeometry,
 	Raycaster,
 	Vector2,
-	TextureLoader,
 } from '../../inc/three.module.js?v=130'
 
 
 
-const texLoader = new TextureLoader()
 
 
 
@@ -42,9 +41,22 @@ const image_mat = new MeshLambertMaterial({
 })
 
 
+const Placeholder = () => {
+	const geo = new SphereGeometry(1,8,8)
+	const mat = new MeshLambertMaterial({
+		color: 'red',
+		transparent: true,
+		opacity: .5,
+	})
+	const mesh = new Mesh( geo, mat )
+	mesh.scale.multiplyScalar( 2 )
+	return mesh
+}
 
-const holdcaster = new Raycaster()
-const pointer = new Vector2()
+
+
+// const holdcaster = new Raycaster()
+// const pointer = new Vector2()
 
 
 let held_mesh
@@ -64,7 +76,7 @@ const clear_hold = event => {
 	STATE.hold = false
 
 	// object
-	SCENE.remove( held_mesh )
+	SCENE.remove( placeholder )
 
 	// tracking
 	show_tracking( false )
@@ -80,7 +92,7 @@ const clear_hold = event => {
 
 cancel.addEventListener('click', clear_hold )
 
-
+let placeholder
 
 const render_hold = async( event ) => {
 
@@ -92,23 +104,21 @@ const render_hold = async( event ) => {
 
 		console.log('render hold:', type, url )
 
-		const artwork = new Artwork({
-			url: url,
-		})
+		placeholder = Placeholder()
 
-		held_mesh = await artwork.construct_model()
+		// held_mesh = await hold.construct_model()
 		// if( !held_mesh || STATE.get() !== 'holding' ){
 		// 	console.log("got invalid hold somehow", type, url)
 		// 	BROKER.publish('CLEAR_HOLD')
 		// 	return
 		// }
-		console.log('rendering: ', held_mesh )
+		// console.log('rendering: ', held_mesh )
 
 		// state
 		STATE.set('holding')
 
 		// object
-		SCENE.add( held_mesh )
+		SCENE.add( placeholder )
 
 		// tracking
 		show_tracking( true )
@@ -154,7 +164,7 @@ const show_ui = state => {
 }
 
 
-
+let spacer = 0
 
 const update_hold_point = () => {
 	/*
@@ -163,7 +173,7 @@ const update_hold_point = () => {
 
 	clearInterval( updating_held_position )
 
-	if( !held_mesh ){
+	if( !placeholder ){
 		console.log('no mesh to update')
 		BROKER.publish('CLEAR_HOLD')
 		return
@@ -174,10 +184,20 @@ const update_hold_point = () => {
 		// intersects,
 	} = MOUSE.detect_object_hovered( last_traced, RENDERER.domElement.getBoundingClientRect() )
 
+	// console.log( 'int: ', intersection.face )
+	spacer++
+	if( spacer % 10  === 0 ){
+		console.log( intersection )	
+	}
+
 	if( intersection ){
 		let lerps = 0
+
 		updating_held_position = setInterval(() => {
-			held_mesh.position.lerp( intersection.point, .1 )
+
+			// held_mesh.lookAt( held_mesh.position.add( intersection.face.normal ) )
+			placeholder.position.lerp( intersection.point, .1 )
+
 			lerps++
 			if( lerps > 50 ){
 				clearInterval( updating_held_position )

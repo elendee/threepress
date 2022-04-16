@@ -191,6 +191,18 @@ const build_toon_listing = res => {
 
 
 
+const submit_install = ( input, submit ) => {
+	if( !input.value.trim() ) return
+	BROKER.publish('SOCKET_SEND', {
+		type: 'begin_install',
+		url: input.value.trim(),
+	})
+	submit.style['pointer-events'] = 'none'
+	hal('standard', 'querying resource....', 4000 )
+	spinner.show()
+}
+
+
 const create_install_form = modal => {
 	const form = document.createElement('div')
 	form.classList.add('threepress-install-form')
@@ -200,21 +212,22 @@ const create_install_form = modal => {
 	const input = document.createElement('input')
 	input.type = 'text'
 	input.placeholder = 'paste URL here'
+	input.addEventListener('keyup', e => {
+		if( e.keyCode === 13 ){
+			submit_install( input, submit )
+		}
+	})
 	form.appendChild( input )
 	const submit = document.createElement('div')
 	submit.classList.add('threepress-button')
 	submit.innerHTML = 'submit'
 	submit.addEventListener('click', () => {
-		if( !input.value.trim() ) return
-		BROKER.publish('SOCKET_SEND', {
-			type: 'begin_install',
-			url: input.value.trim(),
-		})
-		submit.style['pointer-events'] = 'none'
-		hal('standard', 'querying resource....', 4000 )
-		spinner.show()
+		submit_install( input, submit )
 	})
 	form.appendChild( submit )
+	setTimeout(() => {
+		input.focus()
+	}, 100 )
 	return form
 }
 
