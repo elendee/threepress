@@ -288,3 +288,11 @@
 #threepress-world input{
 	color: black;
 }
+
+#hold-ui{
+	position: absolute;
+	top: 50%;
+	background: #ff7300;
+	cursor: pointer;
+	padding: 2px 4px;
+}

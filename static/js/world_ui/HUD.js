@@ -241,39 +241,37 @@ const allow_upload = event => {
 
 
 
-const begin_install = event => {
-	const { url, state, msg, resource_type } = event
+const handle_hold = event => {
+	/*
+		initiate a hold from server
+	*/
+
+	const { 
+		url, 
+		state, 
+		msg, 
+		resource_type 
+	} = event
+
 	spinner.hide()
+
 	const modal = document.querySelector('.threepress-modal')	
+
 	if( !state ){
 		modal?.querySelectorAll('.threepress-button').forEach( ele => {
 			ele.style['pointer-events'] = 'initial'
 		})
 		hal('error', msg, 5000)
+		BROKER.publish('CLEAR_HOLD')
 		return
 	}
+
 	modal?.querySelector('.threepress-modal-close')?.click()
-	spinner.show()
-	console.log('installing... ', resource_type )
-	switch( resource_type ){
 
-		case 'image':
-			// build painting / image model...
-			break;
-		case 'model':
-			// load scultupre model....
-			break;
-
-		default: 
-			console.log('invalid install resource_type', resource_type )
-			break;
-	}
-
-	spinner.hide()
-
-	// assiign to mouse with follow-lerp
-	// show cancel button
-
+	BROKER.publish('RENDER_HOLD', {
+		type: resource_type,
+		url: url,
+	})
 
 }
 
@@ -287,7 +285,8 @@ const init = () => {
 	BROKER.subscribe('ADMIN_TOGGLE', toggle_admin )
 	BROKER.subscribe('ACTIONS_TOGGLE', toggle_actions )
 	BROKER.subscribe('WORLD_PONG_ADMIN', allow_upload )
-	BROKER.subscribe('WORLD_BEGIN_INSTALL', begin_install )
+	BROKER.subscribe('WORLD_BEGIN_INSTALL', handle_hold )
+
 
 }
 

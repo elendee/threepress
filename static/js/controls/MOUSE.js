@@ -115,8 +115,15 @@ const pan_look = e => { // ( left click )
 
 	CAMERA.fixture.rotateY( -diffX / 300 )
 
+	if( current_cam_dist > MAX_DIST * .66 ){
+		vert_scalar = 6
+	}else if( current_cam_dist > MAX_DIST * .33 ){
+		vert_scalar = 4
+	}else{
+		vert_scalar = 2
+	}
 	// CAMERA.fixture.rotateX( diffY / 300 )
-	CAMERA.position.y += diffY / 20 // moved to pan
+	CAMERA.position.y += ( diffY / 20 ) * vert_scalar // moved to pan
 
 	currentY = e.clientY
 	currentX = e.clientX
@@ -363,6 +370,7 @@ const move_wheel_amount = ( scroll_dist, dir ) => {
 const query_drop = event => {
 
 	console.log('unhandled query drop', event )
+
 	// const { e } = event
 
 	// const { mesh } = detect_object_clicked( e )
@@ -376,16 +384,73 @@ const query_drop = event => {
 }
 
 
-
-
 // A)
-function detect_object_clicked( e ){
+function detect_object_clicked( e, bounds ){
 
-	if(!e.preventDefault ) return { mesh: false }
+	if( !e.preventDefault ) return { mesh: false }
 	e.preventDefault();
 
-	const x = ( e.clientX / RENDERER.domElement.clientWidth ) * 2 - 1
-	const y =  - ( e.clientY / RENDERER.domElement.clientHeight ) * 2 + 1
+	let mx, my
+
+	// bounds == a frame for the click
+	if( bounds ){
+		mx = e.clientX - bounds.left
+		my = e.clientY - bounds.top
+	}else{
+		mx = e.clientX
+		my = e.clientY
+	}
+
+	const x = ( mx / RENDERER.domElement.clientWidth ) * 2 - 1
+	const y =  - ( my / RENDERER.domElement.clientHeight ) * 2 + 1
+
+	RAYCASTER.setFromCamera({
+		x: x, 
+		y: y
+	}, CAMERA )
+
+	const intersects = RAYCASTER.intersectObjects( SCENE.children, true ) // [ objects ], recursive (children) (ok to turn on if needed)
+
+	if( !intersects.length ){ // no more skybox woot  xx1 == skyboxxx
+		BROKER.publish('TARGET_SET', { uuid: false, mesh: false, caller: 'clear'} )
+		return { mesh: false }
+	}	
+
+	let clicked = false
+	let c = 0
+	while( !clicked && c < intersects.length ){
+		clicked = scour_clickable( intersects[c].object )
+		c++
+	}		
+
+	return {
+		mesh: clicked,
+		point: 'blorb',
+		intersects: intersects,
+	}
+ 
+}
+
+
+
+function detect_object_hovered( e, bounds ){
+
+	if( !e.preventDefault ) return { mesh: false }
+	e.preventDefault();
+
+	let mx, my
+
+	// bounds == frame for the click
+	if( bounds ){
+		mx = e.clientX - bounds.left
+		my = e.clientY - bounds.top
+	}else{
+		mx = e.clientX
+		my = e.clientY
+	}
+
+	const x = ( mx / RENDERER.domElement.clientWidth ) * 2 - 1
+	const y =  - ( my / RENDERER.domElement.clientHeight ) * 2 + 1
 
 	RAYCASTER.setFromCamera({
 		x: x, 
@@ -401,39 +466,46 @@ function detect_object_clicked( e ){
 		return { mesh: false }
 	}	
 
-	// if( intersects[0].distance < GLOBAL.RENDER.TARGET_DIST ){
-	let clicked = 'ethereal'
+	let hovered_intersection = false
 	let c = 0
-	while( clicked === 'ethereal' && c < intersects.length ){
-		clicked = scour_clickable( intersects[c].object )
+	while( !hovered_intersection && c < intersects.length ){
+		hovered_intersection = scour_collidable( intersects )
 		c++
-	}
-
-	// console.log( 'scour clicked: ', clicked )
+	}		
 	
 	return {
-		mesh: clicked,
+		intersection: hovered_intersection,
+		// intersects: intersects,
 	}
  
 }
 
+
+function scour_collidable( intersects ){
+
+	if( !intersects ) return // 'no object'
+
+	for( const int of intersects ){  // basically anything but the object itself for now...
+		if( int.object?.userData?.held_mesh ) continue
+		return int
+	}
+
+	return false
+}
+
+
 // B)
 function scour_clickable( obj ){
 
-	if( !obj ) return 'no object'
-
-	if( obj.userData ){
-		// if( obj.userData.type === 'fogbox' ) return 'fogbox'
-		if( obj.userData.ethereal ) return 'ethereal'
-	}
+	if( !obj ) return // 'no object'
 
 	if( check_clickable( obj ) ) return obj
 
 	for( let i = 0; i < 5; i++ ){
 
 		if( !obj.parent ){
-			// console.log('no parent', obj )
-			return 'no parent' 
+			console.log('no parent', obj )
+			return // 'no parent' 
 		}
 
 		if( check_clickable( obj.parent ) ) return obj.parent
@@ -498,7 +570,6 @@ document.addEventListener('visibilitychange', event => {
 // 	})	
 // })
 
-
 BROKER.subscribe('MOUSE_UNPAN', unpan_cam )
 BROKER.subscribe('QUERY_DROP_TARGET', query_drop )
 BROKER.subscribe('CAMERA_LOOK_HOME', camera_look_home )
@@ -514,4 +585,6 @@ const init = () => {
 
 export default {
 	init,
+	detect_object_clicked,
+	detect_object_hovered,
 }

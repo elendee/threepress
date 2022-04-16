@@ -42,6 +42,8 @@ const state = {
 
 	active: false,
 
+	hold: false
+
 }
 
 // state.getTarget = () => {
