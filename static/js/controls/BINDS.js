@@ -94,8 +94,8 @@ const default_binds = {
 		},
 
 		run2: {
-		 	forward: 40, // arr up
-		 	back: 38 // arr down
+		 	forward: 38, // arr up
+		 	back: 40 // arr down
 		},
 
 		turn: {

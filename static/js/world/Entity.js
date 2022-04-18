@@ -376,12 +376,14 @@ class Entity {
 
 
 
-	set_move_state( type, state ){
+	set_move_state( type, state, e ){
 		/*
 			this is called solely by keydowns currently
 			but here for abstraction
 
 		*/
+
+		if( e ) e.preventDefault()
 
 		this.state_diffed = this.last_states[ type ] !== state
 

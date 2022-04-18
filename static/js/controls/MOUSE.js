@@ -52,38 +52,10 @@ const track_look = e => { // ( right click )
 
 	}else{
 
-		// PLAYER.GROUP.rotateY( -diffX / 300 )
-		// const vec3 = new Vector3()
-		// CAMERA.getWorldDirection( vec3 )
-		// vec3.add( PLAYER.GROUP.position )
-		// PLAYER.GROUP.lookAt( vec3 )
-		// PLAYER.GROUP.rotation.x = PLAYER.GROUP.rotation.z = 0
-		// console.log( vec3 )
-
-		// CAMERA.rotation.x -= diffY / 200
-		// const newx = Math.min( Math.PI / 2, Math.max( -Math.PI / 2, 
 		CAMERA.rotation.x += diffY / 200 
-		// CAMERA.rotation.x = Math.min( Math.PI/2, CAMERA.rotation.x )
-		// CAMERA.rotation.x = Math.max( -Math.PI/2, CAMERA.rotation.x )
-		// console.log( newx )
-		// CAMERA.rotation.x = newx
 
 	}
 
-	// console.log( diffX, diffY )
-
-	// if( !PLAYER.sending_track ){
-	// 	BROKER.publish('SOCKET_SEND', {
-	// 		type: 'turn',
-	// 		quat: PLAYER.GROUP.quaternion,
-	// 	})
-	// 	PLAYER.sending_track = setInterval(() => {
-	// 		BROKER.publish('SOCKET_SEND', {
-	// 			type: 'turn',
-	// 			quat: PLAYER.GROUP.quaternion,
-	// 		})
-	// 	}, 500 )
-	// }
 	PLAYER.need_stream = true
 
 }
@@ -91,7 +63,14 @@ const track_look = e => { // ( right click )
 let panned = false
 const pan_look = e => { // ( left click )
 
-	// console.log('pan look ', panned )
+	// console.log('pan look ', e )
+
+	if( current_cam_dist === 'unset' ){
+		current_cam_dist = CAMERA.position.distanceTo( CAMERA.fixture.position )
+	}
+
+	if( typeof currentX !== 'number') currentX = e.clientX
+	if( typeof currentY !== 'number') currentY = e.clientY
 
 	if( STATE.first_person ){
 		track_look( e )
@@ -112,6 +91,8 @@ const pan_look = e => { // ( left click )
 
 	diffX = e.clientX - currentX
 	diffY = e.clientY - currentY
+
+	console.log('debug', e.clientX, e.clientY, currentX, currentY, diffX, diffY, current_cam_dist )
 
 	CAMERA.fixture.rotateY( -diffX / 300 )
 
@@ -189,12 +170,8 @@ function click_up( e ){
 			
 		case 3: // right
 			tracking_look = false
-			// const anim_map = PLAYER.animation_map[ PLAYER.modeltype ]
-			// if( !anim_map ) return
 			PLAYER.animate('turning', false, 1000 )
 			document.removeEventListener('mousemove', track_look )
-			// clearInterval( PLAYER.sending_track )
-			// delete PLAYER.sending_track 
 			break;
 
 		default: break;
@@ -206,6 +183,7 @@ function click_up( e ){
 function click_down( e ){
 
 	// console.log( e.which )
+
 	BROKER.publish('WORLD_SET_ACTIVE', {
 		state: true,
 	})
@@ -215,8 +193,12 @@ function click_down( e ){
 	switch( e.which ){
 		case 1: // left
 			e.preventDefault()
-			currentX = e.clientX
-			currentY = e.clientY
+			if( STATE.get() === 'holding' ){
+				BROKER.publish('WORLD_INSTALL', {
+					e: e,
+				})
+				return
+			}
 			document.addEventListener('mousemove', pan_look )
 			break;
 		case 2: // mid
@@ -242,7 +224,7 @@ function click_down( e ){
 
 const scroll_dist = new Vector3()
 
-let current_cam_dist = 1
+let current_cam_dist = 'unset'
 
 const SCROLL_STEP = 10
 
@@ -310,9 +292,6 @@ const camera_look_home = () => {
 	if( !PLAYER.GROUP ) return
 	// console.log('ya.. runs')
 	CAMERA.lookAt( new Vector3().copy( PLAYER.GROUP.position ).add( CAMERA.fixture.position ) )
-	// ORIGIN
-	// CAMERA.rotation.z = -Math.PI
-	// CAMERA.lookAt( ORIGIN )
 }
 
 
@@ -339,9 +318,7 @@ const move_wheel_amount = ( scroll_dist, dir ) => {
 
 	CAMERA.position.add( scroll_dist ).clampLength( 
 		MIN_DIST,
-		// ( SHIP.dimensions.z / 2 ) * 1.1, 
 		Math.max( MIN_DIST * 10, MAX_DIST ) // ( SHIP.dimensions.z / 2 )
-		// GLOBAL.RENDER.MAX_CAM
 	)
 
 	camera_look_home()
@@ -349,22 +326,6 @@ const move_wheel_amount = ( scroll_dist, dir ) => {
 }
 
 
-
-// function detectMouseWheelDirection( e ){
-
-//     var delta = null//,
-
-//     if ( !e ) { // if the event is not provided, we get it from the window object
-//         e = window.event;
-//     }
-//     if ( e.wheelDelta ) { // will work in most cases
-//         delta = e.wheelDelta / 60;
-//     } else if ( e.detail ) { // fallback for Firefox
-//         delta = -e.detail / 2;
-//     }
-
-//     return delta
-// }
 
 
 const query_drop = event => {
@@ -389,6 +350,8 @@ function detect_object_clicked( e, bounds ){
 
 	if( !e.preventDefault ) return { mesh: false }
 	e.preventDefault();
+
+	if( STATE.get() === 'holding') return { mesh: false }
 
 	let mx, my
 
@@ -432,6 +395,22 @@ function detect_object_clicked( e, bounds ){
 }
 
 
+const get_intersects = ( relative_x, relative_y ) => {
+
+	const x = ( relative_x / RENDERER.domElement.clientWidth ) * 2 - 1
+	const y =  - ( relative_y / RENDERER.domElement.clientHeight ) * 2 + 1
+
+	RAYCASTER.setFromCamera({
+		x: x, 
+		y: y
+	}, CAMERA )
+
+	const intersects = RAYCASTER.intersectObjects( SCENE.children, true ) // [ objects ], recursive (children) (ok to turn on if needed)
+
+	return intersects
+
+}
+
 
 function detect_object_hovered( e, bounds ){
 
@@ -449,15 +428,7 @@ function detect_object_hovered( e, bounds ){
 		my = e.clientY
 	}
 
-	const x = ( mx / RENDERER.domElement.clientWidth ) * 2 - 1
-	const y =  - ( my / RENDERER.domElement.clientHeight ) * 2 + 1
-
-	RAYCASTER.setFromCamera({
-		x: x, 
-		y: y
-	}, CAMERA )
-
-	const intersects = RAYCASTER.intersectObjects( SCENE.children, true ) // [ objects ], recursive (children) (ok to turn on if needed)
+	const intersects = get_intersects( mx, my )
 
 	// console.log('detect intersects:', intersects )
 
@@ -504,7 +475,7 @@ function scour_clickable( obj ){
 	for( let i = 0; i < 5; i++ ){
 
 		if( !obj.parent ){
-			console.log('no parent for click detect', obj )
+			console.log('no parent for click detect', obj.type )
 			return // 'no parent' 
 		}
 
@@ -545,30 +516,12 @@ RENDERER.domElement.addEventListener('mouseup', click_up )
 
 RENDERER.domElement.addEventListener('contextmenu', event => event.preventDefault())
 
-// RENDERER.domElement.addEventListener('mouseout', e => { 
-// 	// return // dev
-// 	click_up({ which: 3, caller: 'mouseout' }) 
-// 	click_up({ which: 1, caller: 'mouseout' }) 
-// 	BROKER.publish('WORLD_SET_ACTIVE', { 
-// 		state: false 
-// 	})	
-// })
-
 document.addEventListener('visibilitychange', event => {
 	BROKER.publish('WORLD_SET_ACTIVE', { 
 		state: document.visibilityState !== 'visible' 
 	})
 	// Howler.mute( document.visibilityState !== 'visible' )
 })
-
-// document.addEventListener('mouseout', e => {  // fires on everythign
-// 	console.log('doc out')
-// 	click_up({ which: 3, caller: 'mouseout' }) 
-// 	click_up({ which: 1, caller: 'mouseout' }) 
-// 	BROKER.publish('WORLD_SET_ACTIVE', { 
-// 		state: false 
-// 	})	
-// })
 
 BROKER.subscribe('MOUSE_UNPAN', unpan_cam )
 BROKER.subscribe('QUERY_DROP_TARGET', query_drop )
@@ -587,4 +540,5 @@ export default {
 	init,
 	detect_object_clicked,
 	detect_object_hovered,
+	get_intersects,
 }

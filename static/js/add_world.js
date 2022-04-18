@@ -184,7 +184,7 @@ const init_world = async( world_obj ) => {
 	} = world_obj
 
 	if( !location.href.match( new RegExp( domain, 'i' ) ) ){
-		hal('error', 'invalid world data', 5000)
+		lib.hal('error', 'invalid world data', 5000)
 		return
 	}
 
@@ -534,6 +534,45 @@ const handle_obj = event => {
 }
 
 
+const attempt_install = event => {
+	const { e } = event
+
+	// console.log('installing ', STATE.held_url , ' at ', x, y )
+
+	const bounds = RENDERER.domElement.getBoundingClientRect()
+
+	const { intersection } = MOUSE.detect_object_hovered( e, bounds )
+	if( !intersection ){
+		console.log('no install location found' )
+		return
+	}
+
+	console.log( 'ins: ', intersection )
+
+	BROKER.publish('SOCKET_SEND', {
+		type: 'attempt_install',
+		url: STATE.held_url,
+		point: intersection.point,
+		uuid: intersection.object?.userData?.uuid || intersection.object?.uuid,
+	})
+
+}
+
+
+
+const resolve_install = event => {
+	const { state, msg, url, position } = event 
+
+	if( state ){
+
+	}else{
+		lib.hal('error', msg || 'unknown error installing', 5000 )
+	}
+}
+
+
+
+
 BROKER.subscribe('WORLD_SET_ACTIVE', set_active )
 BROKER.subscribe('WORLD_INIT', init_entry )
 BROKER.subscribe('WORLD_ADD_VOXEL', add_voxel )
@@ -543,6 +582,8 @@ BROKER.subscribe('TOON_CORE', handle_core )
 BROKER.subscribe('TOON_UPDATE_MODEL', update_toon_model )
 BROKER.subscribe('TOON_REMOVE', remove_toon )
 BROKER.subscribe('WORLD_HANDLE_OBJ', handle_obj )
+BROKER.subscribe('WORLD_INSTALL', attempt_install )
+BROKER.subscribe('WORLD_RESOLVE_INSTALL', resolve_install )
 // BROKER.subscribe('TOON_WALK', handle_walk )
 // BROKER.subscribe('TOON_TURN', handle_turn )
 // BROKER.subscribe('TOON_STRAFE', handle_strafe )

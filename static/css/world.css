@@ -296,3 +296,9 @@
 	cursor: pointer;
 	padding: 2px 4px;
 }
+
+#hold-cancel div{
+/* 	background: white; */
+	font-size: .8rem;
+	font-style: italic;
+}

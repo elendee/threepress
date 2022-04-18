@@ -33,13 +33,10 @@ setTimeout( () => { // just needs to wait for compile to be done
 }, 1000 ) 
 
 
-
-
-const image_geo = new BoxBufferGeometry(1,1,1)
-const image_mat = new MeshLambertMaterial({
-	color: 'rgb(255, 245, 245)',
-})
-
+// const image_geo = new BoxBufferGeometry(1,1,1)
+// const image_mat = new MeshLambertMaterial({
+// 	color: 'rgb(255, 245, 245)',
+// })
 
 const Placeholder = () => {
 	const geo = new SphereGeometry(1,8,8)
@@ -49,11 +46,10 @@ const Placeholder = () => {
 		opacity: .5,
 	})
 	const mesh = new Mesh( geo, mat )
+	mesh.userData.held_mesh = true
 	mesh.scale.multiplyScalar( 2 )
 	return mesh
 }
-
-
 
 // const holdcaster = new Raycaster()
 // const pointer = new Vector2()
@@ -73,7 +69,7 @@ const clear_hold = event => {
 
 	// state
 	STATE.splice('holding')
-	STATE.hold = false
+	STATE.held_url = false
 
 	// object
 	SCENE.remove( placeholder )
@@ -106,16 +102,9 @@ const render_hold = async( event ) => {
 
 		placeholder = Placeholder()
 
-		// held_mesh = await hold.construct_model()
-		// if( !held_mesh || STATE.get() !== 'holding' ){
-		// 	console.log("got invalid hold somehow", type, url)
-		// 	BROKER.publish('CLEAR_HOLD')
-		// 	return
-		// }
-		// console.log('rendering: ', held_mesh )
-
 		// state
 		STATE.set('holding')
+		STATE.held_url = url
 
 		// object
 		SCENE.add( placeholder )
@@ -124,7 +113,7 @@ const render_hold = async( event ) => {
 		show_tracking( true )
 
 		// ui
-		show_ui( true )	
+		show_ui( true, url )	
 
 	}catch( err ){
 
@@ -153,12 +142,16 @@ const show_tracking = state => {
 }
 
 
-const show_ui = state => {
+const show_ui = ( state, url ) => {
 
 	if( state ){
 		hold_ui.style.display = 'inline-block'
+		const msg = document.createElement('div')
+		msg.innerHTML = 'placing: ...' + url.substr( url.length - 10 )
+		cancel.appendChild( msg )
 	}else{
 		hold_ui.style.display = 'none'
+		cancel.innerHTML = 'cancel'
 	}
 
 }

@@ -23,6 +23,8 @@ let unknown = {
 
 const handle_keydown = ( e ) => {
 
+	// console.log( e.keyCode )
+
 	// only in game / frame keystrokes:
 	if( !STATE.active ) return 
 
@@ -54,9 +56,8 @@ const handle_keydown = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: e.shiftKey ? 'walking' : 'running',
 					state: 1,
+					e: e,
 				})
-				// up / down arrow keys - not good in a browser
-				if( e.keyCode === 38 || e.keyCode === 40 ) e.preventDefault()
 				break;
 
 			case BINDS.world.run.back:
@@ -64,6 +65,7 @@ const handle_keydown = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: e.shiftKey ? 'walking' : 'running',
 					state: -1,
+					e: e,
 				})
 				break;
 
@@ -71,6 +73,7 @@ const handle_keydown = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'turning',
 					state: 1,
+					e: e,
 				})
 				break;
 
@@ -78,6 +81,7 @@ const handle_keydown = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'turning',
 					state: -1,
+					e: e,
 				})
 				break;
 
@@ -85,6 +89,7 @@ const handle_keydown = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'turning',
 					state: 1,
+					e: e,
 				})
 				break;
 
@@ -92,6 +97,7 @@ const handle_keydown = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'turning',
 					state: -1,
+					e: e,
 				})
 				break;
 
@@ -99,6 +105,7 @@ const handle_keydown = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'strafing',
 					state: -1,
+					e: e,
 				})
 				break;
 
@@ -106,6 +113,7 @@ const handle_keydown = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'strafing',
 					state: 1,
+					e: e,
 				})
 				break;
 
@@ -207,10 +215,12 @@ const handle_keyup = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'walking',
 					state: 0,
+					e: e,
 				})
 				BROKER.publish('MOVE_KEY', {
 					type: 'running',
 					state: 0,
+					e: e,
 				})
 				break
 
@@ -219,10 +229,12 @@ const handle_keyup = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'walking',
 					state: 0,
+					e: e,
 				})
 				BROKER.publish('MOVE_KEY', {
 					type: 'running',
 					state: 0,
+					e: e,
 				})
 				break
 
@@ -231,6 +243,7 @@ const handle_keyup = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'turning',
 					state: 0,
+					e: e,
 				})
 				break
 
@@ -238,6 +251,7 @@ const handle_keyup = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'turning',
 					state: 0,
+					e: e,
 				})
 				break
 
@@ -245,6 +259,7 @@ const handle_keyup = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'turning',
 					state: 0,
+					e: e,
 				})
 				break
 
@@ -252,6 +267,7 @@ const handle_keyup = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'turning',
 					state: 0,
+					e: e,
 				})
 				break
 
@@ -260,6 +276,7 @@ const handle_keyup = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'strafing',
 					state: 0,
+					e: e,
 				})
 				break;
 
@@ -267,6 +284,7 @@ const handle_keyup = ( e ) => {
 				BROKER.publish('MOVE_KEY', {
 					type: 'strafing',
 					state: 0,
+					e: e,
 				})
 				break;
 
@@ -426,9 +444,9 @@ const handle_move_key = event => {
 	/*
 		passes through here just to be proper..
 	*/
-	const { type, state } = event
+	const { type, state, e } = event
 
-	PLAYER.set_move_state( type, state )
+	PLAYER.set_move_state( type, state, e )
 
 }
 

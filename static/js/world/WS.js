@@ -85,6 +85,10 @@ const init = ele => {
 				BROKER.publish('WORLD_BEGIN_INSTALL', packet )
 				break;
 
+			case 'install_response':
+				BROKER.publish('WORLD_RESOLVE_INSTALL', packet )
+				break;
+
 			case 'hal':
 				hal( packet.msg_type || 'standard', packet.msg || '(unknown server message)', packet.time || 5000 )
 				break;
