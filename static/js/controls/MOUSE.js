@@ -467,6 +467,7 @@ function scour_collidable( intersects ){
 
 // B)
 function scour_clickable( obj ){
+	console.log('careful of mutation here...\n\nfix...\n\n')
 
 	if( !obj ) return // 'no object'
 
@@ -491,7 +492,7 @@ function scour_clickable( obj ){
 // C)
 function check_clickable( obj ){
 
-	if( ( obj && obj.userData && obj.userData.clickable ) ){ // || obj && obj.type === 'planet' 
+	if( ( obj?.userData?.clickable ) ){ // || obj && obj.type === 'planet' 
 		return obj
 	}else{
 		return false

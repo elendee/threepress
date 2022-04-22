@@ -6,14 +6,14 @@ import RENDERER from './RENDERER.js?v=130'
 import SCENE from './SCENE.js?v=130'
 import STATE from './STATE.js?v=130'
 import MOUSE from '../controls/MOUSE.js?v=130'
-import Install from './Install.js?v=130'
+// import Install from './Install.js?v=130'
 import {
-	BoxBufferGeometry,
+	// BoxBufferGeometry,
 	MeshLambertMaterial,
 	Mesh,
 	SphereGeometry,
-	Raycaster,
-	Vector2,
+	// Raycaster,
+	// Vector2,
 } from '../../inc/three.module.js?v=130'
 
 

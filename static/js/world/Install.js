@@ -12,6 +12,11 @@ import {
 	TextureLoader,
 } from '../../inc/three.module.js?v=130'
 import { GLTFLoader } from '../../inc/GLTFLoader.js?v=130'
+import { TransformControls } from '../../inc/TransformControls.js?v=130'
+import CAMERA from './CAMERA.js?v=130'
+import RENDERER from './RENDERER.js?v=130'
+
+
 
 
 const framegeo = new BoxBufferGeometry(1,1,1)
@@ -23,6 +28,13 @@ const planegeo = new PlaneGeometry(1,1,1)
 const texLoader = new TextureLoader()
 const gltfLoader = new GLTFLoader()
 
+const transformer = new TransformControls( CAMERA, RENDERER.domElement )
+transformer.addEventListener('change', e => {
+	console.log('transformer change' )
+})
+transformer.addEventListener('objectChange', e => {
+	console.log('transformer objectChange' )
+})
 
 
 
@@ -101,6 +113,9 @@ class Install {
 			console.log('unknown process_model', this )
 		}
 
+		this.GROUP.userData.clickable = true
+		this.GROUP.userData.uuid = this.uuid
+
 		try{
 			const parse = JSON.parse( this.quaternion )
 			this.GROUP.quaternion.set( parse._x, parse._y, parse._z, parse._w )
@@ -109,6 +124,10 @@ class Install {
 			console.log('failed to parse Install quaternion', err )
 		}
 
+	}
+
+	add_controls(){
+		transformer.attach( this.GROUP )
 	}
 
 }
