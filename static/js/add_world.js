@@ -20,6 +20,7 @@ import BROKER from './world/WorldBroker.js?v=130'
 import WS from './world/WS.js?v=130'
 // game stuff
 import STATE from './world/STATE.js?v=130'
+import Install from './world/Install.js?v=130'
 import Player from './world/Player.js?v=130'
 // registers
 import PLAYER from './world/PLAYER.js?v=130'
@@ -199,6 +200,7 @@ const init_world = async( world_obj ) => {
 	})
 	tilemat.map = texLoader.load( THREEPRESS.ARCADE.URLS.https +  '/resource/texture/tile.jpg')
 	const tiles = new Mesh( tilegeo, tilemat )
+	tiles.userData.is_ground = true
 	tiles.receiveShadow = true
 	tiles.rotation.x = -Math.PI /2
 	tiles.position.y += .05
@@ -214,6 +216,7 @@ const init_world = async( world_obj ) => {
 	})
 	// groundmat.map = texLoader.load( THREEPRESS.ARCADE.URLS.https +  '/resource/texture/tile.jpg')
 	const ground = new Mesh( groundgeo, groundmat )
+	ground.userData.is_ground = true
 	ground.receiveShadow = true
 	ground.rotation.x = -Math.PI /2
 	ground.scale.multiplyScalar( 1000 )
@@ -229,7 +232,7 @@ const init_world = async( world_obj ) => {
 
 	SCENE.add( SKYBOX )
 
-			// break;
+	// break;
 
 	// 	case 'voxel':
 
@@ -534,7 +537,10 @@ const handle_obj = event => {
 }
 
 
-const attempt_install = event => {
+
+
+const send_install = event => {
+
 	const { e } = event
 
 	// console.log('installing ', STATE.held_url , ' at ', x, y )
@@ -547,27 +553,58 @@ const attempt_install = event => {
 		return
 	}
 
-	console.log( 'ins: ', intersection )
+	const target = intersection.object
+	const is_ground = target?.userData?.is_ground
+	if( !target?.userData?.clickable && !is_ground ){
+		console.log('no install target found')
+		return			
+	}
+
+	console.log( 'sending install intersection: ', intersection )
 
 	BROKER.publish('SOCKET_SEND', {
-		type: 'attempt_install',
+		type: 'send_install',
 		url: STATE.held_url,
 		point: intersection.point,
-		uuid: intersection.object?.userData?.uuid || intersection.object?.uuid,
+		mount_uuid: target.userData?.uuid, //  || target.uuid,
+		is_ground: is_ground,
 	})
 
 }
 
 
 
-const resolve_install = event => {
-	const { state, msg, url, position } = event 
+const handle_install = event => {
 
-	if( state ){
+	const { install } = event 
 
-	}else{
-		lib.hal('error', msg || 'unknown error installing', 5000 )
+	console.log('handle install', event )
+
+	const type = lib.get_install_type( install.url )
+
+	let installation
+
+	switch( type ){
+
+		case 'image':
+			installation = new Install( install )
+			installation.construct_model()
+			.then( group => {
+				SCENE.add( group )
+				group.position.set( install.x, install.y, install.z )
+				console.log('installation...', installation )
+				console.log('res...', group)
+			})
+			break;
+
+		case 'model':
+			break;
+
+		default: 
+			console.log('unknown install type', type )
+			return
 	}
+
 }
 
 
@@ -582,8 +619,8 @@ BROKER.subscribe('TOON_CORE', handle_core )
 BROKER.subscribe('TOON_UPDATE_MODEL', update_toon_model )
 BROKER.subscribe('TOON_REMOVE', remove_toon )
 BROKER.subscribe('WORLD_HANDLE_OBJ', handle_obj )
-BROKER.subscribe('WORLD_INSTALL', attempt_install )
-BROKER.subscribe('WORLD_RESOLVE_INSTALL', resolve_install )
+BROKER.subscribe('WORLD_INSTALL', send_install )
+BROKER.subscribe('WORLD_PONG_INSTALL', handle_install )
 // BROKER.subscribe('TOON_WALK', handle_walk )
 // BROKER.subscribe('TOON_TURN', handle_turn )
 // BROKER.subscribe('TOON_STRAFE', handle_strafe )

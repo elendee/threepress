@@ -40,7 +40,7 @@
 }
 
 #threepress-admin-toggle,
-#threepress-actions-toggle{
+#threepress-actions{
 	position: absolute;
 	background: white;
 	padding: 8px;
@@ -49,9 +49,10 @@
 	cursor: pointer;
 	font-size: .8rem;
 }
-#threepress-actions-toggle{
+#threepress-actions{
 	left: auto;
 	right: 0px;
+	padding: 2px 0;
 }
 
 #threepress-world .threepress-modal{
@@ -147,12 +148,12 @@
     left: 0;
     width: 100%;
     height: calc( 100% - 30px);
-    background: rgba(0, 0, 0, .8);
     overflow-y: auto;
-	opacity: .2
+	background: black;
+	opacity: .35;
 }
 #threepress-chat:hover #threepress-chat-content{
-	opacity: 1;
+	opacity: .9;
 }
 
 #threepress-chat-input{
@@ -295,10 +296,16 @@
 	background: #ff7300;
 	cursor: pointer;
 	padding: 2px 4px;
+
+	display: none;
 }
 
 #hold-cancel div{
 /* 	background: white; */
 	font-size: .8rem;
 	font-style: italic;
+}
+
+.world-action-button{
+	margin: 0 2px;
 }

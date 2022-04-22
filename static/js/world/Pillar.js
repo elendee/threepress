@@ -37,16 +37,20 @@ export default class Pillar {
 
 		mesh.rotation.y = this.rotation
 
-		this.traverse_model()
+		this.process_model()
 
 	}
 
-	traverse_model(){
+	process_model(){
+		
 		this.MODEL.traverse(ele => {
 			ele.castShadow = true
 			ele.receiveShadow = true
 		})
-		// this.MODEL.castShadow = true
+
+		this.MODEL.userData.clickable = true
+		this.MODEL.userData.uuid = this.uuid
+
 	}
 
 }

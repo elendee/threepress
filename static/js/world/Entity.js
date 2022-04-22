@@ -158,7 +158,7 @@ class Entity {
 							entity.MODEL = MODEL_CACHE[ filepath ].clone()
 							entity.add_group( is_update )
 							entity.GROUP.add( entity.MODEL )	
-							entity.traverse_model()
+							entity.process_model()
 							resolve('loaded from wait: ' + filepath )	
 						}else{
 							debug_load('still waiting', filepath)
@@ -174,8 +174,8 @@ class Entity {
 
 					entity.MODEL = MODEL_CACHE[ filepath ].clone()
 					entity.add_group( is_update )
-					entity.GROUP.add( entity.MODEL )	
-					entity.traverse_model()
+					entity.GROUP.add( entity.MODEL )
+					entity.process_model()
 					resolve('loaded from cache: ' + filepath)
 
 				}
@@ -197,7 +197,6 @@ class Entity {
 
 				// console.log('loading: ', slug, modeltype )
 
-
 				gltf.load( filepath, 
 
 					obj => {
@@ -217,7 +216,7 @@ class Entity {
 							}
 
 							entity.GROUP.add( entity.MODEL )	
-							entity.traverse_model()
+							entity.process_model()
 
 							// animations
 							if( obj.animations && obj.animations.length ){
@@ -274,9 +273,9 @@ class Entity {
 	}
 
 
-	traverse_model(){
+	process_model(){
 
-		console.log('class is missing its traverse_model method: ' + this )
+		console.log('class is missing its process_model method: ' + this )
 
 		// // shadows
 		// this.MODEL.traverse(ele => {
@@ -433,8 +432,12 @@ class Entity {
 
 
 	animate( name, state, fadeN ){
-		if( !this.animation || !name || typeof fadeN !== 'number' ){
-			console.log('invalid fade', name )
+		if( typeof fadeN !== 'number' ){
+			console.log('invalid fade', fadeN, name )
+			return			
+		}
+		if( !this.animation || !name ){
+			console.log('invalid anim: ', name )
 			return
 		}
 		const action = this.animation.actions[ name ]

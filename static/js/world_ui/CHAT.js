@@ -380,6 +380,8 @@ input.addEventListener('keyup', e => {
 
 const append_chat = ele => {
 
+	// console.log('append_chat ', ele )
+
 	const chats = document.getElementsByClassName('chat-msg')
 	const diff = chats.length - 50
 	for( let i = 0; i < diff; i++ ){
@@ -401,47 +403,70 @@ const add_chat = event => {
 
 	const { sender_uuid, chat_type, msg, color } = event
 
-	const sender = TOONS[ sender_uuid ]
-	if( !sender ){
-		console.log('invalid chat: ', event )
-		return false
-	}
-	const handle = sender.handle
 	const player1 = sender_uuid === PLAYER.uuid
 
-	const chat = new Chat({
-		sender: handle,
-		color: color,
-		uuid: sender_uuid,
-		type: chat_type,
-		msg: msg,
-		self: player1,
-	})
+	if( chat_type == 'system'){
 
-	append_chat( chat.ele )
-
-	if( !( player1 && STATE.first_person ) ){
-
-		const bubble = new Bubble({
-			sender: handle,
-			sender_uuid: sender_uuid,
+		const chat = new Chat({
+			sender: 'system',
+			color: color,
+			uuid: sender_uuid,
 			type: chat_type,
 			msg: msg,
-			color: sender.color,
+		})
+
+		append_chat( chat.ele )
+
+	}else{
+
+		const sender = TOONS[ sender_uuid ]
+		if( !sender ){
+			console.log('invalid chat: ', event )
+			return false
+		}
+		const handle = sender.handle
+
+		const chat = new Chat({
+			sender: handle,
+			color: color,
+			uuid: sender_uuid,
+			type: chat_type,
+			msg: msg,
 			self: player1,
 		})
-		RENDERER.domElement.parentElement.appendChild( bubble.ele )
-		bubble.update_position()
-		BUBBLES[ bubble.hash ] = bubble
 
-		setTimeout(function(){
-			bubble.ele.remove()
-			delete BUBBLES[ bubble.hash ]
-		}, 6000 )
+		append_chat( chat.ele )
+
+		if( player1 && STATE.first_person ){
+
+			// no bubble
+
+		}else{
+
+			const bubble = new Bubble({
+				sender: handle,
+				sender_uuid: sender_uuid,
+				type: chat_type,
+				msg: msg,
+				color: sender.color,
+				self: player1,
+			})
+			RENDERER.domElement.parentElement.appendChild( bubble.ele )
+			bubble.update_position()
+			BUBBLES[ bubble.hash ] = bubble
+
+			setTimeout(function(){
+				bubble.ele.remove()
+				delete BUBBLES[ bubble.hash ]
+			}, 6000 )
+
+			begin_bubbles()
+
+		}
 
 	}
 
-	begin_bubbles()
+
 
 }
 

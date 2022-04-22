@@ -92,7 +92,7 @@ const pan_look = e => { // ( left click )
 	diffX = e.clientX - currentX
 	diffY = e.clientY - currentY
 
-	console.log('debug', e.clientX, e.clientY, currentX, currentY, diffX, diffY, current_cam_dist )
+	// console.log('debug', e.clientX, e.clientY, currentX, currentY, diffX, diffY, current_cam_dist )
 
 	CAMERA.fixture.rotateY( -diffX / 300 )
 
@@ -170,7 +170,7 @@ function click_up( e ){
 			
 		case 3: // right
 			tracking_look = false
-			PLAYER.animate('turning', false, 1000 )
+			PLAYER.animate('turning', false, 500 )
 			document.removeEventListener('mousemove', track_look )
 			break;
 
@@ -208,7 +208,7 @@ function click_down( e ){
 			currentX = e.clientX
 			currentY = e.clientY
 			tracking_look = true
-			PLAYER.animate( 'turning', true)
+			PLAYER.animate( 'turning', true, 500 )
 			document.addEventListener('mousemove', track_look )
 			break;
 		default: break;

@@ -6,7 +6,7 @@ import RENDERER from './RENDERER.js?v=130'
 import SCENE from './SCENE.js?v=130'
 import STATE from './STATE.js?v=130'
 import MOUSE from '../controls/MOUSE.js?v=130'
-import Artwork from './Artwork.js?v=130'
+import Install from './Install.js?v=130'
 import {
 	BoxBufferGeometry,
 	MeshLambertMaterial,
@@ -26,7 +26,7 @@ const hold_ui = document.createElement('div')
 hold_ui.id = 'hold-ui'
 const cancel = document.createElement('div')
 cancel.id = 'hold-cancel'
-cancel.innerHTML = 'cancel'
+cancel.innerHTML = 'cancel install'
 hold_ui.appendChild( cancel )
 setTimeout( () => { // just needs to wait for compile to be done
 	RENDERER.domElement.parentElement.appendChild( hold_ui )
@@ -128,8 +128,10 @@ const render_hold = async( event ) => {
 
 
 const show_tracking = state => {
+
 	RENDERER.domElement.removeEventListener('mousemove', trace_hold )
 	clearInterval( hit_detecting )
+
 	if( state ){
 		RENDERER.domElement.addEventListener('mousemove', trace_hold )
 		hit_detecting = setInterval(() => {
@@ -145,13 +147,26 @@ const show_tracking = state => {
 const show_ui = ( state, url ) => {
 
 	if( state ){
+
 		hold_ui.style.display = 'inline-block'
-		const msg = document.createElement('div')
-		msg.innerHTML = 'placing: ...' + url.substr( url.length - 10 )
-		cancel.appendChild( msg )
+
+		// const msg = document.createElement('div')
+		// msg.innerHTML = 'placing: ...' + url.substr( url.length - 10 )
+		// cancel.appendChild( msg )
+
+		BROKER.publish('CHAT_ADD', {
+			sender: 'system',
+			chat_type: 'system',
+			msg: 'placing: ...' + url.substr( url.length - 20 ),
+		})
+
+		// const { sender_uuid, chat_type, msg, color } = event
+
 	}else{
+
 		hold_ui.style.display = 'none'
 		cancel.innerHTML = 'cancel'
+
 	}
 
 }
@@ -178,10 +193,10 @@ const update_hold_point = () => {
 	} = MOUSE.detect_object_hovered( last_traced, RENDERER.domElement.getBoundingClientRect() )
 
 	// console.log( 'int: ', intersection.face )
-	spacer++
-	if( spacer % 10  === 0 ){
-		console.log( intersection )	
-	}
+	// spacer++
+	// if( spacer % 10  === 0 ){
+	// 	console.log( intersection )	
+	// }
 
 	if( intersection ){
 		let lerps = 0
@@ -189,7 +204,7 @@ const update_hold_point = () => {
 		updating_held_position = setInterval(() => {
 
 			// held_mesh.lookAt( held_mesh.position.add( intersection.face.normal ) )
-			placeholder.position.lerp( intersection.point, .1 )
+			placeholder.position.lerp( intersection.point, .2 )
 
 			lerps++
 			if( lerps > 50 ){

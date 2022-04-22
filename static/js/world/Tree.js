@@ -32,11 +32,15 @@ export default class Tree extends Entity {
 
 	}
 
-	traverse_model(){
+	process_model(){
 		this.MODEL.traverse(ele => {
 			ele.castShadow = true
 			if( ele.material ) ele.material = random_entry( tree_mats[ this.species ] )
 		})
+
+		this.MODEL.userData.clickable = true
+		this.MODEL.userData.uuid = this.uuid
+
 	}
 
 }

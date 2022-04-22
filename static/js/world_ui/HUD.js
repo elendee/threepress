@@ -11,6 +11,42 @@ import {
 } from '../lib.js?v=130'
 
 
+
+
+
+
+const build_action = ( type ) => {
+
+	let ele =document.createElement('div')
+
+	switch( type ){
+		case 'install':
+			ele.classList.add('world-action-button', 'button')
+			ele.innerHTML = type
+			ele.addEventListener('click', () => {
+				BROKER.publish('ACTION', {
+					type: type,
+				})
+			})
+			break;
+
+		default: 	
+			console.log('unknown action', type)
+			break;
+	}
+
+	return ele
+
+}
+
+
+
+
+
+
+
+
+
 let wrapper
 
 const toggle = document.createElement('div')
@@ -21,11 +57,17 @@ toggle.addEventListener('click', () => {
 })
 
 const actions = document.createElement('div')
-actions.id = 'threepress-actions-toggle'
-actions.innerHTML = 'actions'
-actions.addEventListener('click', () => {
-	BROKER.publish('ACTIONS_TOGGLE')
-})
+actions.id = 'threepress-actions'
+const install = build_action('install')
+actions.appendChild( install )
+
+// actions.innerHTML = 'actions'
+// actions.addEventListener('click', () => {
+// 	BROKER.publish('ACTIONS_TOGGLE')
+// })
+
+
+
 
 const toggle_admin = event => {
 	const modal = new Modal({
@@ -47,23 +89,23 @@ const toggle_admin = event => {
 
 }
 
-const toggle_actions = event => {
-	const modal = new Modal({
-		type: 'actions'
-	})
+// const toggle_actions = event => {
+// 	const modal = new Modal({
+// 		type: 'actions'
+// 	})
 
-	const menu = document.createElement('div')
-	menu.id = 'threepress-actions-world-nav'
+// 	const menu = document.createElement('div')
+// 	menu.id = 'threepress-actions-world-nav'
 
-	add_section( 'actions', modal.content, menu )
+// 	add_section( 'actions', modal.content, menu )
 
-	modal.content.appendChild( menu )
+// 	modal.content.appendChild( menu )
 
-	wrapper.appendChild( modal.ele )
+// 	wrapper.appendChild( modal.ele )
 
-	modal.content.querySelector('.threepress-admin-tab').click()
+// 	modal.content.querySelector('.threepress-admin-tab').click()
 
-}
+// }
 
 const add_section = ( type, container, menu ) => {
 
@@ -113,29 +155,29 @@ const add_section = ( type, container, menu ) => {
 			break;
 
 
-		case 'actions':
-			const install = document.createElement('div')
-			install.classList.add("threepress-button")
-			install.innerHTML = 'install'
-			install.addEventListener('click', () => {
-				// const close = container.parentElement.querySelector('.threepress-modal-close')
-				// if( close ) close.click()
-				const hash = random_hex( 6 )
-				BROKER.publish('SOCKET_SEND', {
-					type: 'ping_admin_domain',
-					hash: hash,
-				})
-				container.parentElement.setAttribute('data-await-hash', hash )
-				setTimeout(() => {
-					if( container.parentElement.getAttribute('data-await-hash') ){
-					// 	// a valid response will remove hash so this doesn't happen
-						hal('error', 'install request was blocked', 3000 )
-						container.parentElement.removeAttribute('data-await-hash')
-					}
-				}, 3000)
-			})
-			section.appendChild( install )
-			break;
+		// case 'actions':
+		// 	const install = document.createElement('div')
+		// 	install.classList.add("threepress-button")
+		// 	install.innerHTML = 'install'
+		// 	install.addEventListener('click', () => {
+		// 		// const close = container.parentElement.querySelector('.threepress-modal-close')
+		// 		// if( close ) close.click()
+		// 		const hash = random_hex( 6 )
+		// 		BROKER.publish('SOCKET_SEND', {
+		// 			type: 'ping_admin_domain',
+		// 			hash: hash,
+		// 		})
+		// 		container.parentElement.setAttribute('data-await-hash', hash )
+		// 		setTimeout(() => {
+		// 			if( container.parentElement.getAttribute('data-await-hash') ){
+		// 			// 	// a valid response will remove hash so this doesn't happen
+		// 				hal('error', 'install request was blocked', 3000 )
+		// 				container.parentElement.removeAttribute('data-await-hash')
+		// 			}
+		// 		}, 3000)
+		// 	})
+		// 	section.appendChild( install )
+		// 	break;
 
 		default: 
 			console.log('admin section not configured yet: ', type )
@@ -165,7 +207,10 @@ const build_toon_listing = res => {
 
 	const { filename, modeltype } = res
 
-	const formatted = filename.replace(/_/g, ' ').replace(/.gltf/i, '').replace(/.glb/i, '').replace(/.fbx/i, '')
+	const formatted = filename.replace(/_/g, ' ')
+	.replace(/.gltf/i, '')
+	.replace(/.glb/i, '')
+	.replace(/.fbx/i, '')
 
 	const wrapper = document.createElement('div')
 	wrapper.classList.add('threepress-toon-listing')
@@ -186,24 +231,30 @@ const build_toon_listing = res => {
 			filename: filename,
 		})
 	})
+
 	return wrapper
+
 }
 
 
 
-const submit_install = ( input, submit ) => {
-	if( !input.value.trim() ) return
-	BROKER.publish('SOCKET_SEND', {
-		type: 'begin_install',
-		url: input.value.trim(),
-	})
-	submit.style['pointer-events'] = 'none'
-	hal('standard', 'querying resource....', 4000 )
-	spinner.show()
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 const create_install_form = modal => {
+
 	const form = document.createElement('div')
 	form.classList.add('threepress-install-form')
 	const expl = document.createElement('div')
@@ -214,41 +265,91 @@ const create_install_form = modal => {
 	input.placeholder = 'paste URL here'
 	input.addEventListener('keyup', e => {
 		if( e.keyCode === 13 ){
-			submit_install( input, submit )
+			submit_install( input.value.trim(), submit )
 		}
 	})
+	if( THREEPRESS.home_url.match(/localhost/i) ){
+		setTimeout(()=>{
+			input.value = THREEPRESS.ARCADE.URLS.https + '/resource/image/quaternius-chat.jpg'
+		}, 500 )
+	}
 	form.appendChild( input )
 	const submit = document.createElement('div')
 	submit.classList.add('threepress-button')
 	submit.innerHTML = 'submit'
 	submit.addEventListener('click', () => {
-		submit_install( input, submit )
+		submit_install( input.value.trim(), submit )
 	})
 	form.appendChild( submit )
 	setTimeout(() => {
 		input.focus()
 	}, 100 )
+
 	return form
+
 }
 
 
 
 const allow_upload = event => {
+
 	const { hash, is_admin } = event
-	const modal = document.querySelector('.threepress-modal[data-await-hash="' + hash + '"]')
-	if( !modal ){
-		console.log('got admin for non-existent modal', is_admin )
-		return
+
+	// const modal = document.querySelector('.threepress-modal[data-await-hash="' + hash + '"]')
+	// if( !modal ){
+	// 	console.log('got admin for non-existent modal', is_admin )
+	// 	return
+	// }
+
+	// for( const button of modal.querySelectorAll('.threepress-button')){
+	// 	if( button.innerText.match(/install/i)){
+	// 		button.remove()
+	// 	}
+	// }
+
+	// modal.removeAttribute('data-await-hash')
+
+	console.log('  event', event )
+
+	const current_hash = RENDERER.domElement.getAttribute('data-await-hash')
+
+	if( current_hash !== hash ){
+		console.log('got upload permissions for non existent request', hash, current_hash )
+		return 
 	}
-	for( const button of modal.querySelectorAll('.threepress-button')){
-		if( button.innerText.match(/install/i)){
-			button.remove()
-		}
-	}
-	modal.removeAttribute('data-await-hash')
-	const section = modal.querySelector('.threepress-admin-section')
+
+	const modal = new Modal({
+		type: 'create_install'
+	})
+
+	// const section = modal.querySelector('.threepress-admin-section')
+
 	const form = create_install_form( modal )
-	section.appendChild( form )
+
+	modal.content.appendChild( form )
+
+	wrapper.appendChild( modal.ele )
+
+	// section.appendChild( form )
+
+}
+
+
+
+const submit_install = ( value, submit ) => {
+
+	if( typeof value !== 'string' ) return
+
+	BROKER.publish('SOCKET_SEND', {
+		type: 'begin_install',
+		url: value,
+	})
+
+	submit.style['pointer-events'] = 'none'
+	hal('standard', 'querying resource....', 4000 )
+
+	spinner.show()
+
 }
 
 
@@ -289,6 +390,47 @@ const handle_hold = event => {
 }
 
 
+
+const handle_action = event => {
+
+	const { type } = event
+
+	switch( type ){
+
+		case 'install':
+
+			const hash = random_hex( 6 )
+
+			BROKER.publish('SOCKET_SEND', {
+				type: 'ping_admin_domain',
+				hash: hash,
+			})
+
+			RENDERER.domElement.setAttribute('data-await-hash', hash )
+			// container.parentElement.setAttribute('data-await-hash', hash )
+
+			// setTimeout(() => {
+			// 	if( container.parentElement.getAttribute('data-await-hash') ){
+			// 	// 	// a valid response will remove hash so this doesn't happen
+			// 		hal('error', 'install request was blocked', 3000 )
+			// 		container.parentElement.removeAttribute('data-await-hash')
+			// 	}
+			// }, 3000)
+
+			break;
+
+		default: 
+			console.log('unknown action: ', type )
+			break;
+
+	}
+
+}
+
+
+
+
+
 const init = () => {
 
 	wrapper = RENDERER.domElement.parentElement
@@ -296,9 +438,10 @@ const init = () => {
 	wrapper.appendChild( actions )
 
 	BROKER.subscribe('ADMIN_TOGGLE', toggle_admin )
-	BROKER.subscribe('ACTIONS_TOGGLE', toggle_actions )
+	// BROKER.subscribe('ACTIONS_TOGGLE', toggle_actions )
 	BROKER.subscribe('WORLD_PONG_ADMIN', allow_upload )
 	BROKER.subscribe('WORLD_BEGIN_INSTALL', handle_hold )
+	BROKER.subscribe('ACTION', handle_action )
 
 
 }

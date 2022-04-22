@@ -85,8 +85,8 @@ const init = ele => {
 				BROKER.publish('WORLD_BEGIN_INSTALL', packet )
 				break;
 
-			case 'install_response':
-				BROKER.publish('WORLD_RESOLVE_INSTALL', packet )
+			case 'pong_install':
+				BROKER.publish('WORLD_PONG_INSTALL', packet )
 				break;
 
 			case 'hal':

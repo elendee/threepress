@@ -1057,6 +1057,30 @@ const get_domain = value => {
 }
 
 
+const get_install_type = url => {
+	const images = ['jpg', 'jpeg', 'png', 'gif']
+	const models = ['glb', 'gltf']
+	let type, regex
+	for( const suffix of images ){
+		regex = new RegExp( suffix, 'i')
+		if( url.match( regex ) ){
+			type = 'image'
+			break;
+		}
+	}
+	if( !type ){
+		for( const suffix of models ){
+			regex = new RegExp( suffix, 'i')
+			if( url.match( regex ) ){
+				type = 'model'
+				break;
+			}					
+		}
+	}
+	return type
+}
+
+
 export {
 
 	// base ui functions
@@ -1113,6 +1137,7 @@ export {
 	format_date,
 
 	get_domain,
+	get_install_type,
 
 }
 
