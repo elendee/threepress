@@ -68,7 +68,7 @@ class Install {
 				group.scale.z = 1
 				this.image.position.z = .6
 				this.GROUP = group
-				return group
+				break;
 
 			case 'model':
 				const res = await gltfLoader.load( this.url )
@@ -81,6 +81,33 @@ class Install {
 		}
 
 		// return gltf
+		this.process_model()
+
+	}
+
+	process_model(){
+
+		if( this.type === 'image' ){
+
+			this.frame.castShadow = true 
+
+		}else if( this.type === 'model' ){
+
+		// this.GROUP.traverse( child => {
+		// 	if( child.isMesh ) child.castShadow = true
+		// })			
+
+		}else{
+			console.log('unknown process_model', this )
+		}
+
+		try{
+			const parse = JSON.parse( this.quaternion )
+			this.GROUP.quaternion.set( parse._x, parse._y, parse._z, parse._w )
+			console.log('parsed: ', parse )
+		}catch( err ){
+			console.log('failed to parse Install quaternion', err )
+		}
 
 	}
 

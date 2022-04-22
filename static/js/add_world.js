@@ -179,9 +179,9 @@ const init_toon = async( event, toon_data, is_player1 ) => {
 const init_world = async( world_obj ) => {
 
 	const { 
-		description,
+		// description,
 		domain,
-		name,
+		// name,
 	} = world_obj
 
 	if( !location.href.match( new RegExp( domain, 'i' ) ) ){
@@ -228,6 +228,10 @@ const init_world = async( world_obj ) => {
 
 	BROKER.publish('SOCKET_SEND', {
 		type: 'ping_pillars',
+	})
+
+	BROKER.publish('SOCKET_SEND', {
+		type: 'ping_installs',
 	})
 
 	SCENE.add( SKYBOX )
@@ -589,11 +593,11 @@ const handle_install = event => {
 		case 'image':
 			installation = new Install( install )
 			installation.construct_model()
-			.then( group => {
-				SCENE.add( group )
-				group.position.set( install.x, install.y, install.z )
-				console.log('installation...', installation )
-				console.log('res...', group)
+			.then( res => {
+				SCENE.add( installation.GROUP )
+				installation.GROUP.position.set( install.x, install.y, install.z )
+				// console.log('installation...', installation )
+				// console.log('res...', group)
 			})
 			break;
 
