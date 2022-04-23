@@ -68,7 +68,7 @@ const default_binds = {
 
 	global: {
 
-		// close: 27,
+		close: 27,
 
 		chat: 13,
 

@@ -428,6 +428,30 @@ const handle_action = event => {
 }
 
 
+const step_close = event => {
+	
+	const { e } = event
+
+	// these do not stop separate scripts from listening to these events :(
+	e.preventDefault()
+	e.stopPropagation()
+
+	const modal = RENDERER.domElement.parentElement.querySelector('.threepress-modal')
+	if( modal ){
+		const close = modal.querySelector('.threepress-modal-close')
+		if( close ){
+			close.click()
+			return
+		}
+	}
+
+	if( STATE.get() === 'chat'){
+		BROKER.publish('CHAT_BLUR')
+		return
+	}
+
+}
+
 
 
 
@@ -442,6 +466,7 @@ const init = () => {
 	BROKER.subscribe('WORLD_PONG_ADMIN', allow_upload )
 	BROKER.subscribe('WORLD_BEGIN_INSTALL', handle_hold )
 	BROKER.subscribe('ACTION', handle_action )
+	BROKER.subscribe('STEP_CLOSE', step_close )
 
 
 }

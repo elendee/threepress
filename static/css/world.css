@@ -165,8 +165,12 @@
     border: 0px;
     background: rgba(0, 0, 0, .9);
     border-top: 1px solid grey;
-    color: white;
 }
+/* specificity ya... */
+#threepress-world #threepress-chat-input{
+	color: lightgrey;
+}
+
 #threepress-chat-input::placeholder{
     color: grey;
 }
@@ -309,3 +313,18 @@
 .world-action-button{
 	margin: 0 2px;
 }
+
+#world-target-ele{
+	position: absolute;
+	background: white;
+	top: 2px;
+	left: 20%;
+	display: none;
+	padding: 2px 4px;
+}
+
+#world-target-ele.active{
+	display: inline-block;
+	
+}
+

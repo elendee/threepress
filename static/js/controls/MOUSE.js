@@ -17,21 +17,24 @@ import STATE from '../world/STATE.js?v=130'
 
 const ORIGIN = new Vector3()
 
-let currentX, currentY, diffX, diffY
+let lastX = 0
+let lastY = 0
+let diffX, diffY
 let tracking_look = false
 let vert_scalar
+
 const track_look = e => { // ( right click )
 
 	// console.log( 'track look')
 	if( !PLAYER.GROUP ) return // pre model-load
 
-	diffX = e.clientX - currentX
-	diffY = e.clientY - currentY
+	diffX = e.clientX - lastX
+	diffY = e.clientY - lastY
 
 	// PLAYER.GROUP.rotateX( diffY / 300 )
 
-	currentY = e.clientY
-	currentX = e.clientX
+	lastY = e.clientY
+	lastX = e.clientX
 
 	// BROKER.publish('STREAM_SET')
 	PLAYER.GROUP.rotateY( -diffX / 300 )
@@ -61,6 +64,7 @@ const track_look = e => { // ( right click )
 }
 
 let panned = false
+
 const pan_look = e => { // ( left click )
 
 	// console.log('pan look ', e )
@@ -69,8 +73,11 @@ const pan_look = e => { // ( left click )
 		current_cam_dist = CAMERA.position.distanceTo( CAMERA.fixture.position )
 	}
 
-	if( typeof currentX !== 'number') currentX = e.clientX
-	if( typeof currentY !== 'number') currentY = e.clientY
+	diffX = e.clientX - lastX
+	diffY = e.clientY - lastY
+
+	lastX = e.clientX
+	lastY = e.clientY
 
 	if( STATE.first_person ){
 		track_look( e )
@@ -82,17 +89,14 @@ const pan_look = e => { // ( left click )
 		return
 	}
 
-	if( !panned ){
-		const trigger = document.querySelector('#modal-trigger-unpan')
-		if( trigger ) trigger.style.display = 'inline-block'
-	}
+	// if( !panned ){
+	// 	const trigger = document.querySelector('#modal-trigger-unpan')
+	// 	if( trigger ) trigger.style.display = 'inline-block'
+	// }
 
 	panned = true
 
-	diffX = e.clientX - currentX
-	diffY = e.clientY - currentY
-
-	// console.log('debug', e.clientX, e.clientY, currentX, currentY, diffX, diffY, current_cam_dist )
+	// console.log('debug', e.clientX, e.clientY, lastX, lastY, diffX, diffY, current_cam_dist )
 
 	CAMERA.fixture.rotateY( -diffX / 300 )
 
@@ -105,9 +109,6 @@ const pan_look = e => { // ( left click )
 	}
 	// CAMERA.fixture.rotateX( diffY / 300 )
 	CAMERA.position.y += ( diffY / 20 ) * vert_scalar // moved to pan
-
-	currentY = e.clientY
-	currentX = e.clientX
 
 	clearInterval( unpan )
 	unpan = false
@@ -157,7 +158,7 @@ function click_up( e ){
 		case 1: // left
 			document.removeEventListener('mousemove', pan_look )
 			if( e.caller !== 'mouseout'){
-				const { mesh } = detect_object_clicked( e )
+				const { mesh } = detect_object_clicked( e, RENDERER.domElement.getBoundingClientRect() )
 				BROKER.publish('TARGET_SET', { 
 					mesh: mesh, 
 					caller: 'click' 
@@ -182,6 +183,9 @@ function click_up( e ){
 
 function click_down( e ){
 
+	lastX = e.clientX
+	lastY = e.clientY
+
 	// console.log( e.which )
 
 	BROKER.publish('WORLD_SET_ACTIVE', {
@@ -191,6 +195,7 @@ function click_down( e ){
 	BROKER.publish('CHAT_BLUR')
 
 	switch( e.which ){
+
 		case 1: // left
 			e.preventDefault()
 			if( STATE.get() === 'holding' ){
@@ -201,16 +206,19 @@ function click_down( e ){
 			}
 			document.addEventListener('mousemove', pan_look )
 			break;
+
 		case 2: // mid
 			break;
+
 		case 3: // right
 			e.preventDefault()
-			currentX = e.clientX
-			currentY = e.clientY
+			lastX = e.clientX
+			lastY = e.clientY
 			tracking_look = true
 			PLAYER.animate( 'turning', true, 500 )
 			document.addEventListener('mousemove', track_look )
 			break;
+
 		default: break;
 	}
 
@@ -377,18 +385,21 @@ function detect_object_clicked( e, bounds ){
 	if( !intersects.length ){ // no more skybox woot  xx1 == skyboxxx
 		BROKER.publish('TARGET_SET', { uuid: false, mesh: false, caller: 'clear'} )
 		return { mesh: false }
-	}	
+	}
 
+	// --- should it check entire intersects
 	let clicked = false
 	let c = 0
 	while( !clicked && c < intersects.length ){
-		clicked = scour_clickable( intersects[c].object )
+		clicked = get_clickable( intersects[c].object )
 		c++
-	}		
+	}
+	// --- or just the first.. but sometimes this is not an actual object
+	// clicked = get_clickable( intersects[0].object )
 
 	return {
 		mesh: clicked,
-		point: 'blorb',
+		// point: 'blorb',
 		intersects: intersects,
 	}
  
@@ -466,21 +477,26 @@ function scour_collidable( intersects ){
 
 
 // B)
-function scour_clickable( obj ){
-	console.log('careful of mutation here...\n\nfix...\n\n')
+function get_clickable( obj ){
+	// careful of mutation here, but its ok as is
 
 	if( !obj ) return // 'no object'
 
-	if( check_clickable( obj ) ) return obj
+	const original = obj
+
+	// console.log('checking: ' + original.type, original.userData )
+
+	if( is_clickable( obj ) ) return obj
 
 	for( let i = 0; i < 5; i++ ){
 
 		if( !obj.parent ){
-			console.log('no parent for click detect', obj.type )
+			// if( THREEPRESS.home_url.match(/localhost/)) console.log('not clickable', original.type )
 			return // 'no parent' 
 		}
 
-		if( check_clickable( obj.parent ) ) return obj.parent
+		if( is_clickable( obj.parent ) ) return obj.parent
+		// console.log('checking: ', obj.parent.userData )
 		obj = obj.parent 
 
 	}
@@ -490,14 +506,9 @@ function scour_clickable( obj ){
 }
 
 // C)
-function check_clickable( obj ){
-
-	if( ( obj?.userData?.clickable ) ){ // || obj && obj.type === 'planet' 
-		return obj
-	}else{
-		return false
-	}
-
+function is_clickable( obj ){
+	// console.log( 'is click: ', obj?.userData )
+	return obj?.userData?.clickable
 }
 
 

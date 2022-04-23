@@ -1,3 +1,4 @@
+import BROKER from './WorldBroker.js?v=130'
 import {
 	get_install_type,
 } from '../lib.js?v=130'
@@ -7,14 +8,13 @@ import {
 	MeshLambertMaterial,
 	Mesh,
 	PlaneGeometry,
-	// Raycaster,
-	// Vector2,
 	TextureLoader,
 } from '../../inc/three.module.js?v=130'
 import { GLTFLoader } from '../../inc/GLTFLoader.js?v=130'
 import { TransformControls } from '../../inc/TransformControls.js?v=130'
 import CAMERA from './CAMERA.js?v=130'
 import RENDERER from './RENDERER.js?v=130'
+import SCENE from './SCENE.js?v=130'
 
 
 
@@ -29,12 +29,50 @@ const texLoader = new TextureLoader()
 const gltfLoader = new GLTFLoader()
 
 const transformer = new TransformControls( CAMERA, RENDERER.domElement )
-transformer.addEventListener('change', e => {
-	console.log('transformer change' )
-})
+
+
+// any change whatsoever in state:
+// transformer.addEventListener('change', e => {
+// 	console.log('transformer change', e )
+// })
+// actual object change:
+
+const updating = {}
+
+
 transformer.addEventListener('objectChange', e => {
-	console.log('transformer objectChange' )
+	const target_obj = e.target?.object
+	if( !target_obj ){
+		console.log('missing obj for update')
+		return
+	}
+
+	if( !updating[ target_obj.uuid ] ){
+		updating[ target_obj.uuid ] = setTimeout(()=>{
+			const packet = {
+				type: 'update_object',
+				uuid: target_obj.userData?.uuid,
+				scale: target_obj.scale,
+				quat: target_obj.quaternion,
+				pos: target_obj.position,
+			}
+			console.log('sending', packet )
+			BROKER.publish('SOCKET_SEND', packet )
+			clearTimeout( updating[ target_obj.uuid ])
+			delete updating[ target_obj.uuid ]
+		}, 1000)
+	}
+
+	// console.log('scale: ', target_obj.scale )
+	// console.log('scale: ', target_obj.position )
+	// console.log('scale: ', target_obj.quaternion )
+
+	// console.log('transformer objectChange')
+	// console.log('should be controls', e.target )
+	// console.log('should be target',  )
 })
+
+SCENE.add( transformer )
 
 
 
@@ -47,6 +85,8 @@ class Install {
 			return
 		}
 		Object.assign( this, init )
+
+		console.log('install init', init )
 
 		// instantiated
 		this.type = get_install_type( init.url )
@@ -115,39 +155,37 @@ class Install {
 
 		this.GROUP.userData.clickable = true
 		this.GROUP.userData.uuid = this.uuid
+		this.GROUP.userData.name = this.name
+		this.GROUP.userData.description = this.description
 
 		try{
-			const parse = JSON.parse( this.quaternion )
-			this.GROUP.quaternion.set( parse._x, parse._y, parse._z, parse._w )
-			console.log('parsed: ', parse )
+			this.REF = JSON.parse( this.ref )
+			// or lerp this eventually
+			this.GROUP.quaternion.set( 
+				this.REF.quaternion._x, 
+				this.REF.quaternion._y, 
+				this.REF.quaternion._z, 
+				this.REF.quaternion._w 
+			)
+			// console.log('parsed: ', parse )
 		}catch( err ){
 			console.log('failed to parse Install quaternion', err )
 		}
 
 	}
 
-	add_controls(){
-		transformer.attach( this.GROUP )
+	set_controls( state ){
+		if( state ){
+			transformer.attach( this.GROUP )
+		}else{
+			transformer.detach()
+		}
 	}
 
 }
 
 
 
-// const images = ['jpg', 'png', 'jpeg', 'gif']
-// const models = ['glb', 'gltf']
-
-// let regex
-// const derive_type = url => {
-// 	for( const type of images ){
-// 		regex = new RegExp( type, 'i')
-// 		if( url.match( regex )) return 'image'
-// 	}
-// 	for( const type of models ){
-// 		regex = new RegExp( type, 'i')
-// 		if( url.match( regex )) return 'model'
-// 	}
-// }
 
 
 export default Install

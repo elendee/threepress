@@ -33,12 +33,12 @@ const handle_keydown = ( e ) => {
 	global_handled = false
 
 	switch( e.keyCode ){
-		case 17: // ctrl
-			STATE.ctrl_down = true
-			break;
-		case 16: // shift
-			STATE.shift_down = true
-			break;
+		// case 17: // ctrl
+		// 	STATE.ctrl_down = true
+		// 	break;
+		// case 16: // shift
+		// 	STATE.shift_down = true
+		// 	break;
 		// any global handlers here
 		default: break;
 	}
@@ -185,16 +185,16 @@ const handle_keyup = ( e ) => {
 	// console.log( 'keyup: ', state, e.keyCode ) // keylog
 
 	switch( e.keyCode ){
-		// case BINDS.global.close:
-		// 	BROKER.publish('STEP_CLOSE', { esc: true })
-		// 	global_handled = true
+		case BINDS.global.close:
+			BROKER.publish('STEP_CLOSE', { esc: true, e: e })
+			global_handled = true
+			break;
+		// case 17: // ctrl
+		// 	STATE.ctrl_down = false
 		// 	break;
-		case 17: // ctrl
-			STATE.ctrl_down = false
-			break;
-		case 16: // shift
-			STATE.shift_down = false
-			break;
+		// case 16: // shift
+		// 	STATE.shift_down = false
+		// 	break;
 		// any global handlers here
 
 		default: break;

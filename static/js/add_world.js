@@ -37,6 +37,7 @@ import HOLDS from './world/HOLDS.js?v=130'
 // import FOREST from './world/forest.js?v=130'
 import FactoryObject from './world/FactoryObject.js?v=130'
 import SKYBOX from './world/SKYBOX.js?v=130'
+import INSTALLS from './world/INSTALLS.js?v=130'
 // import varLogger from './helpers/varLogger.js?v=130'
 
 lib.tstack('add_world')
@@ -201,6 +202,7 @@ const init_world = async( world_obj ) => {
 	tilemat.map = texLoader.load( THREEPRESS.ARCADE.URLS.https +  '/resource/texture/tile.jpg')
 	const tiles = new Mesh( tilegeo, tilemat )
 	tiles.userData.is_ground = true
+	tiles.userData.is_tile = true
 	tiles.receiveShadow = true
 	tiles.rotation.x = -Math.PI /2
 	tiles.position.y += .05
@@ -582,7 +584,7 @@ const handle_install = event => {
 
 	const { install } = event 
 
-	console.log('handle install', event )
+	// console.log('handle install', event )
 
 	const type = lib.get_install_type( install.url )
 
@@ -595,9 +597,12 @@ const handle_install = event => {
 			installation.construct_model()
 			.then( res => {
 				SCENE.add( installation.GROUP )
-				installation.GROUP.position.set( install.x, install.y, install.z )
-				// console.log('installation...', installation )
-				// console.log('res...', group)
+				installation.GROUP.position.set( 
+					installation.REF.position.x, 
+					installation.REF.position.y, 
+					installation.REF.position.z,
+				)
+				INSTALLS[ installation.uuid ] = installation
 			})
 			break;
 
@@ -609,6 +614,14 @@ const handle_install = event => {
 			return
 	}
 
+}
+
+
+
+const update_object = event => {
+	const { ref } = event
+
+	console.log('party: : : ', ref )
 }
 
 
@@ -625,6 +638,8 @@ BROKER.subscribe('TOON_REMOVE', remove_toon )
 BROKER.subscribe('WORLD_HANDLE_OBJ', handle_obj )
 BROKER.subscribe('WORLD_INSTALL', send_install )
 BROKER.subscribe('WORLD_PONG_INSTALL', handle_install )
+BROKER.subscribe('WORLD_UPDATE_OBJ', update_object )
+
 // BROKER.subscribe('TOON_WALK', handle_walk )
 // BROKER.subscribe('TOON_TURN', handle_turn )
 // BROKER.subscribe('TOON_STRAFE', handle_strafe )

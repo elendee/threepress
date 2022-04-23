@@ -89,6 +89,10 @@ const init = ele => {
 				BROKER.publish('WORLD_PONG_INSTALL', packet )
 				break;
 
+			case 'update_object':
+				BROKER.publish('WORLD_UPDATE_OBJ', packet )
+				break;
+
 			case 'hal':
 				hal( packet.msg_type || 'standard', packet.msg || '(unknown server message)', packet.time || 5000 )
 				break;
