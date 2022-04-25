@@ -382,6 +382,15 @@ class Entity {
 
 		*/
 
+		// console.log( type, state )
+		if( type === 'strafing'){
+			if( state ){
+				this.MODEL.rotation.y = -Math.PI / 6 * state
+			}else{
+				this.MODEL.rotation.y = 0
+			}
+		}
+
 		if( e ) e.preventDefault()
 
 		this.state_diffed = this.last_states[ type ] !== state

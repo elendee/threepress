@@ -406,7 +406,7 @@ function detect_object_clicked( e, bounds ){
 }
 
 
-const get_intersects = ( relative_x, relative_y ) => {
+const get_intersects = ( relative_x, relative_y, bounds ) => {
 
 	const x = ( relative_x / RENDERER.domElement.clientWidth ) * 2 - 1
 	const y =  - ( relative_y / RENDERER.domElement.clientHeight ) * 2 + 1
@@ -439,12 +439,16 @@ function detect_object_hovered( e, bounds ){
 		my = e.clientY
 	}
 
-	const intersects = get_intersects( mx, my )
+	const intersects = get_intersects( mx, my, bounds )
 
 	// console.log('detect intersects:', intersects )
 
 	if( !intersects.length ){ // no more skybox woot  xx1 == skyboxxx
-		BROKER.publish('TARGET_SET', { uuid: false, mesh: false, caller: 'clear'} )
+		BROKER.publish('TARGET_SET', { 
+			uuid: false, 
+			mesh: false, 
+			caller: 'clear'
+		})
 		return { mesh: false }
 	}	
 
@@ -453,7 +457,8 @@ function detect_object_hovered( e, bounds ){
 	while( !hovered_intersection && c < intersects.length ){
 		hovered_intersection = scour_collidable( intersects )
 		c++
-	}		
+	}
+	// const hovered_intersection = intersects[0].object
 	
 	return {
 		intersection: hovered_intersection,
@@ -465,10 +470,13 @@ function detect_object_hovered( e, bounds ){
 
 function scour_collidable( intersects ){
 
-	if( !intersects ) return // 'no object'
+	if( !intersects ) return; // 'no object'
 
+	let type
 	for( const int of intersects ){  // basically anything but the object itself for now...
 		if( int.object?.userData?.held_mesh ) continue
+		type = int.object?.type
+		if( type === 'TransformControlsPlane' || type === 'Line' ) continue
 		return int
 	}
 

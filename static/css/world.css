@@ -328,3 +328,25 @@
 	
 }
 
+#controls-ui{
+	position: absolute;
+	top: 0;
+	left:60%;
+	display: none;
+}
+#controls-ui .object-control{
+	display: inline-block;
+	width: 45px;
+	height: 45px;
+	cursor: pointer;
+	margin: 0 5px;
+	vertical-align: middle;
+	border: 1px solid grey;
+}
+
+#controls-ui .object-control:hover{
+	border: 1px solid black;
+}
+#controls-ui .object-control:active{
+	opacity: .5;
+}

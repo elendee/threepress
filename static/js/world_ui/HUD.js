@@ -450,6 +450,13 @@ const step_close = event => {
 		return
 	}
 
+	if( STATE.get() === 'holding'){
+		BROKER.publish('CLEAR_HOLD')
+		return
+	}
+
+
+
 }
 
 

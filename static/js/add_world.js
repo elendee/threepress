@@ -38,6 +38,8 @@ import HOLDS from './world/HOLDS.js?v=130'
 import FactoryObject from './world/FactoryObject.js?v=130'
 import SKYBOX from './world/SKYBOX.js?v=130'
 import INSTALLS from './world/INSTALLS.js?v=130'
+
+import add_objects from './world/add_objects.js?v=130'
 // import varLogger from './helpers/varLogger.js?v=130'
 
 lib.tstack('add_world')
@@ -490,139 +492,16 @@ const set_active = event => {
 }
 
 
-const handle_obj = event => {
-
-	const { obj } = event 
-
-	if( OBJECTS[ obj.uuid ]){
-		console.log('obj already exists', OBJECTS[ obj.uuid ] )
-		return
-	}
-
-	const object = FactoryObject( obj )
-
-	if( !object ){
-		console.log('failed to construct: ', obj )
-		return 
-	}
-
-	if( object.isEntity ){ // toons, ... , ?
-		// debugger
-		object.construct_model()
-		.then( res => {
-			// debugger
-			// console.log( res )
-			// console.log( object )
-			SCENE.add( object.GROUP )
-			object.GROUP.position.set( object.x || 0, object.y || 0, object.z || 0 )
-
-		})		
-		.catch( err => {
-			console.log( err )
-		})
-
-	}else if( object.type === 'pillar' ){ // pillars 
-
-		THREEPRESS.PILLARS = THREEPRESS.PILLARS || {}
-		THREEPRESS.PILLARS[ obj.uuid ] = obj
-
-		object.construct_model()
-		.then( res => {
-			console.log('loaded pillar')
-			SCENE.add( object.GROUP )
-			object.GROUP.position.x = object.x
-			object.GROUP.position.z = object.z
-			object.GROUP.position.y = ( object.height / 2 ) + 1
-		})
-
-	}else{
-
-		console.log('unhandled construct obj: ', obj )
-	}
-
-}
 
 
 
 
-const send_install = event => {
-
-	const { e } = event
-
-	// console.log('installing ', STATE.held_url , ' at ', x, y )
-
-	const bounds = RENDERER.domElement.getBoundingClientRect()
-
-	const { intersection } = MOUSE.detect_object_hovered( e, bounds )
-	if( !intersection ){
-		console.log('no install location found' )
-		return
-	}
-
-	const target = intersection.object
-	const is_ground = target?.userData?.is_ground
-	if( !target?.userData?.clickable && !is_ground ){
-		console.log('no install target found')
-		return			
-	}
-
-	console.log( 'sending install intersection: ', intersection )
-
-	BROKER.publish('SOCKET_SEND', {
-		type: 'send_install',
-		url: STATE.held_url,
-		point: intersection.point,
-		mount_uuid: target.userData?.uuid, //  || target.uuid,
-		is_ground: is_ground,
-	})
-
-}
 
 
 
-const handle_install = event => {
-
-	const { install } = event 
-
-	// console.log('handle install', event )
-
-	const type = lib.get_install_type( install.url )
-
-	let installation
-
-	switch( type ){
-
-		case 'image':
-			installation = new Install( install )
-			installation.construct_model()
-			.then( res => {
-				SCENE.add( installation.GROUP )
-				installation.GROUP.position.set( 
-					installation.REF.position.x, 
-					installation.REF.position.y, 
-					installation.REF.position.z,
-				)
-				INSTALLS[ installation.uuid ] = installation
-			})
-			break;
-
-		case 'model':
-			break;
-
-		default: 
-			console.log('unknown install type', type )
-			return
-	}
-
-}
 
 
 
-const update_object = event => {
-	const { ref } = event
-
-	console.log('party: : : ', ref )
-}
 
 
 
@@ -635,10 +514,7 @@ BROKER.subscribe('TOON_INIT', init_toon )
 BROKER.subscribe('TOON_CORE', handle_core )
 BROKER.subscribe('TOON_UPDATE_MODEL', update_toon_model )
 BROKER.subscribe('TOON_REMOVE', remove_toon )
-BROKER.subscribe('WORLD_HANDLE_OBJ', handle_obj )
-BROKER.subscribe('WORLD_INSTALL', send_install )
-BROKER.subscribe('WORLD_PONG_INSTALL', handle_install )
-BROKER.subscribe('WORLD_UPDATE_OBJ', update_object )
+
 
 // BROKER.subscribe('TOON_WALK', handle_walk )
 // BROKER.subscribe('TOON_TURN', handle_turn )

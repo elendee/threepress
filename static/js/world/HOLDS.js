@@ -21,17 +21,16 @@ import {
 
 
 
-
 const hold_ui = document.createElement('div')
 hold_ui.id = 'hold-ui'
 const cancel = document.createElement('div')
 cancel.id = 'hold-cancel'
-cancel.innerHTML = 'cancel install'
+cancel.innerHTML = '&times; done'
 hold_ui.appendChild( cancel )
+
 setTimeout( () => { // just needs to wait for compile to be done
 	RENDERER.domElement.parentElement.appendChild( hold_ui )
 }, 1000 ) 
-
 
 // const image_geo = new BoxBufferGeometry(1,1,1)
 // const image_mat = new MeshLambertMaterial({
@@ -55,7 +54,7 @@ const Placeholder = () => {
 // const pointer = new Vector2()
 
 
-let held_mesh
+// let held_mesh
 let hit_detecting = false
 let updating_held_position = false
 
@@ -172,7 +171,7 @@ const show_ui = ( state, url ) => {
 }
 
 
-let spacer = 0
+// let spacer = 0
 
 const update_hold_point = () => {
 	/*
@@ -192,10 +191,10 @@ const update_hold_point = () => {
 		// intersects,
 	} = MOUSE.detect_object_hovered( last_traced, RENDERER.domElement.getBoundingClientRect() )
 
-	// console.log( 'int: ', intersection.face )
+	// console.log( 'int: ', intersection )
 	// spacer++
 	// if( spacer % 10  === 0 ){
-	// 	console.log( intersection )	
+	// 	console.log( intersection )
 	// }
 
 	if( intersection ){
@@ -219,16 +218,17 @@ const update_hold_point = () => {
 
 
 
-let mx, my, bounds, last_traced
+let bounds
+let last_traced
+// let mx, my, 
 let iter = 0
 const trace_hold = e => {
 	if( iter % 3 === 0 ){
 		last_traced = e
 		bounds = RENDERER.domElement.getBoundingClientRect()
-		mx = e.clientX - bounds.left
-		my = e.clientY - bounds.top
+		// mx = e.clientX - bounds.left
+		// my = e.clientY - bounds.top
 		// console.log('tracin hold', mx, my)
-
 	}
 	iter++
 }

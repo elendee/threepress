@@ -17,29 +17,20 @@ import RENDERER from './RENDERER.js?v=130'
 import SCENE from './SCENE.js?v=130'
 
 
-
-
-const framegeo = new BoxBufferGeometry(1,1,1)
-const framemat = new MeshLambertMaterial({
-	color: 'wheat',
-})
-const planegeo = new PlaneGeometry(1,1,1)
-
 const texLoader = new TextureLoader()
 const gltfLoader = new GLTFLoader()
 
-const transformer = new TransformControls( CAMERA, RENDERER.domElement )
 
 
-// any change whatsoever in state:
-// transformer.addEventListener('change', e => {
-// 	console.log('transformer change', e )
-// })
-// actual object change:
 
+
+
+// TRANSFORMER
+const transformer = THREEPRESS.transformer = new TransformControls( CAMERA, RENDERER.domElement )
+SCENE.add( transformer )
+
+// send changes to server
 const updating = {}
-
-
 transformer.addEventListener('objectChange', e => {
 	const target_obj = e.target?.object
 	if( !target_obj ){
@@ -53,8 +44,8 @@ transformer.addEventListener('objectChange', e => {
 				type: 'update_object',
 				uuid: target_obj.userData?.uuid,
 				scale: target_obj.scale,
-				quat: target_obj.quaternion,
-				pos: target_obj.position,
+				quaternion: target_obj.quaternion,
+				position: target_obj.position,
 			}
 			console.log('sending', packet )
 			BROKER.publish('SOCKET_SEND', packet )
@@ -63,17 +54,63 @@ transformer.addEventListener('objectChange', e => {
 		}, 1000)
 	}
 
-	// console.log('scale: ', target_obj.scale )
-	// console.log('scale: ', target_obj.position )
-	// console.log('scale: ', target_obj.quaternion )
-
-	// console.log('transformer objectChange')
-	// console.log('should be controls', e.target )
-	// console.log('should be target',  )
 })
 
-SCENE.add( transformer )
+// controls for different transformer states
+const build_control = type => {
+	const wrapper = document.createElement('div')
+	wrapper.classList.add('object-control')
+	const img = document.createElement('img')
+	img.src = THREEPRESS.ARCADE.URLS.https + '/resource/image/control-' + type + '.jpg'
+	wrapper.appendChild( img )
+	wrapper.addEventListener('click', () => {
+		// BROKER.publish('CONTROLS_SET_STATE', { type: type } )
+		transformer.mode = type
+	})
+	return wrapper
+}
 
+// transformer controls UI
+const controls_ui = document.createElement('div')
+controls_ui.id = 'controls-ui'
+controls_ui.appendChild( build_control('translate') )
+controls_ui.appendChild( build_control('scale') )
+controls_ui.appendChild( build_control('rotate') )
+setTimeout( () => { // just needs to wait for compile to be done
+	RENDERER.domElement.parentElement.appendChild( controls_ui )
+}, 1000 ) 
+
+// togggle transformer UI as needed
+let t_current, t_previous
+transformer.addEventListener('change', e => { // update UI on transform changes..
+	t_current = !!transformer.object
+	if( t_current !== t_previous ){
+		if( t_current ){
+			controls_ui.style.display = 'inline-block'
+		}else{
+			controls_ui.style.display = 'none'
+		}
+	}
+	t_previous = t_current
+})
+
+
+
+
+
+
+
+
+
+
+
+
+// install components
+const framegeo = new BoxBufferGeometry(1,1,1)
+const framemat = new MeshLambertMaterial({
+	color: 'wheat',
+})
+const planegeo = new PlaneGeometry(1,1,1)
 
 
 class Install {
@@ -86,7 +123,7 @@ class Install {
 		}
 		Object.assign( this, init )
 
-		console.log('install init', init )
+		// console.log('install init', init )
 
 		// instantiated
 		this.type = get_install_type( init.url )
@@ -135,6 +172,8 @@ class Install {
 		// return gltf
 		this.process_model()
 
+		console.log('constructing', this._REF.scale )
+
 	}
 
 	process_model(){
@@ -159,14 +198,23 @@ class Install {
 		this.GROUP.userData.description = this.description
 
 		try{
+
 			this.REF = JSON.parse( this.ref )
-			// or lerp this eventually
+
+			// set QUATERNION and SCALE internally here, but POSITION handle externally
 			this.GROUP.quaternion.set( 
 				this.REF.quaternion._x, 
 				this.REF.quaternion._y, 
 				this.REF.quaternion._z, 
 				this.REF.quaternion._w 
 			)
+
+			this.GROUP.scale.set(
+				this.REF.scale.x,
+				this.REF.scale.y,
+				this.REF.scale.z,
+			)
+
 			// console.log('parsed: ', parse )
 		}catch( err ){
 			console.log('failed to parse Install quaternion', err )
@@ -185,7 +233,7 @@ class Install {
 }
 
 
-
+// BROKER.subscribe('CONTROLS_SET_STATE', controls_set_state )
 
 
 export default Install

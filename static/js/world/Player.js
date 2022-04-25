@@ -23,7 +23,7 @@ class Player extends Entity {
 					fade: 500,
 				},
 				'strafing': {
-					localized: 'Walk',
+					localized: 'Run',
 					fade: 500,
 				},
 				'turning': {
