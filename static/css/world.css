@@ -361,6 +361,14 @@
 }
 
 .whattt{
-	border: 1px solid red;
+	border: 3px solid red;
 	pointer-events: initial;
+	z-index: 999;
+	position: relative;
+}
+
+.auth-button{
+	background: black;
+	color: white;
+/* 	background: pink; */
 }

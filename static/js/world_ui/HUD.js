@@ -194,7 +194,7 @@ const add_section = ( type, container, menu ) => {
 			auth_section.classList.add('threepress-auth-section')
 			const user = document.createElement('input')
 			user.type = 'text'
-			user.placeholder = 'username'
+			user.placeholder = 'toon name'
 			const pw = document.createElement('input')
 			pw.type = 'password'
 			pw.placeholder = 'password'
@@ -204,19 +204,21 @@ const add_section = ( type, container, menu ) => {
 			const desc = document.createElement('div')
 			desc.classList.add('clarification')
 			desc.innerHTML = 'Creating a toon requires a (free) <a href="' + THREEPRESS.ARCADE.URLS.https + '" target="_blank">Threepress</a> account'
+			const login = build_auth('login', auth_section )
+			const register = build_auth('create', auth_section )
 		
 			auth_section.appendChild( build_toon_info() )
 			auth_section.appendChild( user )
 			auth_section.appendChild( pw )
+			auth_section.appendChild( login )
+			auth_section.appendChild( document.createElement('br') )
+
 			auth_section.appendChild( email )
 			auth_section.appendChild( desc )
-
-			const login = build_auth('login', auth_section )
-			const register = build_auth('create', auth_section )
-			auth_section.appendChild( document.createElement('br') )
-			auth_section.appendChild( login )
 			auth_section.appendChild( register )
+
 			section.appendChild( auth_section )
+
 			break;
 
 		// case 'actions':
@@ -271,7 +273,7 @@ const add_tab = ( type, container, menu ) => {
 const build_toon_info = () => {
 	const wrapper = document.createElement('div')
 	wrapper.classList.add('toon-info')
-	
+
 	const intro = document.createElement('div')
 	intro.innerHTML = 'current toon:'
 	wrapper.appendChild( intro )
