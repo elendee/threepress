@@ -483,7 +483,7 @@ const handle_action = event => {
 			const hash = random_hex( 6 )
 
 			BROKER.publish('SOCKET_SEND', {
-				type: 'ping_admin_domain',
+				type: 'ping_auth_status',
 				hash: hash,
 			})
 
@@ -577,7 +577,7 @@ const init = () => {
 
 	BROKER.subscribe('ADMIN_TOGGLE', toggle_admin )
 	// BROKER.subscribe('ACTIONS_TOGGLE', toggle_actions )
-	BROKER.subscribe('WORLD_PONG_ADMIN', allow_upload )
+	BROKER.subscribe('WORLD_PONG_AUTH', allow_upload )
 	BROKER.subscribe('WORLD_BEGIN_INSTALL', handle_hold )
 	BROKER.subscribe('ACTION', handle_action )
 	BROKER.subscribe('STEP_CLOSE', step_close )

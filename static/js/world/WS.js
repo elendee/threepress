@@ -77,8 +77,8 @@ const init = ele => {
 				BROKER.publish('WORLD_HANDLE_OBJ', packet )
 				break;
 
-			case 'pong_is_admin':
-				BROKER.publish('WORLD_PONG_ADMIN', packet )
+			case 'pong_auth_status':
+				BROKER.publish('WORLD_PONG_AUTH', packet )
 				break;
 
 			case 'begin_install':
