@@ -543,7 +543,7 @@ export default async( gallery ) => { // init_scene
 
 	}else{
 
-		console.log('nope no anims')
+		// console.log('nope no anims')
 
 	}
 

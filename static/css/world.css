@@ -350,3 +350,12 @@
 #controls-ui .object-control:active{
 	opacity: .5;
 }
+.threepress-auth-section{
+	margin-bottom: 20px;
+}
+.threepress-auth-section input{
+	height: 30px;
+	border: 0px;
+	border-radius: 0px;
+	margin: 2px 0;
+}

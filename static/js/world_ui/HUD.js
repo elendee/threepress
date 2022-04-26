@@ -77,6 +77,7 @@ const toggle_admin = event => {
 	const menu = document.createElement('div')
 	menu.id = 'threepress-admin-world-nav'
 
+	add_section( 'login', modal.content, menu )
 	add_section( 'toon', modal.content, menu )
 	add_section( 'settings', modal.content, menu )
 	add_section( 'keys', modal.content, menu )
@@ -107,6 +108,24 @@ const toggle_admin = event => {
 
 // }
 
+const build_auth = ( type, user, pw, email ) => {
+	const button = document.createElement('div')
+	button.classList.add('auth-button', 'threepress-button')
+	button.innerHTML = type
+	button.addEventListener('click', () => {
+		const packet = {
+			type: 'auth',
+			auth_type: type,
+			user: user.value.trim(),
+			email: email?.value?.trim(),
+			pw: pw.value.trim(),
+		}
+		console.log('submitting', packet )
+		BROKER.publish('SOCKET_SEND', packet )
+	})
+	return button
+}
+
 const add_section = ( type, container, menu ) => {
 
 	add_tab( type, container, menu )
@@ -116,6 +135,7 @@ const add_section = ( type, container, menu ) => {
 	section.setAttribute('data-type', type )
 
 	switch( type ){
+
 		case 'keys':
 			const guide = BINDS._generate_guide()
 			section.appendChild( guide )
@@ -127,6 +147,7 @@ const add_section = ( type, container, menu ) => {
 			break;
 
 		case 'toon':
+			// toon list
 			const toonlist = document.createElement('div')
 			const toonfetch = document.createElement('div')
 			toonfetch.classList.add('threepress-button')
@@ -150,10 +171,40 @@ const add_section = ( type, container, menu ) => {
 					hal('error', 'error fetching toons', 5000)
 				})
 			})
+
 			section.appendChild( toonfetch )
 			section.appendChild( toonlist )
 			break;
 
+		case 'login':
+			// auth sectino
+			const auth_section = document.createElement('div')
+			auth_section.classList.add('threepress-auth-section')
+			const user = document.createElement('input')
+			user.placeholder = 'username'
+			const pw = document.createElement('input')
+			pw.type = 'password'
+			pw.placeholder = 'password'
+			const email = document.createElement('input')
+			email.type = 'email'
+			email.placeholder = 'threepress email (only if creating a new toon)'
+			const desc = document.createElement('div')
+			desc.classList.add('clarification')
+			desc.innerHTML = 'Creating a toon requires a (free) <a href="' + THREEPRESS.ARCADE.URLS.https + '" target="_blank">Threepress</a> account'
+			auth_section.appendChild( user )
+			auth_section.appendChild( pw )
+			auth_section.appendChild( email )
+			auth_section.appendChild( desc )
+
+			const login = build_auth('login', user, pw, email )
+			const register = build_auth('create', user, pw, email )
+			auth_section.appendChild( document.createElement('br') )
+			auth_section.appendChild( login )
+			auth_section.innerHTML += '<span> or </span>'
+			auth_section.appendChild( register )
+	
+			section.appendChild( auth_section )
+			break;
 
 		// case 'actions':
 		// 	const install = document.createElement('div')
@@ -182,6 +233,7 @@ const add_section = ( type, container, menu ) => {
 		default: 
 			console.log('admin section not configured yet: ', type )
 			break;
+
 	}
 
 	container.appendChild( section )

@@ -172,7 +172,7 @@ class Install {
 		// return gltf
 		this.process_model()
 
-		console.log('constructing', this._REF.scale )
+		// console.log('constructing', this._REF.scale )
 
 	}
 
