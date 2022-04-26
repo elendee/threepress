@@ -89,6 +89,8 @@ const toggle_admin = event => {
 
 	modal.content.querySelector('.threepress-admin-tab').click()
 
+	BROKER.publish('WORLD_UNFOCUS')
+
 }
 
 // const toggle_actions = event => {
@@ -569,6 +571,16 @@ const handle_auth = event => {
 
 
 
+const unfocus = event => {
+	PLAYER.rest()
+	BROKER.publish('WORLD_SET_ACTIVE', { 
+		state: false 
+	})	
+	BROKER.publish('CLICKUP')
+}
+
+
+
 const init = () => {
 
 	wrapper = RENDERER.domElement.parentElement
@@ -582,7 +594,7 @@ const init = () => {
 	BROKER.subscribe('ACTION', handle_action )
 	BROKER.subscribe('STEP_CLOSE', step_close )
 	BROKER.subscribe('AUTH_RESPONSE', handle_auth )
-
+	BROKER.subscribe('WORLD_UNFOCUS', unfocus )
 
 }
 

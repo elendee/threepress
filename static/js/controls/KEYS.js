@@ -396,27 +396,27 @@ const handle_keyup = ( e ) => {
 }
 
 
+
 const world = document.getElementById('threepress-world')
 let worldbound
-const handle_mouseout = e => {
+
+const handle_mouseout = event => {
+
+	const { e } = event
 	// console.log( '>>', e.target )
-	if( e.target.id == 'threepress-world'){
+	if( e.target.id === 'threepress-world'){
 		worldbound = world.getBoundingClientRect()
 		if( e.clientY > worldbound.top || 
 			e.clientY < worldbound.bottom || 
 			e.clientX > worldbound.right || 
 			e.clientX < worldbound.left ){
-				PLAYER.rest()
-				// click_up({ which: 3, caller: 'mouseout' }) 
-				// click_up({ which: 1, caller: 'mouseout' }) 
-				BROKER.publish('WORLD_SET_ACTIVE', { 
-					state: false 
-				})	
-				BROKER.publish('CLICKUP')
+				BROKER.publish('WORLD_UNFOCUS')
 		}
 	}
 	// if( e.target.id == 'threepress-world-canvas') PLAYER.rest()
 }
+
+
 
 
 
@@ -427,7 +427,11 @@ const keys = {
 		document.addEventListener('keyup', handle_keyup )
 		// RENDERER.domElement
 		document.addEventListener('keydown', handle_keydown )		
-		document.addEventListener('mouseout', handle_mouseout )
+		document.addEventListener('mouseout', e => {
+			BROKER.publish('MOUSEOUT', {
+				e: e,
+			})
+		})
 	}
 }
 
@@ -456,6 +460,7 @@ const handle_move_key = event => {
 
 
 BROKER.subscribe('MOVE_KEY', handle_move_key )
+BROKER.subscribe('MOUSEOUT', handle_mouseout )
 
 
 export default keys
