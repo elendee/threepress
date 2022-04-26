@@ -1,5 +1,6 @@
 import RENDERER from '../world/RENDERER.js?v=130'
 import BROKER from '../world/WorldBroker.js?v=130'
+import PLAYER from '../world/PLAYER.js?v=130'
 import { Modal } from '../helpers/Modal.js?v=130'
 import BINDS from '../controls/BINDS.js?v=130'
 import STATE from '../world/STATE.js?v=130'
@@ -108,11 +109,16 @@ const toggle_admin = event => {
 
 // }
 
-const build_auth = ( type, user, pw, email ) => {
+const build_auth = ( type, auth_section ) => {
+
 	const button = document.createElement('div')
-	button.classList.add('auth-button', 'threepress-button')
+	button.classList.add( 'auth-button', 'threepress-button')
 	button.innerHTML = type
 	button.addEventListener('click', () => {
+		const user = auth_section.querySelector('input[type=text]')
+		const pw = auth_section.querySelector('input[type=password]')
+		const email = auth_section.querySelector('input[type=email]')
+		// console.log('submitting---' , button.getAttribute('debug-hash'))
 		const packet = {
 			type: 'auth',
 			auth_type: type,
@@ -120,9 +126,12 @@ const build_auth = ( type, user, pw, email ) => {
 			email: email?.value?.trim(),
 			pw: pw.value.trim(),
 		}
-		console.log('submitting', packet )
+		// console.log('submitting', packet )
 		BROKER.publish('SOCKET_SEND', packet )
 	})
+	// const hash = random_hex( 4 ) // debugging
+	// button.setAttribute('debug-hash', hash)
+	// console.log("returning", hash )
 	return button
 }
 
@@ -172,6 +181,9 @@ const add_section = ( type, container, menu ) => {
 				})
 			})
 
+			const tooninfo = build_toon_info()
+			section.appendChild( tooninfo )
+
 			section.appendChild( toonfetch )
 			section.appendChild( toonlist )
 			break;
@@ -181,6 +193,7 @@ const add_section = ( type, container, menu ) => {
 			const auth_section = document.createElement('div')
 			auth_section.classList.add('threepress-auth-section')
 			const user = document.createElement('input')
+			user.type = 'text'
 			user.placeholder = 'username'
 			const pw = document.createElement('input')
 			pw.type = 'password'
@@ -196,13 +209,11 @@ const add_section = ( type, container, menu ) => {
 			auth_section.appendChild( email )
 			auth_section.appendChild( desc )
 
-			const login = build_auth('login', user, pw, email )
-			const register = build_auth('create', user, pw, email )
+			const login = build_auth('login', auth_section )
+			const register = build_auth('create', auth_section )
 			auth_section.appendChild( document.createElement('br') )
 			auth_section.appendChild( login )
-			auth_section.innerHTML += '<span> or </span>'
 			auth_section.appendChild( register )
-	
 			section.appendChild( auth_section )
 			break;
 
@@ -252,6 +263,14 @@ const add_tab = ( type, container, menu ) => {
 		container.querySelector('.threepress-admin-section[data-type="'+type+'"]').classList.add('selected')
 	})
 	menu.appendChild( tab )
+}
+
+
+const build_toon_info = () => {
+	const wrapper = document.createElement('div')
+	wrapper.classList.add('toon-info')
+	wrapper.innerHTML = 'toon name: ' + PLAYER.handle
+	return wrapper
 }
 
 
@@ -507,10 +526,32 @@ const step_close = event => {
 		return
 	}
 
-
-
 }
 
+
+const handle_auth = event => {
+	const { toon}= event
+	if( !toon || !toon._id ){
+		hal('error', 'error handling auth', 5000)
+		return
+	}
+
+	// const player1 = new Player( toon )
+
+	PLAYER.hydrate( toon )
+
+	// update modal info
+	const info = document.querySelector('.threepress-modal .toon-info')
+	if( info ) info.remove()
+	const toon_section = document.querySelector('.threepress-modal .threepress-admin-section[data-type=toon]')
+	if( toon_section ) toon_section.prepend( build_toon_info() )
+
+	// separate event handles model update:
+	// BROKER.publish('TOON_UPDATE_MODEL', event )
+
+	hal('success','updated toon', 2000)
+
+}
 
 
 
@@ -526,6 +567,7 @@ const init = () => {
 	BROKER.subscribe('WORLD_BEGIN_INSTALL', handle_hold )
 	BROKER.subscribe('ACTION', handle_action )
 	BROKER.subscribe('STEP_CLOSE', step_close )
+	BROKER.subscribe('AUTH_RESPONSE', handle_auth )
 
 
 }

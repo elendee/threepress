@@ -359,3 +359,8 @@
 	border-radius: 0px;
 	margin: 2px 0;
 }
+
+.whattt{
+	border: 1px solid red;
+	pointer-events: initial;
+}

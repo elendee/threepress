@@ -48,6 +48,15 @@ class Player extends Entity {
 	}
 
 
+	hydrate( player_data ){
+		console.log('hydrating player... is this going to work..', player_data ) // ( same as Entity.hydrate )
+		for( const key in player_data ){
+			this[ key ] = player_data[ key ]
+			// console.log('hydrating', key, player_data[ key ])
+		}
+	}
+
+
 	process_model(){
 		
 		this.MODEL.traverse(ele => {

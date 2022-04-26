@@ -335,10 +335,6 @@ const init_entry = async( event ) => {
 		})
 	}, 2000)
 
-	// BROKER.publish('CONTROLS_TARGET', {
-	// 	target: PLAYER.GROUP.position,
-	// })
-
 }
 
 
@@ -349,6 +345,7 @@ const init_entry = async( event ) => {
 
 
 const add_voxel = event => {
+	
 	const { data } = event
 
 	const { coords, mat, shared } = data

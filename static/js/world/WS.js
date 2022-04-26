@@ -93,6 +93,10 @@ const init = ele => {
 				BROKER.publish('WORLD_UPDATE_OBJ', packet )
 				break;
 
+			case 'auth_response':
+				BROKER.publish('AUTH_RESPONSE', packet )
+				break;
+
 			case 'hal':
 				hal( packet.msg_type || 'standard', packet.msg || '(unknown server message)', packet.time || 5000 )
 				break;
