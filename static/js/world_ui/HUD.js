@@ -204,6 +204,8 @@ const add_section = ( type, container, menu ) => {
 			const desc = document.createElement('div')
 			desc.classList.add('clarification')
 			desc.innerHTML = 'Creating a toon requires a (free) <a href="' + THREEPRESS.ARCADE.URLS.https + '" target="_blank">Threepress</a> account'
+		
+			auth_section.appendChild( build_toon_info() )
 			auth_section.appendChild( user )
 			auth_section.appendChild( pw )
 			auth_section.appendChild( email )
@@ -269,7 +271,13 @@ const add_tab = ( type, container, menu ) => {
 const build_toon_info = () => {
 	const wrapper = document.createElement('div')
 	wrapper.classList.add('toon-info')
-	wrapper.innerHTML = 'toon name: ' + PLAYER.handle
+	
+	const intro = document.createElement('div')
+	intro.innerHTML = 'current toon:'
+	wrapper.appendChild( intro )
+
+	wrapper.innerHTML += 'toon name: ' + PLAYER.handle
+
 	return wrapper
 }
 
@@ -541,10 +549,14 @@ const handle_auth = event => {
 	PLAYER.hydrate( toon )
 
 	// update modal info
-	const info = document.querySelector('.threepress-modal .toon-info')
-	if( info ) info.remove()
+	const infos = document.querySelectorAll('.threepress-modal .toon-info')
+	for( const ele of infos ) ele.remove()
+	// replace in Toon tab
 	const toon_section = document.querySelector('.threepress-modal .threepress-admin-section[data-type=toon]')
 	if( toon_section ) toon_section.prepend( build_toon_info() )
+	// replace in Login tab
+	const login_section = document.querySelector('.threepress-modal .threepress-admin-section[data-type=login]')
+	if( login_section ) login_section.prepend( build_toon_info() )
 
 	// separate event handles model update:
 	// BROKER.publish('TOON_UPDATE_MODEL', event )
