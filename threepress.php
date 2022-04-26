@@ -284,7 +284,7 @@ if ( !class_exists( 'Threepress' ) ) {
 
 	    public static function shortcode_world( $attr, $content, $name ){
 
-    		return '<div id="threepress-world"></div>';
+    		return '<div id="threepress-world" class="threepress"></div>';
 
 	    }
 

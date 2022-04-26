@@ -203,7 +203,7 @@ const add_section = ( type, container, menu ) => {
 			email.placeholder = 'threepress email (only if creating a new toon)'
 			const desc = document.createElement('div')
 			desc.classList.add('clarification')
-			desc.innerHTML = 'Creating a toon requires a (free) <a href="' + THREEPRESS.ARCADE.URLS.https + '" target="_blank">Threepress</a> account.<br>You can also reset passwords from there.'
+			desc.innerHTML = 'Creating a toon requires a (free) <a href="' + THREEPRESS.ARCADE.URLS.https + '" target="_blank">Threepress</a> account.<br>You can also view toons and reset passwords from there.'
 			const login = build_auth('login', auth_section )
 			const register = build_auth('create', auth_section )
 		
