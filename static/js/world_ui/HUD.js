@@ -362,8 +362,9 @@ const create_install_form = modal => {
 		}
 	})
 	if( THREEPRESS.home_url.match(/localhost/i) ){
-		setTimeout(()=>{
-			input.value = THREEPRESS.ARCADE.URLS.https + '/resource/image/quaternius-chat.jpg'
+		setTimeout(() => {
+			input.value = THREEPRESS.ARCADE.URLS.https + '/resource/world-models/trees/pine.glb'
+			// input.value = THREEPRESS.ARCADE.URLS.https + '/resource/image/quaternius-chat.jpg'
 		}, 500 )
 	}
 	form.appendChild( input )
@@ -491,18 +492,19 @@ const handle_action = event => {
 			})
 
 			RENDERER.domElement.setAttribute('data-await-hash', hash )
-
 			break;
 
 		case 'remove':
 
-			const selected_object = {}
-
-			console.log('missing selected object...')
+			const uuid = THREEPRESS.target_mesh?.userData?.uuid
+			if( !uuid ){
+				hal('error', 'invalid target object', 3000)
+				return
+			}
 
 			BROKER.publish('SOCKET_SEND', {
 				type: 'remove_object',
-				uuid: selected_object.uuid,
+				uuid: uuid,
 			})
 
 			break;

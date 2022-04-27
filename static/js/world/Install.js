@@ -2,6 +2,8 @@ import BROKER from './WorldBroker.js?v=130'
 import {
 	get_install_type,
 	hal,
+	debug_load,
+	get_bbox,
 } from '../lib.js?v=130'
 import {
 	Texture,
@@ -194,8 +196,7 @@ class Install {
 				break;
 
 			case 'model':
-				const res = await gltfLoader.load( this.url )
-				console.log('unhandled gltf model load', res )
+				await construct_model( this, false )
 				break;
 
 			default:
@@ -265,7 +266,175 @@ class Install {
 		}
 	}
 
+	add_group( is_update ){ // mirrors Entity
+		if( is_update ){
+			this.GROUP.remove( this.MODEL )
+			delete this.animation
+		}else{
+			this.GROUP = new Group()
+		}
+	}
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const construct_model = async( entity, is_update ) => {
+
+	// const modeltype = entity.modeltype || 'unknown'
+	// const slug = entity.slug || entity.some_other_slug || 'unknown'
+
+	console.log('rrg, what i got: ', entity )
+
+	const gltf = new GLTFLoader()
+
+	const filepath = entity.url
+	// THREEPRESS.ARCADE.URLS.https + '/resource/world-models/' + modeltype + '/' + slug
+
+	const result = await new Promise(( resolve, reject ) => {
+
+		if( entity.use_cache && MODEL_CACHE[ filepath ] ){ // cached loads
+			/*
+				--- do not use_cache for models with animations, they will not load them --- 
+			*/
+
+			if( MODEL_CACHE[ filepath ] === 'loading' ){ // interim loads
+				/*
+					begin wait; model is loading..
+				*/
+				let count = 0
+				let waiting = setInterval(() => {
+					if( MODEL_CACHE[ filepath] !== 'loading' ){
+						clearInterval( waiting )
+						entity.MODEL = MODEL_CACHE[ filepath ].clone()
+						entity.add_group( is_update )
+						entity.GROUP.add( entity.MODEL )	
+						entity.process_model()
+						resolve('loaded from wait: ' + filepath )	
+					}else{
+						debug_load('still waiting', filepath)
+					}
+					if( count > 20 ){
+						clearInterval( waiting )
+						reject('unable to load from cache: ' + filepath)
+					}
+					count++
+				}, 300)
+
+			}else{ // cached loads
+
+				entity.MODEL = MODEL_CACHE[ filepath ].clone()
+				entity.add_group( is_update )
+				entity.GROUP.add( entity.MODEL )
+				entity.process_model()
+				resolve('loaded from cache: ' + filepath)
+
+			}
+
+			/*
+				this does not yet  kick into effect until model is loaded
+				- MOST - models are still going to load un-cached, if requested at once ( trees )
+				fix...
+			*/
+
+		}else{ // no-cache loads AND first-time cache loads
+
+			if( entity.use_cache && !MODEL_CACHE[ filepath ]){ // first time cache loads
+				MODEL_CACHE[ filepath] = 'loading'
+				debug_load('beginning cache load:', filepath)
+			}else{
+				debug_load('beginning single load: ', filepath )
+			}
+
+			// console.log('loading: ', slug, modeltype )
+
+			gltf.load( filepath, 
+
+				obj => {
+
+					// console.log('gltf loaded: ', obj )
+
+					// if( standard_modeltypes.includes( modeltype ) ){
+
+					// handle CREATE / UPDATE of model
+					entity.add_group( is_update )
+
+					entity.MODEL = obj.scene
+
+					if( entity.use_cache && MODEL_CACHE[ filepath ] === 'loading' ){
+						debug_load('instantiated cache: ', filepath )
+						MODEL_CACHE[ filepath ] = entity.MODEL.clone()
+					}
+
+					entity.GROUP.add( entity.MODEL )	
+					entity.process_model()
+
+					// animations
+					if( obj.animations && obj.animations.length ){
+						const map = entity.animation_map[ modeltype ]
+						// console.log('adding anim map: ', filepath )
+						entity.add_animation( obj, map )
+					}
+
+					// done
+					resolve('loaded: ' + filepath )
+
+					// }else{
+
+					// 	debug_load('unhandled model type..', modeltype, obj)
+
+					// 	resolve('failed to load: ' + filepath )
+
+					// }
+
+				},
+				xhr => {
+					if( xhr && xhr.type !== 'progress' ) console.log( `bad xhr: ${ modeltype } ${ slug }: ${ xhr.type }` )
+				}, 
+				error => {
+					// const report = entity.handle || entity.name || entity.type
+					// hal('error', 'failed to load model: ' + report, 2000 )
+					// console.log( `failed load path: ${ modeltype } ${ slug }` )
+					reject('failed model load: ' + filepath )
+				}
+			)
+		}
+
+	})
+
+	debug_load( result )
+
+	// post processing:
+
+	entity.bbox = get_bbox( entity.MODEL )
+
+	if( entity.animation ) entity.anim_mixer = entity.animation.mixer // ( for anim loop access )
+
+	// post_process( entity )
+
+}
+
+
+
 
 
 // BROKER.subscribe('CONTROLS_SET_STATE', controls_set_state )

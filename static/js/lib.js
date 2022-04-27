@@ -1081,6 +1081,15 @@ const get_install_type = url => {
 }
 
 
+const DEBUG = false
+const debug_load = ( ...args ) => {
+	if( DEBUG ){
+		console.warn( ...args )
+	}
+}
+
+
+
 export {
 
 	// base ui functions
@@ -1139,5 +1148,6 @@ export {
 	get_domain,
 	get_install_type,
 
+	debug_load,
 }
 

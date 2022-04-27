@@ -93,6 +93,10 @@ const init = ele => {
 				BROKER.publish('WORLD_UPDATE_OBJ', packet )
 				break;
 
+			case 'remove_object':
+				BROKER.publish('WORLD_REMOVE_OBJ', packet )
+				break;
+
 			case 'auth_response':
 				BROKER.publish('AUTH_RESPONSE', packet )
 				break;

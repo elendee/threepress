@@ -3,6 +3,7 @@ import {
 	hal,
 	get_bbox,
 	random_entry,
+	debug_load,
 } from '../lib.js?v=130'
 import {
 	GLTFLoader,
@@ -26,12 +27,6 @@ const MODEL_CACHE = THREEPRESS.MODEL_CACHE = {}
 
 const standard_modeltypes = ['quaternius_low', 'trees']
 
-const DEBUG = false
-const debug_load = ( ...args ) => {
-	if( DEBUG ){
-		console.warn( ...args )
-	}
-}
 
 
 

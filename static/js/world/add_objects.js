@@ -111,41 +111,62 @@ const handle_install = event => {
 
 	const { install } = event 
 
-	// console.log('handle install', event )
+	console.log('handle install', event )
 
 	const type = lib.get_install_type( install.url )
 
-	let installation
+	const installation = new Install( install )
 
-	switch( type ){
+	if( type == 'image' || type === 'model'){
 
-		case 'image':
-			installation = new Install( install )
-			installation.construct_model()
-			.then( res => {
-				// console.log('loading from ', install )
-				// console.log('loading in ', installation )
-				if( !installation.GROUP ){
-					lib.hal('error', 'failed to load image', 5000 )
-					return
-				}
-				SCENE.add( installation.GROUP )
-				installation.GROUP.position.set( 
-					installation.REF.position.x, 
-					installation.REF.position.y, 
-					installation.REF.position.z,
-				)
-				INSTALLS[ installation.uuid ] = installation
-			})
-			break;
+		installation.construct_model()
+		.then( res => {
+			if( !installation.GROUP ){
+				lib.hal('error', 'failed to load image', 5000 )
+				return
+			}
+			SCENE.add( installation.GROUP )
+			installation.GROUP.position.set( 
+				installation.REF.position.x, 
+				installation.REF.position.y, 
+				installation.REF.position.z,
+			)
+			INSTALLS[ installation.uuid ] = installation
+		})
 
-		case 'model':
-			break;
+	}else{
 
-		default: 
-			console.log('unknown install type', type )
-			return
+		console.log('unknown install type', type )
+
 	}
+
+	// switch( type ){
+
+	// 	case 'image':
+	// 		installation.construct_model()
+	// 		.then( res => {
+	// 			if( !installation.GROUP ){
+	// 				lib.hal('error', 'failed to load image', 5000 )
+	// 				return
+	// 			}
+	// 			SCENE.add( installation.GROUP )
+	// 			installation.GROUP.position.set( 
+	// 				installation.REF.position.x, 
+	// 				installation.REF.position.y, 
+	// 				installation.REF.position.z,
+	// 			)
+	// 			INSTALLS[ installation.uuid ] = installation
+	// 		})
+	// 		break;
+
+	// 	case 'model':
+
+	// 		break;
+
+	// 	default: 
+	// 		console.log('unknown install type', type )
+	// 		return
+	// }
 
 }
 
@@ -190,6 +211,27 @@ const update_object = event => {
 
 
 
+const remove_object = event => {
+
+	const { uuid } = event
+	const obj = INSTALLS[ uuid ]
+	if( !obj ){
+		console.log('no object to remove')
+		return
+	}
+
+	obj.set_controls( false )
+	
+	SCENE.remove( obj.GROUP )
+
+	delete INSTALLS[ uuid ]
+
+	console.log('removed: ', obj )
+
+}
+
+
+
 
 
 
@@ -198,6 +240,7 @@ BROKER.subscribe('WORLD_HANDLE_OBJ', handle_obj )
 BROKER.subscribe('WORLD_INSTALL', send_install )
 BROKER.subscribe('WORLD_PONG_INSTALL', handle_install )
 BROKER.subscribe('WORLD_UPDATE_OBJ', update_object )
+BROKER.subscribe('WORLD_REMOVE_OBJ', remove_object )
 
 
 export default {}
