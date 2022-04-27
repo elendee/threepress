@@ -19,11 +19,19 @@ import {
 const build_action = ( type ) => {
 
 	let ele =document.createElement('div')
-
+	ele.classList.add('world-action-button', 'button')
+	ele.innerHTML = type
 	switch( type ){
+
 		case 'install':
-			ele.classList.add('world-action-button', 'button')
-			ele.innerHTML = type
+			ele.addEventListener('click', () => {
+				BROKER.publish('ACTION', {
+					type: type,
+				})
+			})
+			break;
+
+		case 'remove':
 			ele.addEventListener('click', () => {
 				BROKER.publish('ACTION', {
 					type: type,
@@ -61,6 +69,8 @@ const actions = document.createElement('div')
 actions.id = 'threepress-actions'
 const install = build_action('install')
 actions.appendChild( install )
+const remove = build_action('remove')
+actions.appendChild( remove )
 
 // actions.innerHTML = 'actions'
 // actions.addEventListener('click', () => {
@@ -481,6 +491,19 @@ const handle_action = event => {
 			})
 
 			RENDERER.domElement.setAttribute('data-await-hash', hash )
+
+			break;
+
+		case 'remove':
+
+			const selected_object = {}
+
+			console.log('missing selected object...')
+
+			BROKER.publish('SOCKET_SEND', {
+				type: 'remove_object',
+				uuid: selected_object.uuid,
+			})
 
 			break;
 

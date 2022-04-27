@@ -152,8 +152,8 @@ class Install {
 				group.add( this.frame )
 
 				let image = document.createElement('img')
+				const tex = new Texture()
 				const logurl = this.url.substr( this.url.length - 30 )
-
 				try{
 
 					await new Promise( (resolve, reject) => {
@@ -175,15 +175,10 @@ class Install {
 					console.log( 'error 2', logurl, error )
 					image.src = THREEPRESS.ARCADE.URLS.https + '/resource/image/no-load.jpg'
 				}
-
-				const tex = new Texture()
 				tex.image = image
 				setTimeout(()=>{
 					tex.needsUpdate = true
 				}, 1000)
-				// image.crossOrigin = 'Anonymous'
-				// tex.crossOrigin = 'Anonymous'
-				// tex.image.crossOrigin = 'Anonymous'
 				this.image = new Mesh( planegeo, new MeshLambertMaterial({
 					map: tex,
 				}))
