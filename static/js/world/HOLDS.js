@@ -164,7 +164,7 @@ const show_ui = ( state, url ) => {
 	}else{
 
 		hold_ui.style.display = 'none'
-		cancel.innerHTML = 'cancel'
+		// cancel.innerHTML = 'cancel'
 
 	}
 
