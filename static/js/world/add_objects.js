@@ -125,6 +125,10 @@ const handle_install = event => {
 			.then( res => {
 				// console.log('loading from ', install )
 				// console.log('loading in ', installation )
+				if( !installation.GROUP ){
+					lib.hal('error', 'failed to load image', 5000 )
+					return
+				}
 				SCENE.add( installation.GROUP )
 				installation.GROUP.position.set( 
 					installation.REF.position.x, 

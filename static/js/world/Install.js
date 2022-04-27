@@ -1,8 +1,10 @@
 import BROKER from './WorldBroker.js?v=130'
 import {
 	get_install_type,
+	hal,
 } from '../lib.js?v=130'
 import {
+	Texture,
 	BoxBufferGeometry,
 	Group,
 	MeshLambertMaterial,
@@ -47,7 +49,7 @@ transformer.addEventListener('objectChange', e => {
 				quaternion: target_obj.quaternion,
 				position: target_obj.position,
 			}
-			console.log('sending', packet )
+			// console.log('sending', packet )
 			BROKER.publish('SOCKET_SEND', packet )
 			clearTimeout( updating[ target_obj.uuid ])
 			delete updating[ target_obj.uuid ]
@@ -144,14 +146,51 @@ class Install {
 		switch( this.type ){
 
 			case 'image':
+
 				this.frame = new Mesh( framegeo, framemat )
 				this.frame.userData.held_mesh = this.held_mesh
 				group.add( this.frame )
+
+				let image = document.createElement('img')
+				const logurl = this.url.substr( this.url.length - 30 )
+
+				try{
+
+					await new Promise( (resolve, reject) => {
+						// load img to test url...
+						image.crossOrigin = 'Anonymous'
+						image.onload = () => {
+							resolve()
+						}
+						image.onerror = err => {
+							console.log( 'error 1', logurl, err )
+							image.src = THREEPRESS.ARCADE.URLS.https + '/resource/image/no-load.jpg'
+							resolve()
+						}
+						image.src = this.url
+						setTimeout
+					})
+
+				}catch(error){
+					console.log( 'error 2', logurl, error )
+					image.src = THREEPRESS.ARCADE.URLS.https + '/resource/image/no-load.jpg'
+				}
+
+				const tex = new Texture()
+				tex.image = image
+				setTimeout(()=>{
+					tex.needsUpdate = true
+				}, 1000)
+				// image.crossOrigin = 'Anonymous'
+				// tex.crossOrigin = 'Anonymous'
+				// tex.image.crossOrigin = 'Anonymous'
 				this.image = new Mesh( planegeo, new MeshLambertMaterial({
-					map: texLoader.load( this.url ),
+					map: tex,
 				}))
 				this.image.userData.held_mesh = this.held_mesh
 				group.add( this.image )
+
+
 				group.scale.x = 5
 				group.scale.y = 5
 				group.scale.z = 1
@@ -181,6 +220,7 @@ class Install {
 		if( this.type === 'image' ){
 
 			this.frame.castShadow = true 
+			this.frame.receiveShadow = true 
 
 		}else if( this.type === 'model' ){
 

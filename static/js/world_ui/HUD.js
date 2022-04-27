@@ -378,20 +378,6 @@ const allow_upload = event => {
 
 	const { hash, is_admin } = event
 
-	// const modal = document.querySelector('.threepress-modal[data-await-hash="' + hash + '"]')
-	// if( !modal ){
-	// 	console.log('got admin for non-existent modal', is_admin )
-	// 	return
-	// }
-
-	// for( const button of modal.querySelectorAll('.threepress-button')){
-	// 	if( button.innerText.match(/install/i)){
-	// 		button.remove()
-	// 	}
-	// }
-
-	// modal.removeAttribute('data-await-hash')
-
 	console.log('  event', event )
 
 	const current_hash = RENDERER.domElement.getAttribute('data-await-hash')
@@ -413,6 +399,8 @@ const allow_upload = event => {
 
 	wrapper.appendChild( modal.ele )
 
+	STATE.set('create-install')
+
 	// section.appendChild( form )
 
 }
@@ -424,12 +412,13 @@ const submit_install = ( value, submit ) => {
 	if( typeof value !== 'string' ) return
 
 	BROKER.publish('SOCKET_SEND', {
-		type: 'begin_install',
+		type: 'begin_install', // returns begin_install -> handle_hold
 		url: value,
 	})
 
 	submit.style['pointer-events'] = 'none'
-	hal('standard', 'querying resource....', 4000 )
+
+	hal('standard', 'querying resource....', 3000 )
 
 	spinner.show()
 
@@ -451,6 +440,8 @@ const handle_hold = event => {
 	} = event
 
 	spinner.hide()
+
+	STATE.splice('create-install') // ( URL entry )
 
 	const modal = document.querySelector('.threepress-modal')	
 
@@ -490,15 +481,6 @@ const handle_action = event => {
 			})
 
 			RENDERER.domElement.setAttribute('data-await-hash', hash )
-			// container.parentElement.setAttribute('data-await-hash', hash )
-
-			// setTimeout(() => {
-			// 	if( container.parentElement.getAttribute('data-await-hash') ){
-			// 	// 	// a valid response will remove hash so this doesn't happen
-			// 		hal('error', 'install request was blocked', 3000 )
-			// 		container.parentElement.removeAttribute('data-await-hash')
-			// 	}
-			// }, 3000)
 
 			break;
 
@@ -588,7 +570,6 @@ const init = () => {
 	wrapper.appendChild( actions )
 
 	BROKER.subscribe('ADMIN_TOGGLE', toggle_admin )
-	// BROKER.subscribe('ACTIONS_TOGGLE', toggle_actions )
 	BROKER.subscribe('WORLD_PONG_AUTH', allow_upload )
 	BROKER.subscribe('WORLD_BEGIN_INSTALL', handle_hold )
 	BROKER.subscribe('ACTION', handle_action )
