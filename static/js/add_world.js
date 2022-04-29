@@ -14,6 +14,7 @@ import SCENE from './world/SCENE.js?v=130'
 import RENDERER from './world/RENDERER.js?v=130'
 import CAMERA from './world/CAMERA.js?v=130'
 import LIGHT from './world/LIGHT.js?v=130'
+import GROUND from './world/GROUND.js?v=130'
 // engine stuff
 import animate from './world/animate.js?v=130'
 import BROKER from './world/WorldBroker.js?v=130'
@@ -40,6 +41,7 @@ import SKYBOX from './world/SKYBOX.js?v=130'
 import INSTALLS from './world/INSTALLS.js?v=130'
 
 import add_objects from './world/add_objects.js?v=130'
+
 // import varLogger from './helpers/varLogger.js?v=130'
 
 lib.tstack('add_world')
@@ -55,6 +57,18 @@ world_ele.appendChild( RENDERER.domElement )
 SCENE.add( LIGHT.hemispherical )
 SCENE.add( LIGHT.directional )
 SCENE.add( LIGHT.directional.target )
+
+
+
+// SCENE.add( GRASS.grass )
+// GRASS.grass.frustumCulled = false
+// SCENE.add( GRASS.ground )
+// GRASS.ground.is_ground = true
+
+// expose 
+THREEPRESS.RENDERER = RENDERER
+THREEPRESS.CAMERA = CAMERA
+
 
 
 
@@ -84,10 +98,10 @@ if( eles.length > 1 ){
 
 
 
-const voxel_type_map = {
-	lambert: MeshLambertMaterial,
-	basic: MeshBasicMaterial,
-}
+// const voxel_type_map = {
+// 	lambert: MeshLambertMaterial,
+// 	basic: MeshBasicMaterial,
+// }
 
 
 const WORLD = {
@@ -95,7 +109,6 @@ const WORLD = {
 	voxel_mats: {},
 }
 
-const texLoader = new TextureLoader()
 
 
 
@@ -184,6 +197,7 @@ const init_world = async( world_obj ) => {
 	const { 
 		// description,
 		domain,
+		environment,
 		// name,
 	} = world_obj
 
@@ -191,40 +205,6 @@ const init_world = async( world_obj ) => {
 		lib.hal('error', 'invalid world data', 5000)
 		return
 	}
-
-	// switch( world_obj.worldtype ){
-
-	// 	case 'plane':
-
-	const tilegeo = new PlaneBufferGeometry(1)
-	const tilemat = new MeshLambertMaterial({
-		// color: world_obj._plane_color,
-		// side: DoubleSide,
-	})
-	tilemat.map = texLoader.load( THREEPRESS.ARCADE.URLS.https +  '/resource/texture/tile.jpg')
-	const tiles = new Mesh( tilegeo, tilemat )
-	tiles.userData.is_ground = true
-	tiles.userData.is_tile = true
-	tiles.receiveShadow = true
-	tiles.rotation.x = -Math.PI /2
-	tiles.position.y += .05
-	tiles.scale.multiplyScalar( 100 )
-	SCENE.add( tiles )
-
-
-	const groundgeo = new PlaneBufferGeometry(1)
-	const groundmat = new MeshLambertMaterial({
-		color: 'rgb(50, 100, 20)',
-		// color: world_obj._plane_color,
-		// side: DoubleSide,
-	})
-	// groundmat.map = texLoader.load( THREEPRESS.ARCADE.URLS.https +  '/resource/texture/tile.jpg')
-	const ground = new Mesh( groundgeo, groundmat )
-	ground.userData.is_ground = true
-	ground.receiveShadow = true
-	ground.rotation.x = -Math.PI /2
-	ground.scale.multiplyScalar( 1000 )
-	SCENE.add( ground )
 
 	BROKER.publish('SOCKET_SEND', {
 		type: 'ping_trees',
@@ -316,6 +296,8 @@ const init_entry = async( event ) => {
 
 	animate()
 
+	GROUND.init( world )
+
 	await init_world( world )
 
 	await init_toon( null, toon, true )
@@ -344,32 +326,32 @@ const init_entry = async( event ) => {
 
 
 
-const add_voxel = event => {
+// const add_voxel = event => {
 	
-	const { data } = event
+// 	const { data } = event
 
-	const { coords, mat, shared } = data
+// 	const { coords, mat, shared } = data
 
-	if( !coords || !mat ){
-		console.log('invalid voxel data', data )
-		return
-	}
+// 	if( !coords || !mat ){
+// 		console.log('invalid voxel data', data )
+// 		return
+// 	}
 
-	const reference = WORLD.voxel_mats[ mat ]
+// 	const reference = WORLD.voxel_mats[ mat ]
 
-	const material = shared ? reference : reference.clone()
+// 	const material = shared ? reference : reference.clone()
 
-	const voxel = new Mesh( WORLD.voxel_geo, material )
+// 	const voxel = new Mesh( WORLD.voxel_geo, material )
 
-	voxel.position.set( 
-		coords.x * WORLD.voxel_scale, 
-		coords.y * WORLD.voxel_scale,
-		coords.z * WORLD.voxel_scale
-	)
+// 	voxel.position.set( 
+// 		coords.x * WORLD.voxel_scale, 
+// 		coords.y * WORLD.voxel_scale,
+// 		coords.z * WORLD.voxel_scale
+// 	)
 
-	SCENE.add( voxel )
+// 	SCENE.add( voxel )
 
-}
+// }
 
 
 
@@ -505,7 +487,7 @@ const set_active = event => {
 
 BROKER.subscribe('WORLD_SET_ACTIVE', set_active )
 BROKER.subscribe('WORLD_INIT', init_entry )
-BROKER.subscribe('WORLD_ADD_VOXEL', add_voxel )
+// BROKER.subscribe('WORLD_ADD_VOXEL', add_voxel )
 
 BROKER.subscribe('TOON_INIT', init_toon )
 BROKER.subscribe('TOON_CORE', handle_core )

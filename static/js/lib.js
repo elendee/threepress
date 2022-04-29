@@ -1088,6 +1088,9 @@ const debug_load = ( ...args ) => {
 	}
 }
 
+const TILE_SIZE = 300 // World
+
+
 
 
 export {
@@ -1149,5 +1152,7 @@ export {
 	get_install_type,
 
 	debug_load,
-}
 
+	TILE_SIZE,
+
+}

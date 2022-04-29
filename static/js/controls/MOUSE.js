@@ -234,14 +234,18 @@ const scroll_dist = new Vector3()
 
 let current_cam_dist = 'unset'
 
-const SCROLL_STEP = 10
+const SCROLL_STEP = 1
 
 function mouse_wheel( e ){
 
 	e.preventDefault()
 
 	scroll_dist.subVectors( ORIGIN, CAMERA.position ).normalize()
-	.multiplyScalar( SCROLL_STEP ) 
+	.multiplyScalar( SCROLL_STEP )
+
+	if( typeof current_cam_dist === 'number'){
+		scroll_dist.multiplyScalar( current_cam_dist / 20 )
+	}
 
 	// console.log( scroll_dist, ORIGIN, CAMERA.position, SCROLL_STEP )
 
@@ -307,7 +311,7 @@ const camera_look_home = () => {
 const projection = new Vector3()
 let dist = new Vector3()
 
-const MIN_DIST = 10
+const MIN_DIST = 3
 const MAX_DIST = 300
 
 const move_wheel_amount = ( scroll_dist, dir ) => {

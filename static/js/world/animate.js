@@ -6,6 +6,7 @@ import CAMERA from './CAMERA.js?v=130'
 import SCENE from './SCENE.js?v=130'
 import TOONS from './TOONS.js?v=130'
 import BROKER from './WorldBroker.js?v=130'
+import { update } from './grass.js?v=130'
 
 
 // const CONTROLS = new OrbitControls( CAMERA, RENDERER.domElement );
@@ -26,6 +27,8 @@ const animate = () => {
 	then = now 
 
 	for( const uuid in TOONS ) TOONS[ uuid ].update( delta_seconds )
+
+	update() // grass
 
 	// CONTROLS.update()
 

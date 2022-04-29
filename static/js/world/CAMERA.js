@@ -10,8 +10,6 @@ const camera = new PerspectiveCamera(
 	12000
 )
 
-THREEPRESS.CAMERA = camera
-
 // camera.yaw = {}
 
 camera.fixture = new Group()

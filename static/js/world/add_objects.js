@@ -111,7 +111,7 @@ const handle_install = event => {
 
 	const { install } = event 
 
-	console.log('handle install', event )
+	// console.log('handle install', event )
 
 	const type = lib.get_install_type( install.url )
 

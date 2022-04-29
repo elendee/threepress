@@ -303,7 +303,7 @@ const construct_model = async( entity, is_update ) => {
 	// const modeltype = entity.modeltype || 'unknown'
 	// const slug = entity.slug || entity.some_other_slug || 'unknown'
 
-	console.log('rrg, what i got: ', entity )
+	// console.log('rrg, what i got: ', entity )
 
 	const gltf = new GLTFLoader()
 
