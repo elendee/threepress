@@ -1088,7 +1088,11 @@ const debug_load = ( ...args ) => {
 	}
 }
 
-const TILE_SIZE = 300 // World
+const TILE_SIZE = 200 // World
+const FOG_COLOR = 0xaabbff
+const FOG_NEAR = 200
+const FOG_FAR = 700
+const FOG_DENSITY = 0.002
 
 
 
@@ -1154,5 +1158,9 @@ export {
 	debug_load,
 
 	TILE_SIZE,
+	FOG_COLOR,
+	FOG_NEAR,
+	FOG_FAR,
+	FOG_DENSITY,
 
 }

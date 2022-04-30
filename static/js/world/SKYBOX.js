@@ -10,7 +10,7 @@ import {
 
 
 
-const SKY_WIDTH = 8000
+const SKY_WIDTH = 1000
 
 let skyBox
 
@@ -19,7 +19,11 @@ const TYPE = 'standard'
 
 if( TYPE === 'image' ){
 
-	let skyGeometry = new CubeGeometry( SKY_WIDTH, SKY_WIDTH, SKY_WIDTH )	
+	let skyGeometry = new CubeGeometry( 
+		SKY_WIDTH, 
+		SKY_WIDTH, 
+		SKY_WIDTH 
+	)	
 	let materialArray = new Array(6)
 
 	const loader = new TextureLoader()
@@ -40,7 +44,7 @@ if( TYPE === 'image' ){
 
 	const skyGeometry = new BoxBufferGeometry(1,1,1)
 	const skyMat = new MeshBasicMaterial({
-		color: 'rgb(150, 200, 255)',
+		color: 'rgb(50, 100, 255)',
 		side: DoubleSide,
 	})
 	skyBox = new Mesh( skyGeometry, skyMat )

@@ -1,3 +1,7 @@
+import {
+	FOG_COLOR,
+	FOG_DENSITY,
+} from '../lib.js?v=130'
 import { 
 	Scene, 
 	Color, 
@@ -12,7 +16,7 @@ import {
 
 const scene = new Scene()
 
-scene.fog = new FogExp2( 0xccccff, .002 )
+scene.fog = new FogExp2( FOG_COLOR, FOG_DENSITY )
 
 export default scene
 

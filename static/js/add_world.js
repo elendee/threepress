@@ -3,6 +3,7 @@ import * as lib from './lib.js?v=130'
 import {
 	Vector3,
 	Quaternion,
+	DoubleSide,
 	// BoxBufferGeometry,
 	Mesh,
     MeshLambertMaterial,
@@ -219,7 +220,30 @@ const init_world = async( world_obj ) => {
 		type: 'ping_installs',
 	})
 
+	const groundgeo = new PlaneBufferGeometry(1)
+	// const tex = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/Grass_04.jpg')
+	// tex.wrapS = RepeatWrapping
+	// tex.wrapT = RepeatWrapping
+	// tex.repeat.set( 4, 4 )
+	const groundmat = new MeshLambertMaterial({
+		color: 'rgb(10, 70, 10)',
+		side: DoubleSide,
+	})
+	const ground = new Mesh( groundgeo, groundmat )
+	ground.userData.is_ground = true
+	// ground.receiveShadow = true
+	ground.rotation.x = -Math.PI /2
+	ground.scale.multiplyScalar( lib.TILE_SIZE * 10 )
+	ground.position.y -= .5
+
+	SCENE.add( ground )
 	SCENE.add( SKYBOX )
+
+	let skytrack = setInterval(() => {
+		SKYBOX.position.copy( PLAYER.GROUP.position )
+		ground.position.copy( PLAYER.GROUP.position )
+		ground.position.y -= .5
+	}, 5000 )
 
 	// break;
 
@@ -299,9 +323,11 @@ const init_entry = async( event ) => {
 
 	GROUND.init( world )
 
-	await init_world( world )
+	// await init_world( world )
 
 	await init_toon( null, toon, true )
+
+	await init_world( world )
 
 	PLAYER.GROUP.add( CAMERA.fixture )
 

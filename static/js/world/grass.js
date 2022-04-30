@@ -1,17 +1,26 @@
 import RENDERER from './RENDERER.js?v=130'
 import {
 	TILE_SIZE,
+	FOG_COLOR,
+	FOG_NEAR,
+	FOG_FAR,
+	FOG_DENSITY,
 } from '../lib.js?v=130'
 import {
+	Color,
+	ShaderChunk,
+	Mesh,
 	CanvasTexture,
 	Clock,
 	ShaderMaterial,
+	PlaneBufferGeometry,
 	DoubleSide,
 	Object3D,
 	PlaneGeometry,
 	InstancedMesh,
 	MeshLambertMaterial,
 	TextureLoader,
+	RepeatWrapping,
 } from '../../inc/three.module.js?v=130'
 
 
@@ -25,7 +34,17 @@ const texLoader = new TextureLoader()
 
 
 
-const grassTexture = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/grass.jpg' )
+
+// -------------------
+// base foliage inputs
+// -------------------
+
+const instanceNumber = 1500;
+const dummy = new Object3D();
+
+
+const grassTexture = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/clover.png' )
+// const grassTexture = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/grass.jpg' )
 const grassAlpha = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/grassAlpha.png' )
 
 const uniforms = {
@@ -38,6 +57,15 @@ const uniforms = {
 	grassAlpha: {
         value: grassAlpha,
     },
+	fogColor:    { type: "c", value: new Color( FOG_COLOR ) },
+	fogNear:     { type: "f", value: FOG_NEAR },
+	fogFar:      { type: "f", value: FOG_FAR },
+	fogDensity:    { type: "f", value: 0.9 },
+
+	// topColor:    { type: "c", value: new Color( 0x0077ff ) },
+	// bottomColor: { type: "c", value: new Color( 0xffffff ) },
+	// offset:      { type: "f", value: 33 },
+	// exponent:    { type: "f", value: 0.6 },
 }
 
 
@@ -103,18 +131,57 @@ void main() {
 }`;
 
 
+// using straight PNG:
 const fragmentShader = `
-uniform sampler2D grassAlpha;
 uniform sampler2D grassTexture;
 varying vec2 vUv;
-  
+
+uniform vec3 fogColor;
+uniform float fogNear;
+uniform float fogFar;
+
 void main() {
-    vec4 color = texture2D(grassAlpha, vUv);
     gl_FragColor = texture2D(grassTexture, vUv);
-    gl_FragColor.a = color.a;
-    if ( color.a < 0.5 ) discard;
-}
-`;
+
+	float depth = gl_FragCoord.z / gl_FragCoord.w;
+	float fogFactor = smoothstep( fogNear, fogFar, depth );
+	gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
+
+    if ( gl_FragColor.a < 0.5 ) discard;
+}`;
+	 // ${ ShaderChunk['fog_fragment'] }
+
+// ${ ShaderChunk[ "common" ]}
+// ${ ShaderChunk[ "fog_pars_fragment" ]}  
+// ${ ShaderChunk['fog_fragment'] }
+
+// using separate alphaMap:
+// const fragmentShader = `
+// uniform sampler2D grassAlpha;
+// uniform sampler2D grassTexture;
+// varying vec2 vUv;
+  
+// void main() {
+//     vec4 color = texture2D(grassAlpha, vUv);
+//     gl_FragColor = texture2D(grassTexture, vUv);
+//     gl_FragColor.a = color.a;
+//     if ( color.a < 0.5 ) discard;
+// }
+// `;
+
+
+
+
+
+
+
+
+// --------------------
+// base foliage threejs
+// --------------------
+
+const geometry = new PlaneGeometry( 3, 5, 1, 4 );
+geometry.translate( 0, 0.5, 0 ); // move grass blade geometry lowest point at 0.
 
 const leavesMaterial = new ShaderMaterial({
 	vertexShader,
@@ -122,19 +189,8 @@ const leavesMaterial = new ShaderMaterial({
 	uniforms,
 	side: DoubleSide,
 	transparent: true,
+	fog: true,
 })
-
-
-
-/////////
-// MESH
-/////////
-
-const instanceNumber = 5000;
-const dummy = new Object3D();
-
-const geometry = new PlaneGeometry( 10, 10, 1, 4 );
-geometry.translate( 0, 0.5, 0 ); // move grass blade geometry lowest point at 0.
 
 const grass = new InstancedMesh( geometry, leavesMaterial, instanceNumber );
 
@@ -148,7 +204,9 @@ for ( let i=0 ; i < instanceNumber ; i++ ) {
     	( Math.random() - 0.5 ) * TILE_SIZE
   	);
   
-	dummy.scale.setScalar( 0.5 + Math.random() * 0.5 );
+	dummy.scale.setScalar( 0.1 + Math.random() );
+
+	if( Math.random() > .9 ) dummy.scale.multiplyScalar( 1 + Math.random() * 2 )
   
 	dummy.rotation.y = Math.random() * Math.PI;
   
@@ -165,6 +223,48 @@ const update = function () {
 	// leavesMaterial.uniforms.time.value = clock.getElapsedTime();
 	// leavesMaterial.uniformsNeedUpdate = true;
 };
+
+// ----------------
+// end base foliage
+// ----------------
+
+
+
+
+
+
+
+
+
+
+
+
+// ------
+// ground
+// ------
+const groundgeo = new PlaneBufferGeometry(1)
+const tex = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/Grass_04.jpg')
+tex.wrapS = RepeatWrapping
+tex.wrapT = RepeatWrapping
+tex.repeat.set( 4, 4 )
+const groundmat = new MeshLambertMaterial({
+	map: tex,
+	color: 'rgb(90, 140, 50)',
+})
+const ground = new Mesh( groundgeo, groundmat )
+ground.userData.is_ground = true
+ground.receiveShadow = true
+ground.rotation.x = -Math.PI /2
+ground.scale.multiplyScalar( TILE_SIZE )
+grass.add( ground )
+// ----------
+// end ground
+// ----------
+
+
+
+
+
 
 
 export {

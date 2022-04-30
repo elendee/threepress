@@ -1,6 +1,6 @@
 === Threepress ===
 Contributors: kerryoco
-Tags: threejs, 3d model, gltf, woocommerce, ecommerce
+Tags: threejs, 3d model, gltf, chat, multiplayer
 Donate link: http://threepress.shop/donate
 Requires at least: 4.0
 Tested up to: 5.9
@@ -51,7 +51,7 @@ All the galleries on a given page will be available in the global variable `THRE
 
 == Changelog ==
 = 1.3.0 =
-* Threepress World, multiplayer chat, initial rollout
+* Threepress World, multiplayer chat, beta
 * non-fatal undefined variable in threepress.php fixed
 = 1.2.1 = 
 * activation error fixed
