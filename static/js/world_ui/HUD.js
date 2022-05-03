@@ -406,6 +406,10 @@ const allow_upload = event => {
 
 	const form = create_install_form( modal )
 
+	modal.close.addEventListener('click', () => {
+		STATE.splice('create-install')
+	})
+
 	modal.content.appendChild( form )
 
 	wrapper.appendChild( modal.ele )
@@ -502,10 +506,13 @@ const handle_action = event => {
 				return
 			}
 
-			BROKER.publish('SOCKET_SEND', {
-				type: 'remove_object',
-				uuid: uuid,
-			})
+			const name = THREEPRESS.target_mesh?.userData.name || 'object'
+			if( confirm('remove ' + name + '?') ){
+				BROKER.publish('SOCKET_SEND', {
+					type: 'remove_object',
+					uuid: uuid,
+				})	
+			}
 
 			break;
 

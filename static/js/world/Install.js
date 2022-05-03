@@ -220,9 +220,20 @@ class Install {
 
 		}else if( this.type === 'model' ){
 
-		// this.GROUP.traverse( child => {
-		// 	if( child.isMesh ) child.castShadow = true
-		// })			
+			let c = 0
+			this.GROUP.traverse( child => {
+				if( child.isMesh ){
+					if( c > 10 ){
+						//
+					}else{
+						child.castShadow = true
+					}
+					c++
+				}
+			})	
+			if( c > 10 ){
+				console.log('model had many meshes; skipped '+ ( c - 10 ) + ' shadows: ' + ( this.name || this.uuid.substr(0,4) ) )
+			}
 
 		}else{
 			console.log('unknown process_model', this )

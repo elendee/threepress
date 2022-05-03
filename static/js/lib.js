@@ -1,5 +1,5 @@
 import ThreepressGallery from './ThreepressGallery.js?v=130'
-
+import '../inc/seedrandom.js?v=130'
 import {
 	Box3,
 	Vector3,
@@ -1088,11 +1088,143 @@ const debug_load = ( ...args ) => {
 	}
 }
 
-const TILE_SIZE = 200 // World
+const TILE_SIZE = 100 // World
 const FOG_COLOR = 0xaabbff
 const FOG_NEAR = 200
 const FOG_FAR = 700
 const FOG_DENSITY = 0.002
+
+
+
+
+function scry( x, old_min, old_max, new_min, new_max ){
+
+	const first_ratio = ( x - old_min ) / ( old_max - old_min )
+	const result = ( first_ratio * ( new_max - new_min ) ) + new_min
+	return result
+}
+
+
+// const pseudo_random = ( x, y, z, w ) => {
+// 	let v = 0
+// 	if( x ) v += x
+// 	if( y ) v += y
+// 	if( z ) v += z
+// 	if( w ) v += w
+// 	return scry( Math.sin( v ), -1, 1, 0, 1 )
+// }
+
+
+
+let perlin = {
+    rand_vect: function( x, y, vx, vy, seed ){
+    	Math.seedrandom( ( seed || '' ) + Math.floor(x) + Math.floor(y) + Math.floor(vx) + Math.floor(vy) )
+        let theta = Math.random() * 2 * Math.PI;
+        return {x: Math.cos(theta), y: Math.sin(theta)};
+    },
+    // dot_prod_grid: function(x, y, vx, vy){
+    //     let g_vect;
+    //     let d_vect = {x: x - vx, y: y - vy};
+    //     if (this.gradients[[vx,vy]]){
+    //         g_vect = this.gradients[[vx,vy]];
+    //     } else {
+    //         g_vect = this.rand_vect();
+    //         this.gradients[[vx, vy]] = g_vect;
+    //     }
+    //     return d_vect.x * g_vect.x + d_vect.y * g_vect.y;
+    // },
+    dot_prod_grid_static: function(x, y, vx, vy, seed ){
+        let g_vect;
+        let d_vect = {x: x - vx, y: y - vy};
+        if (this.gradients[[vx,vy]]){
+            g_vect = this.gradients[[vx,vy]];
+        } else {
+            g_vect = this.rand_vect( x, y, vx, vy, seed );
+            this.gradients[[vx, vy]] = g_vect;
+        }
+        return d_vect.x * g_vect.x + d_vect.y * g_vect.y;
+    },
+    smootherstep: function(x){
+        return 6*x**5 - 15*x**4 + 10*x**3;
+    },
+    interp: function(x, a, b){
+        return a + this.smootherstep(x) * (b-a);
+    },
+    seed: function(){
+        this.gradients = {};
+        this.memory = {};
+    },
+    get: function(x, y, seed ) {
+        if (this.memory.hasOwnProperty([x,y]))
+            return this.memory[[x,y]];
+        let xf = Math.floor(x);
+        let yf = Math.floor(y);
+        //interpolate
+        let tl = this.dot_prod_grid_static(x, y, xf,   yf, seed );
+        let tr = this.dot_prod_grid_static(x, y, xf+1, yf, seed );
+        let bl = this.dot_prod_grid_static(x, y, xf,   yf+1, seed );
+        let br = this.dot_prod_grid_static(x, y, xf+1, yf+1, seed );
+        let xt = this.interp(x-xf, tl, tr);
+        let xb = this.interp(x-xf, bl, br);
+        let v = this.interp(y-yf, xt, xb);
+        this.memory[[x,y]] = v;
+        return v;
+    }
+}
+perlin.seed();
+
+
+
+
+let jaman_perlin = {
+    dot: function(x, y, x2, y2){
+        let a, b = {x: x - x2, y: y - y2};
+        if (this.gradientCache[[x2,y2]]){
+            a = this.gradientCache[[x2,y2]];
+        } else {
+            let theta = Math.random() * 2 * Math.PI;
+            a = {x: Math.cos(theta), y: Math.sin(theta)};
+            this.gradientCache[[x2, y2]] = a;
+        }
+        return b.x * a.x + b.y * a.y;
+    },
+    smooth: x => {
+        return 6*x**5 - 15*x**4 + 10*x**3;
+    },
+    reset: function() {
+        this.gradientCache = {};
+        this.valueCache = {};
+    },
+    get: function(x, y) {
+        if (this.valueCache.hasOwnProperty([x,y]))return this.valueCache[[x,y]];
+        let xf = Math.floor(x);
+        let yf = Math.floor(y);
+        let tl = this.dot(x, y, xf,   yf);
+        let tr = this.dot(x, y, xf+1, yf);
+        let bl = this.dot(x, y, xf,   yf+1);
+        let br = this.dot(x, y, xf+1, yf+1);
+        let xt = tl + this.smooth(x-xf) * (tr-tl);
+        let xb = bl + this.smooth(x-xf) * (br-bl);
+        let v = xt + this.smooth(y-yf) * (xb-xt);
+        this.valueCache[[x,y]] = v;
+        return v;
+    },
+    recurse: function (x, y, fx = 0.1, fy = 0.1, octaves = [[2,0.5],[2,0.5]]) {
+        let amplitude = 1;
+        let range = 1;
+        let v = this.get( x * fx, y * fy );
+        octaves.forEach(octave => {
+            fx *= octave[0];
+            fy *= octave[0];
+            amplitude *= octave[1];
+            range += amplitude;
+            v += this.get( x * fx, y * fy ) * amplitude;
+        });
+        return (v+1)/2;
+    }
+}
+jaman_perlin.reset();
+
 
 
 
@@ -1163,4 +1295,7 @@ export {
 	FOG_FAR,
 	FOG_DENSITY,
 
+	scry,
+	perlin,
+	jaman_perlin,
 }

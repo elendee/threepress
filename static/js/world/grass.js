@@ -1,16 +1,16 @@
-import RENDERER from './RENDERER.js?v=130'
+// import RENDERER from './RENDERER.js?v=130'
 import {
 	TILE_SIZE,
 	FOG_COLOR,
 	FOG_NEAR,
 	FOG_FAR,
-	FOG_DENSITY,
+	// FOG_DENSITY,
 } from '../lib.js?v=130'
 import {
 	Color,
-	ShaderChunk,
+	// ShaderChunk,
 	Mesh,
-	CanvasTexture,
+	// CanvasTexture,
 	Clock,
 	ShaderMaterial,
 	PlaneBufferGeometry,
@@ -45,7 +45,7 @@ const dummy = new Object3D();
 
 const grassTexture = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/clover.png' )
 // const grassTexture = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/grass.jpg' )
-const grassAlpha = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/grassAlpha.png' )
+// const grassAlpha = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/grassAlpha.png' )
 
 const uniforms = {
 	time: {
@@ -54,9 +54,9 @@ const uniforms = {
 	grassTexture: {
         value: grassTexture,
     },
-	grassAlpha: {
-        value: grassAlpha,
-    },
+	// grassAlpha: {
+ //        value: grassAlpha,
+ //    },
 	fogColor:    { type: "c", value: new Color( FOG_COLOR ) },
 	fogNear:     { type: "f", value: FOG_NEAR },
 	fogFar:      { type: "f", value: FOG_FAR },
@@ -199,9 +199,9 @@ const grass = new InstancedMesh( geometry, leavesMaterial, instanceNumber );
 for ( let i=0 ; i < instanceNumber ; i++ ) {
 
 	dummy.position.set(
-  		( Math.random() - 0.5 ) * TILE_SIZE,
+  		( Math.random() ) * TILE_SIZE,
     	0,
-    	( Math.random() - 0.5 ) * TILE_SIZE
+    	( Math.random() ) * TILE_SIZE
   	);
   
 	dummy.scale.setScalar( 0.1 + Math.random() );

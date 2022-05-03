@@ -40,6 +40,7 @@ import HOLDS from './world/HOLDS.js?v=130'
 import FactoryObject from './world/FactoryObject.js?v=130'
 import SKYBOX from './world/SKYBOX.js?v=130'
 import INSTALLS from './world/INSTALLS.js?v=130'
+import GLOBAL from './GLOBAL.js?v=130'
 
 import add_objects from './world/add_objects.js?v=130'
 
@@ -89,12 +90,15 @@ if( eles.length > 1 ){
 	world_ele.prepend( wrapper )
 	// insertBefore( RENDERER.domElement, wrapper )
 
-	WS.init( world_ele )
-	KEYS.init()
-	MOUSE.init()
-	TARGET.init()
-	HUD.init()
-	CHAT.init()
+	GLOBAL.init()
+	.then( res => {
+		WS.init( world_ele )
+		KEYS.init()
+		MOUSE.init()
+		TARGET.init()
+		HUD.init()
+		CHAT.init()
+	})
 }
 
 
@@ -208,17 +212,20 @@ const init_world = async( world_obj ) => {
 		return
 	}
 
-	BROKER.publish('SOCKET_SEND', {
-		type: 'ping_trees',
-	})
+	console.log('skipping trees')
+	// BROKER.publish('SOCKET_SEND', {
+	// 	type: 'ping_trees',
+	// })
 
-	BROKER.publish('SOCKET_SEND', {
-		type: 'ping_pillars',
-	})
+	console.log('skipping pillars')
+	// BROKER.publish('SOCKET_SEND', {
+	// 	type: 'ping_pillars',
+	// })
 
-	BROKER.publish('SOCKET_SEND', {
-		type: 'ping_installs',
-	})
+	console.log('skipping installs')
+	// BROKER.publish('SOCKET_SEND', {
+	// 	type: 'ping_installs',
+	// })
 
 	const groundgeo = new PlaneBufferGeometry(1)
 	// const tex = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/Grass_04.jpg')
@@ -233,7 +240,7 @@ const init_world = async( world_obj ) => {
 	ground.userData.is_ground = true
 	// ground.receiveShadow = true
 	ground.rotation.x = -Math.PI /2
-	ground.scale.multiplyScalar( lib.TILE_SIZE * 10 )
+	ground.scale.multiplyScalar( lib.TILE_SIZE  ) // * 10
 	ground.position.y -= .5
 
 	SCENE.add( ground )
@@ -241,8 +248,8 @@ const init_world = async( world_obj ) => {
 
 	let skytrack = setInterval(() => {
 		SKYBOX.position.copy( PLAYER.GROUP.position )
-		ground.position.copy( PLAYER.GROUP.position )
-		ground.position.y -= .5
+		// ground.position.copy( PLAYER.GROUP.position )
+		// ground.position.y -= .5
 	}, 5000 )
 
 	// break;
@@ -323,15 +330,13 @@ const init_entry = async( event ) => {
 
 	GROUND.init( world )
 
-	// await init_world( world )
-
 	await init_toon( null, toon, true )
 
 	await init_world( world )
 
 	PLAYER.GROUP.add( CAMERA.fixture )
 
-	CAMERA.position.set( 0, 1, -10 ) // 1 == just slightly elevated
+	CAMERA.position.set( 0, 10, -50 ) // 1 == just slightly elevated
 	// PLAYER.bbox.max.y * 1.5
 
 	CAMERA.lookAt( CAMERA.fixture.position )
