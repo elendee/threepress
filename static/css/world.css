@@ -63,8 +63,8 @@
 }
 #threepress-world .threepress-modal-content{
 	position: relative;
-	background: transparent;
 	pointer-event: none;
+	background: rgba(255, 255, 255, .5);
 }
 
 #threepress-actions-world-nav,

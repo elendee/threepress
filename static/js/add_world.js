@@ -62,11 +62,6 @@ SCENE.add( LIGHT.directional.target )
 
 
 
-// SCENE.add( GRASS.grass )
-// GRASS.grass.frustumCulled = false
-// SCENE.add( GRASS.ground )
-// GRASS.ground.is_ground = true
-
 // expose 
 THREEPRESS.RENDERER = RENDERER
 THREEPRESS.CAMERA = CAMERA
@@ -212,38 +207,38 @@ const init_world = async( world_obj ) => {
 		return
 	}
 
-	console.log('skipping trees')
-	// BROKER.publish('SOCKET_SEND', {
-	// 	type: 'ping_trees',
-	// })
-
-	console.log('skipping pillars')
-	// BROKER.publish('SOCKET_SEND', {
-	// 	type: 'ping_pillars',
-	// })
-
-	console.log('skipping installs')
-	// BROKER.publish('SOCKET_SEND', {
-	// 	type: 'ping_installs',
-	// })
-
-	const groundgeo = new PlaneBufferGeometry(1)
-	// const tex = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/Grass_04.jpg')
-	// tex.wrapS = RepeatWrapping
-	// tex.wrapT = RepeatWrapping
-	// tex.repeat.set( 4, 4 )
-	const groundmat = new MeshLambertMaterial({
-		color: 'rgb(10, 70, 10)',
-		side: DoubleSide,
+	// console.log('skipping trees')
+	BROKER.publish('SOCKET_SEND', {
+		type: 'ping_trees',
 	})
-	const ground = new Mesh( groundgeo, groundmat )
-	ground.userData.is_ground = true
-	// ground.receiveShadow = true
-	ground.rotation.x = -Math.PI /2
-	ground.scale.multiplyScalar( lib.TILE_SIZE  ) // * 10
-	ground.position.y -= .5
 
-	SCENE.add( ground )
+	// console.log('skipping pillars')
+	BROKER.publish('SOCKET_SEND', {
+		type: 'ping_pillars',
+	})
+
+	// console.log('skipping installs')
+	BROKER.publish('SOCKET_SEND', {
+		type: 'ping_installs',
+	})
+
+	// const groundgeo = new PlaneBufferGeometry(1)
+	// // const tex = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/Grass_04.jpg')
+	// // tex.wrapS = RepeatWrapping
+	// // tex.wrapT = RepeatWrapping
+	// // tex.repeat.set( 4, 4 )
+	// const groundmat = new MeshLambertMaterial({
+	// 	color: 'rgb(10, 70, 10)',
+	// 	side: DoubleSide,
+	// })
+	// const ground = new Mesh( groundgeo, groundmat )
+	// ground.userData.is_ground = true
+	// // ground.receiveShadow = true
+	// ground.rotation.x = -Math.PI /2
+	// ground.scale.multiplyScalar( lib.TILE_SIZE  ) // * 10
+	// ground.position.y -= .5
+
+	// SCENE.add( ground )
 	SCENE.add( SKYBOX )
 
 	let skytrack = setInterval(() => {

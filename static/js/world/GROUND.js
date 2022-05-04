@@ -31,7 +31,7 @@ let rendering
 // const grasses = THREEPRESS.grasses = []
 // const gusts = []
 
-const BLOCKS = THREEPRESS.BLOCKS = new BlockRegister()
+const BLOCK_REGISTER = THREEPRESS.BLOCK_REGISTER =  new BlockRegister()
 
 
 
@@ -129,11 +129,11 @@ const init = world_data => {
 
 const DUMMY_SIZE = 10
 
-const tick_size = 2
+const tick_size = 4
 
 const tick_grass = () => {
 
-	let found
+	// let found
 
 	// console.log('pindex: ', playerIndex )
 
@@ -144,7 +144,7 @@ const tick_grass = () => {
 	for( let x = -tick_size; x <= tick_size; x++ ){
 		for( let z = -tick_size; z <= tick_size; z++ ){
 
-			found = false
+			// found = false
 
 			const tile = { // relativize tile coords
 				x: playerIndex[0] + x,
@@ -157,7 +157,7 @@ const tick_grass = () => {
 				seed: world_seed,
 				size: DUMMY_SIZE,
 			})
-			if( BLOCKS.add( b ) ){
+			if( BLOCK_REGISTER.add( b ) ){ // block was added to BLOCK_REGISTER
 				b.init_grid( DUMMY_SIZE )
 				b.build_ground()
 				b.setLOD('ground')
@@ -170,12 +170,15 @@ const tick_grass = () => {
 				const low = Math.abs( playerIndex[0] - x ) > 1 || Math.abs( playerIndex[1] - z ) > 1
 				// console.log( 'LOD: ', low )
 				b.setLOD( low ? 'low' : 'high')
+				// b.setLOD('water')
+
+
 			}
 		}
 	}
 
 	// clear distant Blocks
-	BLOCKS.sweep( playerIndex, tick_size )
+	BLOCK_REGISTER.sweep( playerIndex, tick_size )
 
 }
 
@@ -348,4 +351,5 @@ const tick_grass = () => {
 
 export default {
 	init,
+	BLOCK_REGISTER,
 }

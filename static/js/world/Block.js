@@ -19,8 +19,10 @@ import {
 	InstancedMesh,
 	MeshLambertMaterial,
 	DoubleSide,
-	TextureLoader
+	TextureLoader,
+	Vector3,
 } from '../../inc/three.module.js?v=130'
+// import { Water } from '../../inc/Water.js?v=130'
 
 
 
@@ -71,6 +73,20 @@ const ground_material = new MeshLambertMaterial({
 	// color: 'blue',
 })
 
+// const waterGeometry = new PlaneBufferGeometry(100, 100)
+// const water = new Water( waterGeometry, {
+// 	textureWidth: 512,
+// 	textureHeight: 512,
+// 	waterNormals: texLoader.load( '../assets/waternormals.jpg', function ( texture ) {
+// 		texture.wrapS = texture.wrapT = RepeatWrapping;
+// 	}),
+// 	sunDirection: new Vector3(),
+// 	sunColor: 0xffffff,
+// 	waterColor: 0x001e0f,
+// 	distortionScale: 3.7,
+// 	fog: true
+// })
+
 const shaders = {
 	vertex: {
 		grass: `
@@ -109,7 +125,46 @@ void main() {
     gl_Position = projectionMatrix * modelViewPosition;
 
 }`,
-},
+		water: `
+varying vec2 vUv;
+uniform float time;
+
+${simpleNoise}
+
+void main() {
+
+    vUv = uv;
+    float t = time * 2.;
+    
+    // VERTEX POSITION
+    
+    vec4 mvPosition = vec4( position, 1.0 );
+    #ifdef USE_INSTANCING
+        mvPosition = instanceMatrix * mvPosition;
+    #endif
+    
+    // DISPLACEMENT
+    
+    float noise = smoothNoise(mvPosition.xz * 0.5 + vec2(0., t / 2.0 ));
+    noise = pow(noise * 0.5 + 0.5, 2.) * 2.;
+        
+    float displacement = noise * ( 1.0 );
+    // mvPosition.z -= displacement;
+    mvPosition.y -= displacement;
+    
+    //
+    
+    vec4 modelViewPosition = modelViewMatrix * mvPosition;
+    gl_Position = projectionMatrix * modelViewPosition;
+
+}
+` 
+	},
+
+    // float displacement = noise * ( 2.3 * dispPower );
+	   //  // here the displacement is made stronger on the blades tips.
+    // float dispPower = 1. - cos( uv.y * 3.1416 * 0.5 );
+
 	fragment: {
 		grass: `
 uniform sampler2D grassTexture;
@@ -127,43 +182,84 @@ void main() {
 	gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
 
     if ( gl_FragColor.a < 0.5 ) discard;
-}`
+}`,
+		water: `
+uniform vec3 waterColor;
+uniform sampler2D waterTexture;
+varying vec2 vUv;
+
+uniform vec3 fogColor;
+uniform float fogNear;
+uniform float fogFar;
+void main() {
+    float depth = gl_FragCoord.z / gl_FragCoord.w;
+    float fogFactor = smoothstep( fogNear, fogFar, depth );
+
+    gl_FragColor = texture2D(waterTexture, vUv );
+    // gl_FragColor.rgb = mix( waterColor, gl_FragColor, 0.5 );
+    // gl_FragColor.rgb = mix( gl_FragColor, fogColor, fogFactor );
+    // gl_FragColor.a = 1.0;
+
+}`,
 	}
 
 }
+
+	// float depth = gl_FragCoord.z / gl_FragCoord.w;
+	// float fogFactor = smoothstep( fogNear, fogFar, depth );
+	// gl_FragColor = vec4(waterColor.r, waterColor.g, waterColor.b, 1.0);
+
+	// gl_FragColor = vec4(fogFactor, fogFactor, fogFactor, 1.0);
+
+	// mix( waterColor, fogColor, fogFactor );
+	// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+
+// --- temp water shader
+// ---
 
 // textures
 const textures = {
 	'grass': {
 		slug: 'clover.png',
 		tex: false,
-		// alpha: {
-		// 	slug: 'grassAlpha.png',
-		// 	tex: false,
-		// }
+	},
+	'water':{
+		slug: 'waternormals-sky.jpg',
 	},
 }
 for( const type in textures ){
 	textures[ type ].tex = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/' + textures[ type ].slug )
 }
 
+const basic_uniforms = {
+	time: {
+  		value: 0
+	},	
+	fogColor:    { type: "c", value: new Color( FOG_COLOR ) },
+	fogNear:     { type: "f", value: FOG_NEAR },
+	fogFar:      { type: "f", value: FOG_FAR },
+	fogDensity:    { type: "f", value: 0.9 },	
+}
+
 // uniforms
 const uniforms = {
 
 	'grass':{
-		time: {
-	  		value: 0
-		},
+		...basic_uniforms,
 		grassTexture: {
 	        value: textures.grass.tex,
 	    },
-		// grassAlpha: {
-		//     value: grassAlpha,
-		// },
-		fogColor:    { type: "c", value: new Color( FOG_COLOR ) },
-		fogNear:     { type: "f", value: FOG_NEAR },
-		fogFar:      { type: "f", value: FOG_FAR },
-		fogDensity:    { type: "f", value: 0.9 },	
+	},
+
+	'water':{
+		...basic_uniforms,
+		waterColor: {
+			type: 'c',
+			value: new Color('rgb(50, 50, 250)')
+		},
+		waterTexture: {
+			value: textures.water.tex,
+		}
 	}
 
 	// topColor:    { type: "c", value: new Color( 0x0077ff ) },
@@ -197,6 +293,7 @@ class MeshSet {
 		*/
 
 		this.is_ground = init.is_ground
+		this.is_water = init.is_water
 		this.grid = init.grid
 		if( !Array.isArray( this.grid?.[0] ) || this.grid.length !== this.grid[0].length ){
 			console.log('invalid 2d grid for MeshSet', init )
@@ -214,11 +311,14 @@ class MeshSet {
 		// material
 		if( this.is_ground ){
 			this.material = ground_material
+		// else if( this.is_water ){
+		// 	this.material = ground_material
 		}else{
 			if( !SHADER_CACHE[ this.slug ]){
-				// console.log('init new SM', this.slug )
+				console.log('init new SM', this.slug )
+
 				SHADER_CACHE[ this.slug ] = new ShaderMaterial({
-					vertexShader: shaders.vertex[ this.slug ],
+					vertexShader: shaders.vertex[ this.slug ], 
 					fragmentShader: shaders.fragment[ this.slug ],
 					uniforms: uniforms[ this.slug ],
 					side: DoubleSide,
@@ -241,19 +341,23 @@ class MeshSet {
 			this.ground = new InstancedMesh( leaf_geo, ground_material, this.count )
 
 			const dummy = new Object3D()
+			let color
 
 			for( let x = 0; x < this.grid.length; x++ ){
 				for( let z = 0; z < this.grid.length; z++ ){
 					index = ( x * this.size ) + z
 					// console.log('index: ', index )
-					if( this.grid?.[x]?.[z] ){
+					color = this.grid?.[x]?.[z]
+					if( color ){
+						if( color === 'blue' || color === 'darkblue' ) continue
 						dummy.position.set(
 					  		this.cell_size * x,
 					    	0,
 					    	this.cell_size * z
 					  	);
 
-					  	dummy.scale.divide( dummy.scale ) // reset from last
+					  	dummy.scale.set(1,1,1)
+					  	// divide( dummy.scale ) // reset from last
 
 					  	dummy.scale.multiplyScalar( this.cell_size )
 
@@ -264,7 +368,7 @@ class MeshSet {
 
 						this.ground.setMatrixAt( index, dummy.matrix );
 
-						this.ground.setColorAt( index, DUMMY_VALUES[ this.grid[x][z] ] );
+						this.ground.setColorAt( index, DUMMY_VALUES[ color ] );
 
 					}
 				}
@@ -273,6 +377,64 @@ class MeshSet {
 			this.ground.instanceMatrix.needsUpdate = true
 			this.ground.instanceColor.needsUpdate = true
 
+
+		}else if( this.is_water ){
+
+			this.LODsets = init.LODsets || {
+				low: new InstancedMesh(leaf_geo, this.material, Math.floor( this.count * .25 ) ),
+				medium: new InstancedMesh(leaf_geo, this.material, Math.floor( this.count * .5 ) ),
+				high: new InstancedMesh( leaf_geo, this.material, this.count ),
+			}
+
+			for( const size in this.LODsets ){
+
+				const instance_mesh = this.LODsets[ size ]
+
+				const dummy = new Object3D()
+				let color
+
+				for( let x = 0; x < this.grid.length; x++ ){
+					for( let z = 0; z < this.grid.length; z++ ){
+
+						index = ( x * this.size ) + z
+						color = this.grid?.[x]?.[z]
+
+						if( color ){
+
+							if( color !== 'blue' && color !== 'darkblue') continue
+							dummy.position.set(
+						  		this.cell_size * x,
+						    	0,
+						    	this.cell_size * z
+						  	);
+
+							// console.log('watahhh')
+
+						  	dummy.scale.set( 1,1,1 )
+						  	// .divide( dummy.scale ) // reset from last
+
+							// dummy.scale.setScalar( 10 * Math.random() );
+							dummy.scale.multiplyScalar( this.cell_size )
+
+							// if( Math.random() > .9 ) dummy.scale.multiplyScalar( 1 + Math.random() * 2 )
+						  
+							dummy.rotation.x = -Math.PI / 2
+							// Math.random() * Math.PI;
+						  
+							dummy.updateMatrix();
+
+							instance_mesh.setMatrixAt( index, dummy.matrix );
+
+							instance_mesh.setColorAt( index, DUMMY_VALUES[ color ] );
+
+						}
+
+					}
+
+				}
+				instance_mesh.instanceMatrix.needsUpdate = true
+				// instance_mesh.instanceColor.needsUpdate = true
+			}
 
 		}else{
 
@@ -287,17 +449,21 @@ class MeshSet {
 				const instance_mesh = this.LODsets[ size ]
 
 				const dummy = new Object3D()
+				let color
 
 				for( let x = 0; x < this.grid.length; x++ ){
 					for( let z = 0; z < this.grid.length; z++ ){
 
 						index = ( x * this.size ) + z
+						color = this.grid?.[x]?.[z]
 
-						if( this.grid?.[x]?.[z] ){
+						if( color ){
+
+							if( color === 'blue' || color === 'darkblue') continue
 							dummy.position.set(
-						  		( Math.random() ) * TILE_SIZE,
+						  		this.cell_size * x,
 						    	0,
-						    	( Math.random() ) * TILE_SIZE
+						    	this.cell_size * z
 						  	);
 						  
 							dummy.scale.setScalar( 10 * Math.random() );
@@ -310,12 +476,35 @@ class MeshSet {
 
 							instance_mesh.setMatrixAt( index, dummy.matrix );
 
+							instance_mesh.setColorAt( index, DUMMY_VALUES[ color ] );
+							
+							/*
+								RANDOM WAY:
+							*/
+
+							// dummy.position.set(
+							// 		( Math.random() ) * TILE_SIZE,
+							//   	0,
+							//   	( Math.random() ) * TILE_SIZE
+							// 	);
+						  
+							// dummy.scale.setScalar( 10 * Math.random() );
+
+							// // if( Math.random() > .9 ) dummy.scale.multiplyScalar( 1 + Math.random() * 2 )
+						  
+							// dummy.rotation.y = Math.random() * Math.PI;
+						  
+							// dummy.updateMatrix();
+
+							// instance_mesh.setMatrixAt( index, dummy.matrix );
+
 						}
 
 					}
 
 				}
-
+				instance_mesh.instanceMatrix.needsUpdate = true
+				instance_mesh.instanceColor.needsUpdate = true
 			}
 
 		} // 
@@ -324,6 +513,11 @@ class MeshSet {
 
 
 	setLOD( setting ){ // MeshSet
+
+		if( this.is_water ){
+			setting = 'high'
+			// console.log("setting LOD: ", setting )
+		}
 
 		// console.log("setting LOD: ", setting )
 
@@ -382,7 +576,14 @@ class MeshSet {
 
 
 
-const DUMMY_COLORS = THREEPRESS.DUMMY_COLORS = ['yellow', 'lightgreen', 'green', 'darkgreen', 'blue', 'darkblue']
+const DUMMY_COLORS = THREEPRESS.DUMMY_COLORS = [
+	'yellow', 
+	'rgb(105, 230, 100)', 
+	'rgb(80, 200, 50)', 
+	'rgb(50, 150, 20)', 
+	'blue', 
+	'darkblue',
+]
 const DUMMY_VALUES = THREEPRESS.DUMMY_VALUES = {}
 for( let i = 0; i < DUMMY_COLORS.length; i++ ){
 	DUMMY_VALUES[ DUMMY_COLORS[i] ] = new Color( DUMMY_COLORS[i] )
@@ -428,12 +629,13 @@ class Block {
 			grid: this.grid,
 			size: this.size,
 		})
+		set.ground.receiveShadow = true
 		this.ground_mesh = set.ground
 	}
 
 	build_mesh_sets( worldTile ){
 		const { x, z } = worldTile 
-		// ferns
+		// grass
 		const grass = new MeshSet({
 			grid: this.grid,
 			size: this.size,	
@@ -444,6 +646,23 @@ class Block {
 		for( const size in grass.LODsets ){
 			grass.LODsets[ size ].position.set( x * TILE_SIZE, 0, z * TILE_SIZE )
 		}
+		// water
+		const water = new MeshSet({
+			is_water: true,
+			grid: this.grid,
+			size: this.size,	
+			slug: 'water',
+			// uniforms: uniforms.water,
+		})
+		this.mesh_sets.push( water )
+		for( const size in water.LODsets ){
+			water.LODsets[ size ].position.set( x * TILE_SIZE, 0, z * TILE_SIZE )
+		}
+		// this.water_mesh = water.water
+		// this.mesh_sets.push( water )
+		// for( const size in water.LODsets ){
+		// 	water.LODsets[ size ].position.set( x * TILE_SIZE, 0, z * TILE_SIZE )
+		// }
 		// console.log('setting pos', x, z )
 	}
 
@@ -460,9 +679,12 @@ class Block {
 	setLOD( setting ){ // Block
 		if( setting === 'ground' ){
 			SCENE.add( this.ground_mesh )
+		// else if( setting == 'water' ){
+		// 	SCENE.add( this.water_mesh )
 		}else{
-			for( const set of this.mesh_sets ) set.setLOD( setting )
+			if( setting === this.LOD ) return
 			this.LOD = setting
+			for( const set of this.mesh_sets ) set.setLOD( setting )
 		}
 	}
 
@@ -541,6 +763,12 @@ class BlockRegister {
 			if( Math.abs( block.coords[0] - playerIndex[0] ) > tick_size || 
 				Math.abs( block.coords[1] - playerIndex[1] ) > tick_size ){
 				this.remove( block )
+			}else if( 
+				Math.abs( block.coords[0] - playerIndex[0] ) > 1 || 
+				Math.abs( block.coords[1] - playerIndex[1] ) > 1 ){
+				block.setLOD('low')
+			}else{
+				block.setLOD('high')
 			}
 		}
 		// console.log('unhandled blocks clear')
@@ -561,9 +789,7 @@ class BlockRegister {
 		}
 		// mesh sets
 		if( b?.mesh_sets ){
-			console.log('ya..')
 			for( const set of b.mesh_sets ){
-				// console.log('slug..', slug )
 				for( const size in set.LODsets ){
 					SCENE.remove( set.LODsets[ size ] )
 				}
