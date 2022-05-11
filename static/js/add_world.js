@@ -160,9 +160,11 @@ const init_toon = async( event, toon_data, is_player1 ) => {
 
 	SCENE.add( toon.GROUP )
 
-	PLAYER.begin_pulse()
+	toon.begin_tile_detect( GROUND.BLOCK_REGISTER ) // maybe extend to all toons ? sets "toon.current_tile"
 
 	if( is_player1 ){
+
+		PLAYER.begin_pulse() 
 
 		LIGHT.track( PLAYER, true )
 
@@ -222,29 +224,10 @@ const init_world = async( world_obj ) => {
 		type: 'ping_installs',
 	})
 
-	// const groundgeo = new PlaneBufferGeometry(1)
-	// // const tex = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/Grass_04.jpg')
-	// // tex.wrapS = RepeatWrapping
-	// // tex.wrapT = RepeatWrapping
-	// // tex.repeat.set( 4, 4 )
-	// const groundmat = new MeshLambertMaterial({
-	// 	color: 'rgb(10, 70, 10)',
-	// 	side: DoubleSide,
-	// })
-	// const ground = new Mesh( groundgeo, groundmat )
-	// ground.userData.is_ground = true
-	// // ground.receiveShadow = true
-	// ground.rotation.x = -Math.PI /2
-	// ground.scale.multiplyScalar( lib.TILE_SIZE  ) // * 10
-	// ground.position.y -= .5
-
-	// SCENE.add( ground )
 	SCENE.add( SKYBOX )
 
 	let skytrack = setInterval(() => {
 		SKYBOX.position.copy( PLAYER.GROUP.position )
-		// ground.position.copy( PLAYER.GROUP.position )
-		// ground.position.y -= .5
 	}, 5000 )
 
 	// break;
@@ -477,6 +460,8 @@ const remove_toon = event => {
 		console.log('no toon for delete: ', uuid )
 		return
 	}
+	
+	clearInterval( toon.tile_detect )
 
 	const group = toon.GROUP
 	SCENE.remove( group )

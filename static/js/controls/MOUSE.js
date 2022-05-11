@@ -463,6 +463,8 @@ function detect_object_hovered( e, bounds ){
 		c++
 	}
 	// const hovered_intersection = intersects[0].object
+
+	// console.log('hover detect', hovered_intersection )
 	
 	return {
 		intersection: hovered_intersection,
@@ -477,8 +479,10 @@ function scour_collidable( intersects ){
 	if( !intersects ) return; // 'no object'
 
 	let type
+	let userData
 	for( const int of intersects ){  // basically anything but the object itself for now...
-		if( int.object?.userData?.held_mesh ) continue
+		userData = int.object?.userData
+		if( userData.held_mesh || userData.is_cosmetic ) continue
 		type = int.object?.type
 		if( type === 'TransformControlsPlane' || type === 'Line' ) continue
 		return int

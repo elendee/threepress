@@ -1089,10 +1089,12 @@ const debug_load = ( ...args ) => {
 }
 
 const TILE_SIZE = 100 // World
+const BLOCK_SIZE = 10 // World
 const FOG_COLOR = 0xaabbff
 const FOG_NEAR = 200
 const FOG_FAR = 700
 const FOG_DENSITY = 0.002
+const PERLIN_SCALE = 0.07
 
 
 
@@ -1226,9 +1228,6 @@ let jaman_perlin = {
 jaman_perlin.reset();
 
 
-
-
-
 export {
 
 	// base ui functions
@@ -1290,6 +1289,7 @@ export {
 	debug_load,
 
 	TILE_SIZE,
+	BLOCK_SIZE,
 	FOG_COLOR,
 	FOG_NEAR,
 	FOG_FAR,
@@ -1298,4 +1298,5 @@ export {
 	scry,
 	perlin,
 	jaman_perlin,
+	PERLIN_SCALE,
 }

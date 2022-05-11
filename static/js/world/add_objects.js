@@ -80,6 +80,7 @@ const send_install = event => {
 
 	const bounds = RENDERER.domElement.getBoundingClientRect()
 
+	// const { intersection } = MOUSE.detect_object_clicked( e, bounds )
 	const { intersection } = MOUSE.detect_object_hovered( e, bounds )
 	if( !intersection ){
 		console.log('no install location found' )
@@ -89,7 +90,9 @@ const send_install = event => {
 	const target = intersection.object
 	const is_ground = target?.userData?.is_ground
 	if( !target?.userData?.clickable && !is_ground ){
-		console.log('no install target found')
+		// console.log('no install target found')
+		lib.hal('error', 'cannot install there', 2000 )
+		console.log( target )
 		return			
 	}
 

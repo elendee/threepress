@@ -4,6 +4,7 @@ import {
 	get_bbox,
 	random_entry,
 	debug_load,
+	TILE_SIZE,
 } from '../lib.js?v=130'
 import {
 	GLTFLoader,
@@ -319,6 +320,7 @@ class Entity {
 		let given_name, clip
 		for( const type of Object.keys( animation_map ) ){
 			given_name = animation_map[ type ]?.localized
+			// console.log('looking to init: ', given_name )
 			clip = AnimationClip.findByName( this.animation.clips, given_name )
 			if( !clip ){
 				if( type === 'running' ){ // ( a weird edge case - no 'Run' available )
@@ -513,6 +515,12 @@ class Entity {
 			}			
 		}, 800)
 
+	}
+
+	getBlockIndex(){
+		const x = Math.floor( ( this.GROUP?.position?.x || 0 ) / TILE_SIZE )
+		const z = Math.floor( ( this.GROUP?.position?.z || 0 ) / TILE_SIZE )
+		return [x,z]
 	}
 
 	// --------------- end top level animation controls ---------------

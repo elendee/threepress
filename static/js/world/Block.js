@@ -1,26 +1,31 @@
 import {
 	TILE_SIZE,
-	scry,
+	// scry,
 	perlin,
-	jaman_perlin,
+	// jaman_perlin,
 	FOG_COLOR,
 	FOG_NEAR,
 	FOG_FAR,
+	PERLIN_SCALE,
+	random_vector,
 } from '../lib.js?v=130'
 import SCENE from './SCENE.js?v=130'
 import {
 	Clock,
 	Mesh,
 	Color,
+	Group,
 	// PlaneGeometry,
 	ShaderMaterial,
+	ShaderLib,
 	PlaneBufferGeometry,
 	Object3D,
 	InstancedMesh,
 	MeshLambertMaterial,
 	DoubleSide,
 	TextureLoader,
-	Vector3,
+	BoxBufferGeometry,
+	// Vector3,
 } from '../../inc/three.module.js?v=130'
 // import { Water } from '../../inc/Water.js?v=130'
 
@@ -30,12 +35,68 @@ import {
 const clock = new Clock()
 const texLoader = new TextureLoader()
 const leaf_geo = new PlaneBufferGeometry(1)
+const ground_geo = new BoxBufferGeometry(1,1,1)
 const SHADER_CACHE = {}
 
 
+// const test_col = new Color('rgb(200, 0, 0)')
 
 
 
+const TERRAIN_TYPES = THREEPRESS.TERRAIN_TYPES = {
+	'foliage4': {
+		color: new Color('rgb(60, 130, 50)'),
+		height: 4,
+	},
+	'foliage3': {
+		color: new Color('rgb(50, 110, 50)'),
+		height: 3,
+	}, 
+	'foliage2': {
+		color: new Color('rgb(40, 100, 30)'),
+		height: 2,
+	}, 
+	'foliage1': {
+		color: new Color('rgb(20, 70, 20)'),
+		height: 1,
+	}, 
+	'water_shallow': {
+		color: new Color('rgb(50, 50, 200)'),// not used
+		height: 0,
+	},
+	'water_deep': {
+		color: new Color('rgb(30, 50, 220)'),// not used
+		height: 0,
+	},
+	'rock':{
+		color: new Color('rgb(60, 60, 60)'),
+		height: 5,
+	}
+}
+for( const key in TERRAIN_TYPES ) TERRAIN_TYPES[ key ].name = key
+
+const perlin_to_terrain = ( perlin, env ) => {
+	// if( perlin < -0.5 || perlin > 0.5 ) console.log('>>', perlin )
+	switch( env ){
+		case 'asdfasdf':
+			break;
+
+		default: // standard
+			// if( perlin < -0.9 ) return TERRAIN_TYPES['water_deep']
+			// if( perlin < -0.8 ) return TERRAIN_TYPES['water_shallow']
+			if( perlin < -0.5 ) return TERRAIN_TYPES['water_deep']
+			if( perlin < -0.4 ) return TERRAIN_TYPES['water_shallow']
+			if( perlin < -0.3 ) return TERRAIN_TYPES['foliage1']
+			if( perlin < -0.1 ) return TERRAIN_TYPES['foliage2']
+			if( perlin < 0.1 ) return TERRAIN_TYPES['foliage3']
+			if( perlin < 0.4 ) return TERRAIN_TYPES['foliage4']
+			return TERRAIN_TYPES['rock']
+	}
+
+}
+
+
+// console.log( ShaderLib )
 
 
 let simpleNoise = `
@@ -89,6 +150,42 @@ const ground_material = new MeshLambertMaterial({
 
 const shaders = {
 	vertex: {
+		clover: `
+varying vec2 vUv;
+uniform float time;
+
+${simpleNoise}
+
+void main() {
+
+    vUv = uv;
+    float t = time * 2.;
+    
+    // VERTEX POSITION
+    
+    vec4 mvPosition = vec4( position, 1.0 );
+    #ifdef USE_INSTANCING
+        mvPosition = instanceMatrix * mvPosition;
+    #endif
+    
+    // DISPLACEMENT
+    
+    float noise = smoothNoise(mvPosition.xz * 0.5 + vec2(0., t));
+    noise = pow(noise * 0.5 + 0.5, 2.) * 2.;
+    
+    // here the displacement is made stronger on the blades tips.
+    float dispPower = 1. - cos( uv.y * 3.1416 * 0.5 );
+    
+    float displacement = noise * ( 2.3 * dispPower );
+    mvPosition.z -= displacement;
+    // mvPosition.y -= displacement;
+    
+    //
+    
+    vec4 modelViewPosition = modelViewMatrix * mvPosition;
+    gl_Position = projectionMatrix * modelViewPosition;
+
+}`,
 		grass: `
 varying vec2 vUv;
 uniform float time;
@@ -125,6 +222,43 @@ void main() {
     gl_Position = projectionMatrix * modelViewPosition;
 
 }`,
+
+rock_grass: `
+varying vec2 vUv;
+uniform float time;
+
+${simpleNoise}
+
+void main() {
+
+    vUv = uv;
+    float t = time * 2.;
+    
+    // VERTEX POSITION
+    
+    vec4 mvPosition = vec4( position, 1.0 );
+    #ifdef USE_INSTANCING
+        mvPosition = instanceMatrix * mvPosition;
+    #endif
+    
+    // DISPLACEMENT
+    
+    float noise = smoothNoise(mvPosition.xz * 0.5 + vec2(0., t));
+    noise = pow(noise * 0.5 + 0.5, 2.) * 2.;
+    
+    // here the displacement is made stronger on the blades tips.
+    float dispPower = 1. - cos( uv.y * 3.1416 * 0.5 );
+    
+    float displacement = noise * ( 2.3 * dispPower );
+    mvPosition.z -= displacement;
+    // mvPosition.y -= displacement;
+    //
+    
+    vec4 modelViewPosition = modelViewMatrix * mvPosition;
+    gl_Position = projectionMatrix * modelViewPosition;
+
+}`,
+
 		water: `
 varying vec2 vUv;
 uniform float time;
@@ -166,8 +300,8 @@ void main() {
     // float dispPower = 1. - cos( uv.y * 3.1416 * 0.5 );
 
 	fragment: {
-		grass: `
-uniform sampler2D grassTexture;
+		clover: `
+uniform sampler2D cloverTexture;
 varying vec2 vUv;
 
 uniform vec3 fogColor;
@@ -175,7 +309,7 @@ uniform float fogNear;
 uniform float fogFar;
 
 void main() {
-    gl_FragColor = texture2D(grassTexture, vUv);
+    gl_FragColor = texture2D(cloverTexture, vUv);
 
 	float depth = gl_FragCoord.z / gl_FragCoord.w;
 	float fogFactor = smoothstep( fogNear, fogFar, depth );
@@ -201,6 +335,41 @@ void main() {
     // gl_FragColor.a = 1.0;
 
 }`,
+		grass: `
+uniform sampler2D grassTexture;
+varying vec2 vUv;
+
+uniform vec3 fogColor;
+uniform float fogNear;
+uniform float fogFar;
+
+void main() {
+    gl_FragColor = texture2D(grassTexture, vUv);
+
+	float depth = gl_FragCoord.z / gl_FragCoord.w;
+	float fogFactor = smoothstep( fogNear, fogFar, depth );
+	gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
+
+    if ( gl_FragColor.a < 0.5 ) discard;
+}`,
+
+		rock_grass: `
+uniform sampler2D rockGrassTexture;
+varying vec2 vUv;
+
+uniform vec3 fogColor;
+uniform float fogNear;
+uniform float fogFar;
+
+void main() {
+    gl_FragColor = texture2D(rockGrassTexture, vUv);
+
+	float depth = gl_FragCoord.z / gl_FragCoord.w;
+	float fogFactor = smoothstep( fogNear, fogFar, depth );
+	gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
+
+    if ( gl_FragColor.a < 0.5 ) discard;
+}`,
 	}
 
 }
@@ -219,17 +388,26 @@ void main() {
 
 // textures
 const textures = {
-	'grass': {
+	'clover': {
 		slug: 'clover.png',
-		tex: false,
+	},
+	'grass':{
+		slug: 'grass.png',
 	},
 	'water':{
 		slug: 'waternormals-sky.jpg',
 	},
+	'rockGrass':{
+		slug: 'rock-grass.png',
+	},
 }
 for( const type in textures ){
-	textures[ type ].tex = texLoader.load( THREEPRESS.ARCADE.URLS.https + '/resource/texture/' + textures[ type ].slug )
+	const url = THREEPRESS.ARCADE.URLS.https + '/resource/texture/' + textures[ type ].slug
+	// console.log('loading', url )
+	textures[ type ].tex = texLoader.load( url )
 }
+
+console.log('tex..', textures )
 
 const basic_uniforms = {
 	time: {
@@ -242,12 +420,26 @@ const basic_uniforms = {
 }
 
 // uniforms
-const uniforms = {
+const uniforms = { // window.uniforms
+
+	'clover':{
+		...basic_uniforms,
+		cloverTexture: {
+	        value: textures.clover.tex,
+	    },
+	},
 
 	'grass':{
 		...basic_uniforms,
 		grassTexture: {
 	        value: textures.grass.tex,
+	    },
+	},
+
+	'rock_grass':{
+		...basic_uniforms,
+		rockGrassTexture: {
+	        value: textures.rockGrass.tex,
 	    },
 	},
 
@@ -280,20 +472,21 @@ const uniforms = {
 
 
 
+
 class MeshSet {
 
 	constructor( init ){
+
 		init = init || {}
 		/*
 			grid
-			is_ground
 			--- not needed for ground meshset:
 			uniforms
 			slug
 		*/
 
-		this.is_ground = init.is_ground
-		this.is_water = init.is_water
+		this.mesh_type = init.mesh_type || 'grass'
+
 		this.grid = init.grid
 		if( !Array.isArray( this.grid?.[0] ) || this.grid.length !== this.grid[0].length ){
 			console.log('invalid 2d grid for MeshSet', init )
@@ -301,19 +494,28 @@ class MeshSet {
 		this.size = this.grid.length
 		this.cell_size = Math.ceil( TILE_SIZE / this.size )
 		this.count = this.grid.length * this.grid[0].length
-		this.ground = false // instantiate below
+
+		this.GROUND = false // all other mesh_types are stored in LODsets
+		this.LODsets = false
+
+		this.fixture = init.fixture
 
 		// console.log("init meshset", this )
 
-		this.uniforms = init.uniforms
 		this.slug = init.slug
 
+		this.uniforms = init.uniforms || uniforms[ this.slug ]
+		if( !this.uniforms && this.mesh_type !== 'ground' ){
+			console.log('missing or invalid uniforms', this.mesh_type )
+		}
+
 		// material
-		if( this.is_ground ){
+		if( this.mesh_type === 'ground' ){
 			this.material = ground_material
-		// else if( this.is_water ){
+
 		// 	this.material = ground_material
 		}else{
+
 			if( !SHADER_CACHE[ this.slug ]){
 				console.log('init new SM', this.slug )
 
@@ -327,33 +529,48 @@ class MeshSet {
 				})
 			}
 			this.material = SHADER_CACHE[ this.slug ]
+
 		}
 
+		this.init_instances( init.LODsets )
+
+		if( this.mesh_type === 'ground' ){
+			this.GROUND.userData.is_ground = true
+		}else{
+			for( const key in this.LODsets ){
+				this.LODsets[ key].userData.is_cosmetic = true
+			}
+		}
+
+	}
+
+
+	init_instances( LODsets ){
 
 		let index
+
+		const cell_offset = this.cell_size / 2
+
 		// assign LOD's and/or ground mesh
-		if( this.is_ground ){
+		if( this.mesh_type === 'ground' ){
 
-			// this.ground = new Mesh( leaf_geo, temp_ground_material )
-			// this.ground.rotation.x = -Math.PI / 2
-			// this.ground.scale.multiplyScalar( TILE_SIZE * .9 )
-
-			this.ground = new InstancedMesh( leaf_geo, ground_material, this.count )
+			this.GROUND = new InstancedMesh( ground_geo, ground_material, this.count )
 
 			const dummy = new Object3D()
-			let color
+			let terrain
 
 			for( let x = 0; x < this.grid.length; x++ ){
 				for( let z = 0; z < this.grid.length; z++ ){
 					index = ( x * this.size ) + z
 					// console.log('index: ', index )
-					color = this.grid?.[x]?.[z]
-					if( color ){
-						if( color === 'blue' || color === 'darkblue' ) continue
+					terrain = this.grid?.[x]?.[z]
+					if( terrain ){
+						if( terrain.name.match(/water/i) ) continue
 						dummy.position.set(
-					  		this.cell_size * x,
-					    	0,
-					    	this.cell_size * z
+					  		( this.cell_size * x ) + cell_offset,
+					    	// 0,
+					    	( -this.cell_size / 2 ) + terrain.height,
+					    	( this.cell_size * z)  + cell_offset
 					  	);
 
 					  	dummy.scale.set(1,1,1)
@@ -362,28 +579,27 @@ class MeshSet {
 					  	dummy.scale.multiplyScalar( this.cell_size )
 
 						dummy.rotation.x = -Math.PI / 2
-						// dummy.rotation.x = Math.random()
 					  
 						dummy.updateMatrix();
 
-						this.ground.setMatrixAt( index, dummy.matrix );
+						this.GROUND.setMatrixAt( index, dummy.matrix );
 
-						this.ground.setColorAt( index, DUMMY_VALUES[ color ] );
+						this.GROUND.setColorAt( index, terrain.color );
 
 					}
 				}
 			}
 
-			this.ground.instanceMatrix.needsUpdate = true
-			this.ground.instanceColor.needsUpdate = true
+			this.GROUND.instanceMatrix.needsUpdate = true
+			this.GROUND.instanceColor.needsUpdate = true
 
 
-		}else if( this.is_water ){
+		}else if( this.mesh_type === 'water' ){
 
-			this.LODsets = init.LODsets || {
-				low: new InstancedMesh(leaf_geo, this.material, Math.floor( this.count * .25 ) ),
-				medium: new InstancedMesh(leaf_geo, this.material, Math.floor( this.count * .5 ) ),
-				high: new InstancedMesh( leaf_geo, this.material, this.count ),
+			this.LODsets = LODsets || {
+				low: new InstancedMesh( ground_geo, this.material, Math.floor( this.count * .25 ) ),
+				medium: new InstancedMesh( ground_geo, this.material, Math.floor( this.count * .5 ) ),
+				high: new InstancedMesh(  ground_geo, this.material, this.count ),
 			}
 
 			for( const size in this.LODsets ){
@@ -391,21 +607,22 @@ class MeshSet {
 				const instance_mesh = this.LODsets[ size ]
 
 				const dummy = new Object3D()
-				let color
+				let terrain
 
 				for( let x = 0; x < this.grid.length; x++ ){
 					for( let z = 0; z < this.grid.length; z++ ){
 
 						index = ( x * this.size ) + z
-						color = this.grid?.[x]?.[z]
+						terrain = this.grid?.[x]?.[z]
 
-						if( color ){
+						if( terrain ){
 
-							if( color !== 'blue' && color !== 'darkblue') continue
+							if( !terrain.name.match(/water/i) ) continue
 							dummy.position.set(
-						  		this.cell_size * x,
-						    	0,
-						    	this.cell_size * z
+						  		( this.cell_size * x ) + cell_offset,
+						    	// 0,
+						    	-this.cell_size / 2,
+						    	( this.cell_size * z ) + cell_offset
 						  	);
 
 							// console.log('watahhh')
@@ -413,7 +630,6 @@ class MeshSet {
 						  	dummy.scale.set( 1,1,1 )
 						  	// .divide( dummy.scale ) // reset from last
 
-							// dummy.scale.setScalar( 10 * Math.random() );
 							dummy.scale.multiplyScalar( this.cell_size )
 
 							// if( Math.random() > .9 ) dummy.scale.multiplyScalar( 1 + Math.random() * 2 )
@@ -425,7 +641,7 @@ class MeshSet {
 
 							instance_mesh.setMatrixAt( index, dummy.matrix );
 
-							instance_mesh.setColorAt( index, DUMMY_VALUES[ color ] );
+							instance_mesh.setColorAt( index, terrain.color );
 
 						}
 
@@ -436,11 +652,11 @@ class MeshSet {
 				// instance_mesh.instanceColor.needsUpdate = true
 			}
 
-		}else{
+		}else if( this.mesh_type === 'foliage' ){
 
-			this.LODsets = init.LODsets || {
-				low: new InstancedMesh(leaf_geo, this.material, Math.floor( this.count * .25 ) ),
-				medium: new InstancedMesh(leaf_geo, this.material, Math.floor( this.count * .5 ) ),
+			this.LODsets = LODsets || {
+				low: new InstancedMesh( leaf_geo, this.material, Math.floor( this.count * .25 ) ),
+				medium: new InstancedMesh( leaf_geo, this.material, Math.floor( this.count * .5 ) ),
 				high: new InstancedMesh( leaf_geo, this.material, this.count ),
 			}
 
@@ -449,54 +665,43 @@ class MeshSet {
 				const instance_mesh = this.LODsets[ size ]
 
 				const dummy = new Object3D()
-				let color
+				let terrain
 
 				for( let x = 0; x < this.grid.length; x++ ){
 					for( let z = 0; z < this.grid.length; z++ ){
 
 						index = ( x * this.size ) + z
-						color = this.grid?.[x]?.[z]
+						terrain = this.grid?.[x]?.[z]
 
-						if( color ){
+						if( terrain ){
 
-							if( color === 'blue' || color === 'darkblue') continue
-							dummy.position.set(
-						  		this.cell_size * x,
-						    	0,
-						    	this.cell_size * z
-						  	);
-						  
-							dummy.scale.setScalar( 10 * Math.random() );
+							// only rendering foliage on certain tiles...
+							if( terrain.name.match(/foliage1/) || terrain.name.match(/foliage2/) ){
 
-							// if( Math.random() > .9 ) dummy.scale.multiplyScalar( 1 + Math.random() * 2 )
-						  
-							dummy.rotation.y = Math.random() * Math.PI;
-						  
-							dummy.updateMatrix();
+								dummy.position.set(
+							  		this.cell_size * x,
+							    	terrain.height,
+							    	this.cell_size * z
+							  	);
+							  
+								dummy.scale.setScalar( 10 * Math.random() );
 
-							instance_mesh.setMatrixAt( index, dummy.matrix );
+								// if( Math.random() > .9 ) dummy.scale.multiplyScalar( 1 + Math.random() * 2 )
+							  
+								dummy.rotation.y = Math.random() * Math.PI;
+							  
+								dummy.updateMatrix();
 
-							instance_mesh.setColorAt( index, DUMMY_VALUES[ color ] );
-							
-							/*
-								RANDOM WAY:
-							*/
+								instance_mesh.setMatrixAt( index, dummy.matrix );
 
-							// dummy.position.set(
-							// 		( Math.random() ) * TILE_SIZE,
-							//   	0,
-							//   	( Math.random() ) * TILE_SIZE
-							// 	);
-						  
-							// dummy.scale.setScalar( 10 * Math.random() );
+								instance_mesh.setColorAt( index, terrain.color );
+								
+							}else{
 
-							// // if( Math.random() > .9 ) dummy.scale.multiplyScalar( 1 + Math.random() * 2 )
-						  
-							// dummy.rotation.y = Math.random() * Math.PI;
-						  
-							// dummy.updateMatrix();
+								// unhandled foliage ('plains' etc.. probably nothing will go here )
 
-							// instance_mesh.setMatrixAt( index, dummy.matrix );
+							}
+
 
 						}
 
@@ -504,39 +709,194 @@ class MeshSet {
 
 				}
 				instance_mesh.instanceMatrix.needsUpdate = true
-				instance_mesh.instanceColor.needsUpdate = true
+				if( instance_mesh.instanceColor )
+					instance_mesh.instanceColor.needsUpdate = true
 			}
 
-		} // 
+		}else if( this.mesh_type === 'grass' ){ // default ground terrain.  skips water.  basically, grass.
 
+			this.count *= 10
+
+			this.LODsets = LODsets || {
+				low: new InstancedMesh( leaf_geo, this.material, Math.floor( this.count * .25 ) ),
+				medium: new InstancedMesh( leaf_geo, this.material, Math.floor( this.count * .5 ) ),
+				high: new InstancedMesh( leaf_geo, this.material, this.count ),
+			}
+
+			for( const size in this.LODsets ){
+
+				const instance_mesh = this.LODsets[ size ]
+
+				instance_mesh.receiveShadow = true
+				// instance_mesh.castShadow = true
+
+				const dummy = new Object3D()
+				let terrain
+
+				let random_pos
+
+				// for( let x = 0; x < this.grid.length; x++ ){
+				// 	for( let z = 0; z < this.grid.length; z++ ){
+				let scalar
+				let super_scalar
+
+				for( let i = 0; i < this.count; i++ ){
+
+					random_pos = random_vector( 0, TILE_SIZE )
+
+					terrain = this.grid?.[ Math.floor( random_pos.x / this.cell_size )]?.[ Math.floor( random_pos.z / this.cell_size )]
+
+					if( !terrain ) continue
+
+					if( terrain.name.match(/water/i) || terrain.name.match(/rock/i) ) continue
+
+					random_pos.y = terrain.height
+
+					// index = ( x * this.size ) + z
+					index = i
+
+					/*
+						RANDOM WAY: ( grass )
+					*/
+
+					// const px = ( x * this.cell_size ) + ( Math.random() * this.cell_size ) 
+					// const pz = ( z * this.cell_size ) + ( Math.random() * this.cell_size ) 
+
+					dummy.position.copy( random_pos )
+					// set( px, 0, pz );
+
+					scalar = 5 * Math.random()
+
+					dummy.scale.setScalar( scalar );
+
+					dummy.position.y += scalar / 1.9
+
+					if( Math.random() > .97 ){
+						super_scalar = 1 + Math.random() * 5
+						dummy.scale.multiplyScalar( super_scalar )
+						dummy.position.y += super_scalar / 2
+					} 
+				  
+					dummy.rotation.y = Math.random() * Math.PI;
+				  
+					dummy.updateMatrix();
+
+					instance_mesh.setMatrixAt( index, dummy.matrix );
+					// instance_mesh.setColorAt( index, test_col ); // terrain.color
+
+					// }
+
+				}
+
+				instance_mesh.instanceMatrix.needsUpdate = true
+				// instance_mesh.instanceColor.needsUpdate = true
+
+			}
+
+			// console.log('grass reach: ', reached )
+			// console.log('grass reach: ', reached )
+
+		}else if( this.mesh_type === 'rock_grass' ){ // default ground terrain.  skips water.  basically, grass.
+
+			// this.count = 1
+
+			// sets MAX counts, but not guaranteed all instances are placed - 
+			this.LODsets = LODsets || {
+				low: new InstancedMesh( leaf_geo, this.material, Math.floor( this.count * .25 ) ),
+				medium: new InstancedMesh( leaf_geo, this.material, Math.floor( this.count * .5 ) ),
+				high: new InstancedMesh( leaf_geo, this.material, this.count ),
+			}
+
+			for( const size in this.LODsets ){
+
+				const instance_mesh = this.LODsets[ size ]
+
+				// instance_mesh.receiveShadow = true
+				// instance_mesh.castShadow = true
+
+				const dummy = new Object3D()
+				let terrain
+
+				let random_pos
+
+				let scalar
+				let super_scalar
+
+				for( let i = 0; i < this.count; i++ ){
+
+					random_pos = random_vector( 0, TILE_SIZE )
+
+					terrain = this.grid?.[ Math.floor( random_pos.x / this.cell_size )]?.[ Math.floor( random_pos.z / this.cell_size )]
+
+					if( !terrain || !terrain.name.match(/rock/i) ) continue
+
+					random_pos.y = terrain.height
+
+					index = i
+
+					/*
+						RANDOM WAY: ( grass )
+					*/
+					dummy.position.copy( random_pos )
+
+					scalar = 10 * Math.random()
+
+					dummy.scale.setScalar( scalar );
+
+					dummy.position.y += scalar / 1.9
+
+					if( Math.random() > .9 ){
+						super_scalar = 1 + Math.random() * 2
+						dummy.scale.multiplyScalar( super_scalar )
+						dummy.position.y += super_scalar / 2
+					} 
+				  
+					dummy.rotation.y = Math.random() * Math.PI;
+				  
+					dummy.updateMatrix();
+
+					instance_mesh.setMatrixAt( index, dummy.matrix );
+
+				}
+
+				instance_mesh.instanceMatrix.needsUpdate = true
+				// instance_mesh.instanceColor.needsUpdate = true
+
+			}
+
+		}else{
+
+			console.log('unknown mesh type ', this.mesh_type )
+			this.LODsets = {}
+
+		} 
 	}
 
 
 	setLOD( setting ){ // MeshSet
 
-		if( this.is_water ){
+		if( this.mesh_type === 'water' ){
 			setting = 'high'
-			// console.log("setting LOD: ", setting )
 		}
 
-		// console.log("setting LOD: ", setting )
+		// console.log("setting LOD: ", this.mesh_type, setting )
 
 		for( const size in this.LODsets ){
-			if( size !== setting ) SCENE.remove( this.LODsets[ size ] )
+			if( size !== setting ) this.fixture.remove( this.LODsets[ size ] )
 		}
 
 		switch( setting ){
 
 			case 'low':
-				SCENE.add( this.LODsets.low )
+				this.fixture.add( this.LODsets.low )
 				break;
 
 			case 'medium':
-				SCENE.add( this.LODsets.medium )
+				this.fixture.add( this.LODsets.medium )
 				break;
 
 			case 'high':
-				SCENE.add( this.LODsets.high )
+				this.fixture.add( this.LODsets.high )
 				break;
 
 			default: 
@@ -576,18 +936,35 @@ class MeshSet {
 
 
 
-const DUMMY_COLORS = THREEPRESS.DUMMY_COLORS = [
-	'yellow', 
-	'rgb(105, 230, 100)', 
-	'rgb(80, 200, 50)', 
-	'rgb(50, 150, 20)', 
-	'blue', 
-	'darkblue',
-]
-const DUMMY_VALUES = THREEPRESS.DUMMY_VALUES = {}
-for( let i = 0; i < DUMMY_COLORS.length; i++ ){
-	DUMMY_VALUES[ DUMMY_COLORS[i] ] = new Color( DUMMY_COLORS[i] )
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -598,10 +975,15 @@ class Block {
 		this.coords = init.coords || [] // x / y
 		this.size = init.size || 3
 		this.grid = init.grid || [] // 2d array 
+
+		this.cell_size = Math.ceil( TILE_SIZE / this.size )
+
 		this.mesh_sets = init.mesh_sets || [] // array of IntancedMeshes
 		this.seed = init.seed || '1'
 		this.sum = this.sum_seed()
+		this.environment = init.environment
 		this.LOD = 'low'
+		this.fixture = new Group()
 
 	}
 
@@ -609,7 +991,7 @@ class Block {
 		for( let i = 0; i < this.size; i++ ){
 			this.grid[i] = []
 			for( let a = 0; a < this.size; a++ ){
-				this.grid[i][a] = this.set_cell_color( this.coords[0] * this.size, this.coords[1] * this.size, i, a )
+				this.grid[i][a] = this.set_cell_type( this.coords[0] * this.size, this.coords[1] * this.size, i, a )
 			}
 		}
 		// console.log('initialized Block...', this.seed )
@@ -625,18 +1007,21 @@ class Block {
 
 	build_ground(){
 		const set = new MeshSet({
-			is_ground: true,
+			mesh_type: 'ground',
 			grid: this.grid,
 			size: this.size,
+			fixture: this.fixture,
 		})
-		set.ground.receiveShadow = true
-		this.ground_mesh = set.ground
+		set.GROUND.receiveShadow = true
+		this.ground_mesh = set.GROUND
+		this.ground_mesh.userData = this.ground_mesh.userData
 	}
 
 	build_mesh_sets( worldTile ){
 		const { x, z } = worldTile 
 		// grass
 		const grass = new MeshSet({
+			fixture: this.fixture,
 			grid: this.grid,
 			size: this.size,	
 			slug: 'grass',
@@ -644,11 +1029,27 @@ class Block {
 		})
 		this.mesh_sets.push( grass )
 		for( const size in grass.LODsets ){
-			grass.LODsets[ size ].position.set( x * TILE_SIZE, 0, z * TILE_SIZE )
+			// grass.LODsets[ size ].position.set( x * TILE_SIZE, 0, z * TILE_SIZE )
+			grass.LODsets[ size ].position.set( 0, 0, 0 )
+		}		
+		// clover
+		const clover = new MeshSet({
+			fixture: this.fixture,
+			mesh_type: 'foliage',
+			grid: this.grid,
+			size: this.size,	
+			slug: 'clover',
+			uniforms: uniforms.clover,
+		})
+		this.mesh_sets.push( clover )
+		for( const size in clover.LODsets ){
+			// clover.LODsets[ size ].position.set( x * TILE_SIZE, 0, z * TILE_SIZE )
+			clover.LODsets[ size ].position.set( 0,0,0, )
 		}
 		// water
 		const water = new MeshSet({
-			is_water: true,
+			fixture: this.fixture,
+			mesh_type: 'water',
 			grid: this.grid,
 			size: this.size,	
 			slug: 'water',
@@ -656,8 +1057,25 @@ class Block {
 		})
 		this.mesh_sets.push( water )
 		for( const size in water.LODsets ){
-			water.LODsets[ size ].position.set( x * TILE_SIZE, 0, z * TILE_SIZE )
+			// water.LODsets[ size ].position.set( x * TILE_SIZE, 0, z * TILE_SIZE )
+			water.LODsets[ size ].position.set( 0,0,0 )
 		}
+		// rock_grass
+		const rock_grass = new MeshSet({
+			fixture: this.fixture,
+			mesh_type: 'rock_grass',
+			grid: this.grid,
+			size: this.size,	
+			slug: 'rock_grass',
+			// uniforms: uniforms.rock,
+		})
+		this.mesh_sets.push( rock_grass )
+		for( const size in rock_grass.LODsets ){
+			// rock.LODsets[ size ].position.set( x * TILE_SIZE, 0, z * TILE_SIZE )
+			rock_grass.LODsets[ size ].position.set( 0,0,0 )
+		}
+
+
 		// this.water_mesh = water.water
 		// this.mesh_sets.push( water )
 		// for( const size in water.LODsets ){
@@ -666,26 +1084,24 @@ class Block {
 		// console.log('setting pos', x, z )
 	}
 
-	set_cell_color( worldX, worldZ, x, z){
+	set_cell_type( worldX, worldZ, x, z){
 		const worldpos = [ worldX + x, worldZ + z ]
-		const scale = .1
-		const perl = perlin.get( worldpos[0] * scale, worldpos[1] * scale, this.seed )
+		const perl = perlin.get( 
+			worldpos[0] * PERLIN_SCALE, 
+			worldpos[1] * PERLIN_SCALE, 
+			this.seed 
+		)
 		// const perl = jaman_perlin.recurse( worldpos[0], worldpos[1], scale, scale, [[2,0.5],[2,0.5]] )
-		const final = Math.floor( scry( perl, -1, 1, 0, DUMMY_COLORS.length + 1 ) )
-		// return new Color( 'rgb(' + final + ', 50, 50)')
-		return DUMMY_COLORS[ final ]
+
+		const final = perlin_to_terrain( perl, this.environment )
+		
+		return final
 	}
 
 	setLOD( setting ){ // Block
-		if( setting === 'ground' ){
-			SCENE.add( this.ground_mesh )
-		// else if( setting == 'water' ){
-		// 	SCENE.add( this.water_mesh )
-		}else{
-			if( setting === this.LOD ) return
-			this.LOD = setting
-			for( const set of this.mesh_sets ) set.setLOD( setting )
-		}
+		if( setting === this.LOD ) return
+		this.LOD = setting
+		for( const set of this.mesh_sets ) set.setLOD( setting )
 	}
 
 	update(){
@@ -764,9 +1180,13 @@ class BlockRegister {
 				Math.abs( block.coords[1] - playerIndex[1] ) > tick_size ){
 				this.remove( block )
 			}else if( 
+				Math.abs( block.coords[0] - playerIndex[0] ) > 2 || 
+				Math.abs( block.coords[1] - playerIndex[1] ) > 2 ){
+				block.setLOD('low')
+			}else if(
 				Math.abs( block.coords[0] - playerIndex[0] ) > 1 || 
 				Math.abs( block.coords[1] - playerIndex[1] ) > 1 ){
-				block.setLOD('low')
+				block.setLOD('medium')
 			}else{
 				block.setLOD('high')
 			}
