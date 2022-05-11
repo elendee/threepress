@@ -437,6 +437,10 @@ const submit_install = ( value, submit ) => {
 
 	spinner.show()
 
+	setTimeout(() => {
+		spinner.hide()
+	}, 5 * 1000 )
+
 }
 
 
