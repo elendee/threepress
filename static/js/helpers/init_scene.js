@@ -488,13 +488,17 @@ export default async( gallery ) => { // init_scene
 				// console.log('loaded ground map', map_texture)
 			}
 
-			const ground_mat = new MeshStandardMaterial({
+			const material_params = {
 				map: tex_texture,
-				displacementMap: map_texture, // gallery.ground_map_texture,
 				displacementScale: Number( gallery.ground_coords.y ),
 				// displacementBias: -10,
 				side: DoubleSide,
-			})
+			}
+			if( map_texture ){
+				material_params.displacementMap = map_texture, // gallery.ground_map_texture,
+			}
+
+			const ground_mat = new MeshStandardMaterial( material_params )
 
 			gallery.GROUND = new Mesh( ground_geo, ground_mat )
 			gallery.GROUND.receiveShadow = true
