@@ -393,21 +393,13 @@ const construct_model = async( entity, is_update ) => {
 
 					// animations
 					if( obj.animations && obj.animations.length ){
-						const map = entity.animation_map[ modeltype ]
+						const map = entity.animation_map[ entity.modeltype ]
 						// console.log('adding anim map: ', filepath )
 						entity.add_animation( obj, map )
 					}
 
 					// done
 					resolve('loaded: ' + filepath )
-
-					// }else{
-
-					// 	debug_load('unhandled model type..', modeltype, obj)
-
-					// 	resolve('failed to load: ' + filepath )
-
-					// }
 
 				},
 				xhr => {
