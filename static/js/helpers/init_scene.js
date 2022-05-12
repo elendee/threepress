@@ -495,7 +495,7 @@ export default async( gallery ) => { // init_scene
 				side: DoubleSide,
 			}
 			if( map_texture ){
-				material_params.displacementMap = map_texture, // gallery.ground_map_texture,
+				material_params.displacementMap = map_texture // gallery.ground_map_texture,
 			}
 
 			const ground_mat = new MeshStandardMaterial( material_params )
