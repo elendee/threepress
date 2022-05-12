@@ -1,16 +1,16 @@
-import * as lib from '../lib.js?v=130'
+import * as lib from '../lib.js?v=140'
 
-import PLAYER from './PLAYER.js?v=130'
-import FactoryObject from './FactoryObject.js?v=130'
-import Install from './Install.js?v=130'
-import OBJECTS from './OBJECTS.js?v=130'
-import INSTALLS from './INSTALLS.js?v=130'
-import BROKER from './WorldBroker.js?v=130'
-import SCENE from './SCENE.js?v=130'
-import RENDERER from './RENDERER.js?v=130'
-import STATE from './STATE.js?v=130'
+import PLAYER from './PLAYER.js?v=140'
+import FactoryObject from './FactoryObject.js?v=140'
+import Install from './Install.js?v=140'
+import OBJECTS from './OBJECTS.js?v=140'
+import INSTALLS from './INSTALLS.js?v=140'
+import BROKER from './WorldBroker.js?v=140'
+import SCENE from './SCENE.js?v=140'
+import RENDERER from './RENDERER.js?v=140'
+import STATE from './STATE.js?v=140'
 
-import MOUSE from '../controls/MOUSE.js?v=130'
+import MOUSE from '../controls/MOUSE.js?v=140'
 
 
 

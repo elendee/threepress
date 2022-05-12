@@ -1,6 +1,6 @@
-import INSTALLS from '../world/INSTALLS.js?v=130'
-import BROKER from '../world/WorldBroker.js?v=130'
-import RENDERER from '../world/RENDERER.js?v=130'
+import INSTALLS from '../world/INSTALLS.js?v=140'
+import BROKER from '../world/WorldBroker.js?v=140'
+import RENDERER from '../world/RENDERER.js?v=140'
 
 
 const target = document.createElement('div')

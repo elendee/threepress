@@ -1,10 +1,10 @@
 import {
 	tstack,
-} from './lib.js?v=130'
+} from './lib.js?v=140'
 
 tstack('init_base')
 
-import ThreepressGallery from './ThreepressGallery.js?v=130'
+import ThreepressGallery from './ThreepressGallery.js?v=140'
 
 
 
@@ -49,7 +49,7 @@ for( const viewer of viewers ){
 // load Threepress World conditionally:
 const world_ele = document.getElementById('threepress-world')
 if( world_ele ){
-	import( THREEPRESS.plugin_url + '/static/js/add_world.js?v=130')
+	import( THREEPRESS.plugin_url + '/static/js/add_world.js?v=140')
 	// .catch( err => {
 	// 	console.log('error initializing world: ', err )
 	// })

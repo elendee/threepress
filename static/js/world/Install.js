@@ -1,10 +1,10 @@
-import BROKER from './WorldBroker.js?v=130'
+import BROKER from './WorldBroker.js?v=140'
 import {
 	get_install_type,
 	hal,
 	debug_load,
 	get_bbox,
-} from '../lib.js?v=130'
+} from '../lib.js?v=140'
 import {
 	Texture,
 	BoxBufferGeometry,
@@ -13,12 +13,12 @@ import {
 	Mesh,
 	PlaneGeometry,
 	TextureLoader,
-} from '../../inc/three.module.js?v=130'
-import { GLTFLoader } from '../../inc/GLTFLoader.js?v=130'
-import { TransformControls } from '../../inc/TransformControls.js?v=130'
-import CAMERA from './CAMERA.js?v=130'
-import RENDERER from './RENDERER.js?v=130'
-import SCENE from './SCENE.js?v=130'
+} from '../../inc/three.module.js?v=140'
+import { GLTFLoader } from '../../inc/GLTFLoader.js?v=140'
+import { TransformControls } from '../../inc/TransformControls.js?v=140'
+import CAMERA from './CAMERA.js?v=140'
+import RENDERER from './RENDERER.js?v=140'
+import SCENE from './SCENE.js?v=140'
 
 
 const texLoader = new TextureLoader()

@@ -1,6 +1,6 @@
-// import hal from '../hal.js?v=130'
+// import hal from '../hal.js?v=140'
 
-import ThreepressGallery from './ThreepressGallery.js?v=130'
+import ThreepressGallery from './ThreepressGallery.js?v=140'
 
 import {
 	ModelRow,
@@ -9,9 +9,9 @@ import {
 	hal,
 	// format_date,
 	// get_domain,
-} from './lib.js?v=130'
+} from './lib.js?v=140'
 
-import build_form from './build_form.js?v=130'
+import build_form from './build_form.js?v=140'
 
 
 tstack('init_admin')
@@ -257,7 +257,7 @@ const fill_games = async() => {
 <p>Threepress World is a shortcode that you can embed anywhere on your site to instantly support a 3d multiplayer world for visitors to your site.</p>
 <p>The backend runs on Threepress Arcade server, where you will also get admin controls for your domain's world.</p>
 <p>After pasting a verification code on your site, you will be able to embed <code>[threepress_world]</code> anywhere on your site.</p>
-<p>Head to Threepress Arcade for a free trial:<br>
+<p>Head to Threepress Arcade to get started for free:<br>
 <a class='button' href="${ THREEPRESS.ARCADE.URLS.https }" target='_blank'>Threepress Arcade</a>
 </p>
 <p>Models are provided by <a href="https://quaternius.com" target="_blank">Quaternius</a></p>

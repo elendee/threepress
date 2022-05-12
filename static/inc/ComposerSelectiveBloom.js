@@ -5,15 +5,15 @@ import {
 	ShaderMaterial,
 	DoubleSide,
 	MeshBasicMaterial,
-} from './three.module.js?v=130'
+} from './three.module.js?v=140'
 
 
 import {
 	EffectComposer,
-} from './EffectComposer.js?v=130'
-import { ShaderPass } from './ShaderPass.js?v=130'
-import { RenderPass } from './RenderPass.js?v=130'
-import { UnrealBloomPass } from './UnrealBloomPass.js?v=130'
+} from './EffectComposer.js?v=140'
+import { ShaderPass } from './ShaderPass.js?v=140'
+import { RenderPass } from './RenderPass.js?v=140'
+import { UnrealBloomPass } from './UnrealBloomPass.js?v=140'
 
 
 

@@ -1,15 +1,15 @@
-import RENDERER from '../world/RENDERER.js?v=130'
-import BROKER from '../world/WorldBroker.js?v=130'
-import PLAYER from '../world/PLAYER.js?v=130'
-import { Modal } from '../helpers/Modal.js?v=130'
-import BINDS from '../controls/BINDS.js?v=130'
-import STATE from '../world/STATE.js?v=130'
+import RENDERER from '../world/RENDERER.js?v=140'
+import BROKER from '../world/WorldBroker.js?v=140'
+import PLAYER from '../world/PLAYER.js?v=140'
+import { Modal } from '../helpers/Modal.js?v=140'
+import BINDS from '../controls/BINDS.js?v=140'
+import STATE from '../world/STATE.js?v=140'
 import { 
 	fetch_wrap,
 	hal,
 	random_hex,
 	spinner,
-} from '../lib.js?v=130'
+} from '../lib.js?v=140'
 
 
 

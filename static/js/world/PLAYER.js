@@ -1,9 +1,9 @@
-import Player from './Player.js?v=130'
-import BROKER from './WorldBroker.js?v=130'
-// import STATE from './STATE.js?v=130'
+import Player from './Player.js?v=140'
+import BROKER from './WorldBroker.js?v=140'
+// import STATE from './STATE.js?v=140'
 import {
 	trim,
-} from '../lib.js?v=130'
+} from '../lib.js?v=140'
 
 const player = new Player()
 

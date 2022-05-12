@@ -1,9 +1,9 @@
 import {
 	TILE_SIZE,
 	hal,
-} from '../lib.js?v=130'
+} from '../lib.js?v=140'
 
-import Entity from './Entity.js?v=130'
+import Entity from './Entity.js?v=140'
 
 
 class Player extends Entity {

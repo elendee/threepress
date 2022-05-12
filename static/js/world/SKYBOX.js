@@ -6,7 +6,7 @@ import {
 	Mesh,
 	BoxBufferGeometry,
 	DoubleSide,
-} from '../../inc/three.module.js?v=130'
+} from '../../inc/three.module.js?v=140'
 
 
 

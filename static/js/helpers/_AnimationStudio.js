@@ -1,6 +1,6 @@
 import {
 	AnimationClip,
-} from '../../inc/three.module.js?v=130'
+} from '../../inc/three.module.js?v=140'
 
 
 class AnimationStudio {

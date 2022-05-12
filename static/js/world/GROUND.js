@@ -3,16 +3,16 @@ import {
 	BLOCK_SIZE,
 	// random_range,
 	// random_entry,
-} from '../lib.js?v=130'
-import SCENE from './SCENE.js?v=130'
+} from '../lib.js?v=140'
+import SCENE from './SCENE.js?v=140'
 
-import PLAYER from './PLAYER.js?v=130'
+import PLAYER from './PLAYER.js?v=140'
 // import {
 // 	// Mesh,
 // 	// PlaneBufferGeometry,
 // 	// MeshLambertMaterial,
 // 	TextureLoader,
-// } from '../../inc/three.module.js?v=130'
+// } from '../../inc/three.module.js?v=140'
 import {
 	Block,
 	BlockRegister,

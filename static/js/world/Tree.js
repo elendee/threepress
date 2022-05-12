@@ -1,10 +1,10 @@
-import Entity from './Entity.js?v=130'
+import Entity from './Entity.js?v=140'
 import {
 	random_entry,
-} from '../lib.js?v=130'
+} from '../lib.js?v=140'
 import {
 	MeshLambertMaterial,
-} from '../../inc/three.module.js?v=130'
+} from '../../inc/three.module.js?v=140'
 
 
 

@@ -1,7 +1,7 @@
 import { 
 	PerspectiveCamera,
 	Group,
-} from '../../inc/three.module.js?v=130'
+} from '../../inc/three.module.js?v=140'
 
 const camera = new PerspectiveCamera( 
 	30, 

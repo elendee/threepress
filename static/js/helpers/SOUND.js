@@ -16,7 +16,7 @@ was written for COIL
 
 */
 
-import BROKER from '../world/WorldBroker.js?v=130'
+import BROKER from '../world/WorldBroker.js?v=140'
 
 // init stuff
 const slugs = [

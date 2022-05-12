@@ -1,8 +1,8 @@
-import BINDS from './BINDS.js?v=130'
-import BROKER from '../world/WorldBroker.js?v=130'
-import STATE from '../world/STATE.js?v=130'
-// import RENDERER from '../world/RENDERER.js?v=130'
-import PLAYER from '../world/PLAYER.js?v=130'
+import BINDS from './BINDS.js?v=140'
+import BROKER from '../world/WorldBroker.js?v=140'
+import STATE from '../world/STATE.js?v=140'
+// import RENDERER from '../world/RENDERER.js?v=140'
+import PLAYER from '../world/PLAYER.js?v=140'
 
 
 

@@ -1,4 +1,4 @@
-import * as lib from './lib.js?v=130'
+import * as lib from './lib.js?v=140'
 // three stuff
 import {
 	Vector3,
@@ -10,41 +10,41 @@ import {
     MeshBasicMaterial,
     PlaneBufferGeometry,
     TextureLoader,
-} from '../inc/three.module.js?v=130'
-import SCENE from './world/SCENE.js?v=130'
-import RENDERER from './world/RENDERER.js?v=130'
-import CAMERA from './world/CAMERA.js?v=130'
-import LIGHT from './world/LIGHT.js?v=130'
-import GROUND from './world/GROUND.js?v=130'
+} from '../inc/three.module.js?v=140'
+import SCENE from './world/SCENE.js?v=140'
+import RENDERER from './world/RENDERER.js?v=140'
+import CAMERA from './world/CAMERA.js?v=140'
+import LIGHT from './world/LIGHT.js?v=140'
+import GROUND from './world/GROUND.js?v=140'
 // engine stuff
-import animate from './world/animate.js?v=130'
-import BROKER from './world/WorldBroker.js?v=130'
-import WS from './world/WS.js?v=130'
+import animate from './world/animate.js?v=140'
+import BROKER from './world/WorldBroker.js?v=140'
+import WS from './world/WS.js?v=140'
 // game stuff
-import STATE from './world/STATE.js?v=130'
-import Install from './world/Install.js?v=130'
-import Player from './world/Player.js?v=130'
+import STATE from './world/STATE.js?v=140'
+import Install from './world/Install.js?v=140'
+import Player from './world/Player.js?v=140'
 // registers
-import PLAYER from './world/PLAYER.js?v=130'
-import TOONS from './world/TOONS.js?v=130'
-import OBJECTS from './world/OBJECTS.js?v=130'
+import PLAYER from './world/PLAYER.js?v=140'
+import TOONS from './world/TOONS.js?v=140'
+import OBJECTS from './world/OBJECTS.js?v=140'
 // controls
-import KEYS from './controls/KEYS.js?v=130'
-import BINDS from './controls/BINDS.js?v=130'
-import MOUSE from './controls/MOUSE.js?v=130'
-import CHAT from './world_ui/CHAT.js?v=130'
-import TARGET from './world_ui/TARGET.js?v=130'
-import HUD from './world_ui/HUD.js?v=130'
-import HOLDS from './world/HOLDS.js?v=130'
-// import FOREST from './world/forest.js?v=130'
-import FactoryObject from './world/FactoryObject.js?v=130'
-import SKYBOX from './world/SKYBOX.js?v=130'
-import INSTALLS from './world/INSTALLS.js?v=130'
-import GLOBAL from './GLOBAL.js?v=130'
+import KEYS from './controls/KEYS.js?v=140'
+import BINDS from './controls/BINDS.js?v=140'
+import MOUSE from './controls/MOUSE.js?v=140'
+import CHAT from './world_ui/CHAT.js?v=140'
+import TARGET from './world_ui/TARGET.js?v=140'
+import HUD from './world_ui/HUD.js?v=140'
+import HOLDS from './world/HOLDS.js?v=140'
+// import FOREST from './world/forest.js?v=140'
+import FactoryObject from './world/FactoryObject.js?v=140'
+import SKYBOX from './world/SKYBOX.js?v=140'
+import INSTALLS from './world/INSTALLS.js?v=140'
+import GLOBAL from './GLOBAL.js?v=140'
 
-import add_objects from './world/add_objects.js?v=130'
+import add_objects from './world/add_objects.js?v=140'
 
-// import varLogger from './helpers/varLogger.js?v=130'
+// import varLogger from './helpers/varLogger.js?v=140'
 
 lib.tstack('add_world')
 
@@ -77,7 +77,7 @@ if( eles.length > 1 ){
 
 	const style = document.createElement('link')
 	style.rel = 'stylesheet'
-	style.href = THREEPRESS.plugin_url + '/static/css/world.css?v=130'
+	style.href = THREEPRESS.plugin_url + '/static/css/world.css?v=140'
 	document.head.appendChild( style )
 
 	const wrapper = document.createElement('div')

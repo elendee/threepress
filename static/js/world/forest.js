@@ -1,12 +1,12 @@
-import BROKER from '../helpers/EventBroker.js?v=130'
-import SCENE from './SCENE.js?v=130'
+import BROKER from '../helpers/EventBroker.js?v=140'
+import SCENE from './SCENE.js?v=140'
 import {	
 	MeshLambertMaterial,
-} from '../../inc/three.module.js?v=130'
+} from '../../inc/three.module.js?v=140'
 import {	
 	GLTFLoader,
-} from '../../inc/GLTFLoader.js?v=130'
-import Tree from './Tree.js?v=130'
+} from '../../inc/GLTFLoader.js?v=140'
+import Tree from './Tree.js?v=140'
 
 
 

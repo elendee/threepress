@@ -1,6 +1,6 @@
 import {
 	resolutions,
-} from './lib.js?v=130'
+} from './lib.js?v=140'
 
 import {
 	DoubleSide,
@@ -15,7 +15,7 @@ import {
 	Mesh,
 	Raycaster,
 	MeshLambertMaterial,
-} from '../inc/three.module.js?v=130'
+} from '../inc/three.module.js?v=140'
 
 
 const groundgeo = new PlaneGeometry( 100, 100 )

@@ -1,12 +1,12 @@
 import {
 	spinner,
-} from '../lib.js?V=130'
-import BROKER from './WorldBroker.js?v=130'
-import RENDERER from './RENDERER.js?v=130'
-import SCENE from './SCENE.js?v=130'
-import STATE from './STATE.js?v=130'
-import MOUSE from '../controls/MOUSE.js?v=130'
-// import Install from './Install.js?v=130'
+} from '../lib.js?v=140'
+import BROKER from './WorldBroker.js?v=140'
+import RENDERER from './RENDERER.js?v=140'
+import SCENE from './SCENE.js?v=140'
+import STATE from './STATE.js?v=140'
+import MOUSE from '../controls/MOUSE.js?v=140'
+// import Install from './Install.js?v=140'
 import {
 	// BoxBufferGeometry,
 	MeshLambertMaterial,
@@ -14,7 +14,7 @@ import {
 	SphereGeometry,
 	// Raycaster,
 	// Vector2,
-} from '../../inc/three.module.js?v=130'
+} from '../../inc/three.module.js?v=140'
 
 
 

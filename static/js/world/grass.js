@@ -1,11 +1,11 @@
-// import RENDERER from './RENDERER.js?v=130'
+// import RENDERER from './RENDERER.js?v=140'
 import {
 	TILE_SIZE,
 	FOG_COLOR,
 	FOG_NEAR,
 	FOG_FAR,
 	// FOG_DENSITY,
-} from '../lib.js?v=130'
+} from '../lib.js?v=140'
 import {
 	Color,
 	// ShaderChunk,
@@ -21,7 +21,7 @@ import {
 	MeshLambertMaterial,
 	TextureLoader,
 	RepeatWrapping,
-} from '../../inc/three.module.js?v=130'
+} from '../../inc/three.module.js?v=140'
 
 
 
@@ -74,7 +74,7 @@ let simpleNoise = `
 float N (vec2 st) { // https://thebookofshaders.com/10/
     return fract( sin( dot( st.xy, vec2(12.9898,78.233 ) ) ) *  43758.5453123);
 }
-float smoothNoise( vec2 ip ){ // https://www.youtube.com/watch?v=zXsWftRdsvU
+float smoothNoise( vec2 ip ){ // https://www.youtube.com/watch?v=140zXsWftRdsvU
     vec2 lv = fract( ip );
     vec2 id = floor( ip );
     

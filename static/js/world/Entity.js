@@ -1,14 +1,14 @@
-import BROKER from './WorldBroker.js?v=130'
+import BROKER from './WorldBroker.js?v=140'
 import {
 	hal,
 	get_bbox,
 	random_entry,
 	debug_load,
 	TILE_SIZE,
-} from '../lib.js?v=130'
+} from '../lib.js?v=140'
 import {
 	GLTFLoader,
-} from '../../inc/GLTFLoader.js?v=130'
+} from '../../inc/GLTFLoader.js?v=140'
 import {
 	AnimationClip,
 	AnimationMixer,
@@ -16,9 +16,9 @@ import {
 	// Vector3,
 	// Quaternion,
 	// MeshLambertMaterial,
-} from '../../inc/three.module.js?v=130'
-import CAMERA from './CAMERA.js?v=130'
-// import AnimationStudio from '../helpers/AnimationStudio.js?v=130'
+} from '../../inc/three.module.js?v=140'
+import CAMERA from './CAMERA.js?v=140'
+// import AnimationStudio from '../helpers/AnimationStudio.js?v=140'
 
 
 

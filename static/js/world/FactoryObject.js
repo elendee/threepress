@@ -2,8 +2,8 @@
 	build the various world components found in (server) World._DATA
 */
 
-import Tree from './Tree.js?v=130'
-import Pillar from './Pillar.js?v=130'
+import Tree from './Tree.js?v=140'
+import Pillar from './Pillar.js?v=140'
 
 
 let Builder

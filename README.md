@@ -21,7 +21,6 @@ standard WP plugin installation - move the plugin folder to `[yoursite.com]/wp-c
 The plugin will create one database table to store your galleries:
 `threepress_shortcodes`,
 
-
 ## Notes
 
 All models must be in ".glb" format - most 3d programs can export to this.  

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Threepress 
  * Plugin URI: https://threepress.shop
- * Version: 1.3.0
+ * Version: 1.4.0
  * Description: Generate 3D gallery shortcodes powered by three.js
  * Text Domain: threepress
  * License:           GPL v2 or later
@@ -37,7 +37,7 @@ require_once( ABSPATH . 'wp-includes/pluggable.php' );
 
 $threepress_dir = plugins_url( '', __FILE__ );
 
-$threepress_version = '1.3.0';
+$threepress_version = '1.4.0';
 
 $threepress_settings = [];
 

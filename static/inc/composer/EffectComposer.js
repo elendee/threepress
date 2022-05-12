@@ -8,7 +8,7 @@ import {
 	RGBAFormat,
 	Vector2,
 	WebGLRenderTarget
-} from '../three.module.js?v=130'
+} from '../three.module.js?v=140'
 import { CopyShader } from './CopyShader.js';
 import { ShaderPass } from './ShaderPass.js';
 import { MaskPass } from './MaskPass.js';
