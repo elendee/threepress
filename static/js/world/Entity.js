@@ -216,7 +216,7 @@ class Entity {
 
 							// animations
 							if( obj.animations && obj.animations.length ){
-								const map = entity.animation_map[ modeltype ]
+								const map = entity.animation_map[ this.modeltype ]
 								// console.log('adding anim map: ', filepath )
 								entity.add_animation( obj, map )
 							}

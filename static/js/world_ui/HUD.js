@@ -351,7 +351,7 @@ const create_install_form = modal => {
 	const form = document.createElement('div')
 	form.classList.add('threepress-install-form')
 	const expl = document.createElement('div')
-	expl.innerHTML = 'paste the URL of an image (png / jpg / jpeg) or 3d model (glb / gltf)'
+	expl.innerHTML = 'paste the URL of an image (png / jpg / jpeg) or 3d model (glb / gltf).<br>If you have models loaded into this site, you can find the URL in the Media Library.'
 	form.appendChild( expl )
 	const input = document.createElement('input')
 	input.type = 'text'

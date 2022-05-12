@@ -311,15 +311,11 @@ class Install {
 
 const construct_model = async( entity, is_update ) => {
 
-	// const modeltype = entity.modeltype || 'unknown'
-	// const slug = entity.slug || entity.some_other_slug || 'unknown'
-
 	// console.log('rrg, what i got: ', entity )
 
 	const gltf = new GLTFLoader()
 
 	const filepath = entity.url
-	// THREEPRESS.ARCADE.URLS.https + '/resource/world-models/' + modeltype + '/' + slug
 
 	const result = await new Promise(( resolve, reject ) => {
 
@@ -376,15 +372,11 @@ const construct_model = async( entity, is_update ) => {
 				debug_load('beginning single load: ', filepath )
 			}
 
-			// console.log('loading: ', slug, modeltype )
-
 			gltf.load( filepath, 
 
 				obj => {
 
 					// console.log('gltf loaded: ', obj )
-
-					// if( standard_modeltypes.includes( modeltype ) ){
 
 					// handle CREATE / UPDATE of model
 					entity.add_group( is_update )
