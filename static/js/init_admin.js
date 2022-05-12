@@ -44,7 +44,7 @@ const model_library = wrap.querySelector('#model-library')
 const library_content = model_library.querySelector('.content')
 const model_galleries = wrap.querySelector('#model-galleries')
 const galleries_content = model_galleries.querySelector('.content')
-const games_content = wrap.querySelector('#tab-games')
+const worlds_content = wrap.querySelector('#tab-worlds')
 
 
 const gallery_container = document.querySelector('#gallery-container')
@@ -206,7 +206,7 @@ const build_game_row = game => {
 
 
 
-const fill_games = async() => {
+const fill_worlds = async() => {
 
 	// ---------- server messagin ------------
 	/*
@@ -222,14 +222,13 @@ const fill_games = async() => {
 				return
 			}
 			messaging.innerHTML = res.html
-		}else{
-			console.log( res )
 		}
+		console.log( res )
 	})
 
 	// ---------- the main funciton ----------
 
-	loaded.game = true
+	loaded.world = true
 
 	// const url = THREEPRESS.ARCADE.URLS.https + '/game_listing'
 
@@ -237,16 +236,16 @@ const fill_games = async() => {
 
 	// const res = await fetch_wrap( url, 'get')
 	// if( !res ){
-	// 	hal('error', 'error fetching games', 5 * 1000)
+	// 	hal('error', 'error fetching worlds', 5 * 1000)
 	// 	return
 	// }
 
-	// // console.log( 'fill games res', res )
+	// // console.log( 'fill worlds res', res )
 
 	// if( res.success ){
-	// 	if( res.games && res.games.length ){
-	// 		for( const r of res.games ){
-	// 			games_content.appendChild( build_game_row( r ))
+	// 	if( res.worlds && res.worlds.length ){
+	// 		for( const r of res.worlds ){
+	// 			worlds_content.appendChild( build_game_row( r ))
 	// 		}		
 	// 	}else{
 	const expl = document.createElement('div')
@@ -262,10 +261,10 @@ const fill_games = async() => {
 </p>
 <p>Models are provided by <a href="https://quaternius.com" target="_blank">Quaternius</a></p>
 `
-	games_content.appendChild( expl )
+	worlds_content.appendChild( expl )
 	// 	}
 	// }else if( res.msg ){
-	// 	hal('error', res.msg || 'failed to fetch games', 5 * 1000 )
+	// 	hal('error', res.msg || 'failed to fetch worlds', 5 * 1000 )
 	// }
 
 
@@ -397,9 +396,9 @@ for( const tab of tabs ){
 			fill('library', true ).catch( err => { console.log( err )})
 		}else if( cat.match(/galler/) && !loaded.gallery ){
 			fill('gallery', true ).catch( err => { console.log( err )})
-		}else if( cat.match(/game/) && !loaded.game ){
-			fill_games().catch( err => { 
-				hal('error', err.msg || 'failed to fetch games', 5 * 1000 )
+		}else if( cat.match(/world/) && !loaded.world ){
+			fill_worlds().catch( err => { 
+				hal('error', err.msg || 'failed to fetch worlds', 5 * 1000 )
 				console.log( err )
 			})
 		}else{

@@ -536,8 +536,8 @@ if ( !class_exists( 'Threepress' ) ) {
 	    	<!--a class='nav-tab main-tab' data-section='model-extensions'>
 	    		extensions
  	    	</a-->
-	    	<a class='nav-tab main-tab' data-section='tab-games'>
-	    		games
+	    	<a class='nav-tab main-tab' data-section='tab-worlds'>
+	    		worlds
  	    	</a>
 	    	<a class='nav-tab main-tab' data-section='model-help'>
 	    		help

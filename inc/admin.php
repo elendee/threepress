@@ -90,7 +90,7 @@
 
 
 
-    <div id='tab-games' class='section'>
+    <div id='tab-worlds' class='section'>
     	<div id='server-messaging'>
     	</div>
 
