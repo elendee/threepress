@@ -215,10 +215,12 @@ class Entity {
 							entity.process_model()
 
 							// animations
-							if( obj.animations && obj.animations.length ){
-								const map = entity.animation_map[ this.modeltype ]
+							if( obj.animations && obj.animations.length && entity.animation_map ){
+								const map = entity.animation_map[ entity.modeltype ]
 								// console.log('adding anim map: ', filepath )
 								entity.add_animation( obj, map )
+							}else{
+								console.log('unhandled animations for upload', entity )
 							}
 
 							// done
