@@ -429,6 +429,7 @@ const submit_install = ( value, submit ) => {
 	BROKER.publish('SOCKET_SEND', {
 		type: 'begin_install', // returns begin_install -> handle_hold
 		url: value,
+		secret: localStorage.getItem('threepress-secret-pass'),
 	})
 
 	submit.style['pointer-events'] = 'none'
