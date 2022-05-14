@@ -19,7 +19,7 @@ import {
 const build_action = ( type ) => {
 
 	let ele =document.createElement('div')
-	ele.classList.add('world-action-button', 'button')
+	ele.classList.add('world-action-button')
 	ele.innerHTML = type
 	switch( type ){
 

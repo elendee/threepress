@@ -42,17 +42,19 @@
 #threepress-admin-toggle,
 #threepress-actions{
 	position: absolute;
-	background: white;
 	padding: 8px;
 	top: 0;
 	left: 0;
 	cursor: pointer;
 	font-size: .8rem;
 }
+#threepress-admin-toggle{
+	background: white;
+}
 #threepress-actions{
 	left: auto;
 	right: 0px;
-	padding: 2px 0;
+	padding: 0;
 }
 
 #threepress-world .threepress-modal{
@@ -311,7 +313,11 @@
 }
 
 .world-action-button{
-	margin: 0 2px;
+	margin-left: 2px;
+	display: inline-block;
+	font-size: .8rem;
+	padding: 8px;
+	background: white;
 }
 
 #world-target-ele{
