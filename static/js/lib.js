@@ -324,50 +324,152 @@ class ImageRow {
 
 
 
-const fetch_wrap = ( url, method, body, no_spinner ) => {
 
-	return new Promise(( resolve, reject ) => {
+
+
+
+const fetch_wrap = async( url, method, body, no_spinner ) => {
+
+	return new Promise( ( resolve, reject ) => {
 
 		if( !no_spinner ) spinner.show()
 
-		let data = {}
-
-		if( method.match(/post/i)){
-			data.url = url
-			data.data = body
-			data.method = method
-		}else{
-			data = url
+		if( !method ){
+			console.log('assuming GET for url: ' + url )
+			method = 'get'
 		}
 
-		jQuery.ajax( data )
-		.then( res => {
-			if( typeof res === 'string' ){
-				try{
-					const r = JSON.parse( res )
+		if( method.match(/post/i) ){
+
+			fetch( url, {
+				method: 'post',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify( body )
+			})
+			.then( res => {
+				if( !res ){
+					reject('no res')
+					return
+				}
+				res.json()
+				.then( r => {
+					if( !no_spinner )  spinner.hide()
 					resolve( r )
-				}catch( e ){
-					console.log( 'err parse fetch_wrap: ', res )
-					reject( e )
-				}				
-			}else if( typeof res === 'object' ){
-				resolve( res )
-			}else{
-				console.log( res )
-				reject()
-			}
+				}).catch( err => {
+					if( !no_spinner )  spinner.hide()
+					reject( err )
+				})
+			}).catch( err => {
+				if( !no_spinner )  spinner.hide()
+				reject( err )
+			})
+			.catch( err => {
+				if( !no_spinner )  spinner.hide()
+				reject( err )
+			})
 
-			spinner.hide()
+		}else if( method.match(/get/i) ){
 
-		})
-		.catch( err => {
-			spinner.hide()
-			reject( err  )
-		})
+			fetch( url )
+			.then( res => {
+				if( !res ){
+					reject('no res')
+					return
+				}
+				res.json()
+				.then( r => {
+					if( !no_spinner )  spinner.hide()
+					resolve( r )
+				}).catch( err => {
+					if( !no_spinner )  spinner.hide()
+					reject( err )
+				})
+			}).catch( err => {
+				if( !no_spinner )  spinner.hide()
+				reject( err )
+			})
+			.catch( err => {
+				if( !no_spinner )  spinner.hide()
+				reject( err )
+			})
+
+		}else{
+
+			if( !no_spinner )  spinner.hide()
+			reject('invalid fetch ' + url )
+			
+		}
 
 	})
 
+
 }
+
+
+
+// const fetch_wrap = ( url, method, body, no_spinner ) => {
+
+// 	return new Promise(( resolve, reject ) => {
+
+// 		if( !no_spinner ) spinner.show()
+
+// 		let data = {}
+
+// 		if( method.match(/post/i) ){
+
+// 		fetch( url, {
+// 			method: 'post',
+// 			headers: {
+// 				'Content-Type': 'application/json',
+// 			},
+// 			body: JSON.stringify( body )
+// 		})
+// 		.then( res => {
+// 			if( !res ){
+// 				reject('no res')
+// 				return
+// 			}
+// 			res.json()
+// 			.then( r => {
+
+// 		// if( method.match(/post/i)){
+// 		// 	data.url = url
+// 		// 	data.data = body
+// 		// 	data.method = method
+// 		// }else{
+// 		// 	data = url
+// 		// }
+
+// 		// jQuery.ajax( data )
+// 		// .then( res => {
+// 		// 	if( typeof res === 'string' ){
+// 		// 		try{
+// 		// 			const r = JSON.parse( res )
+// 		// 			resolve( r )
+// 		// 		}catch( e ){
+// 		// 			console.log( 'err parse fetch_wrap: ', res )
+// 		// 			reject( e )
+// 		// 		}				
+// 		// 	}else if( typeof res === 'object' ){
+// 		// 		resolve( res )
+// 		// 	}else{
+// 		// 		console.log( res )
+// 		// 		reject()
+// 		// 	}
+
+// 		// 	spinner.hide()
+
+// 		// })
+// 		// .catch( err => {
+// 		// 	spinner.hide()
+// 		// 	reject( err  )
+// 		// })
+
+// 	})
+
+// }
 
 
 
