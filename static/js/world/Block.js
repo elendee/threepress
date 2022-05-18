@@ -25,6 +25,9 @@ import {
 	DoubleSide,
 	TextureLoader,
 	BoxBufferGeometry,
+	MeshDistanceMaterial,
+	customDistanceMaterial,
+	RGBADepthPacking,
 	// Vector3,
 } from '../../inc/three.module.js?v=140'
 // import { Water } from '../../inc/Water.js?v=140'
@@ -407,7 +410,7 @@ for( const type in textures ){
 	textures[ type ].tex = texLoader.load( url )
 }
 
-console.log('tex..', textures )
+// console.log('tex..', textures )
 
 const basic_uniforms = {
 	time: {
@@ -527,6 +530,9 @@ class MeshSet {
 					transparent: true,
 					fog: true,
 				})
+
+				this.add_depth( SHADER_CACHE[ this.slug ] )
+
 			}
 			this.material = SHADER_CACHE[ this.slug ]
 
@@ -542,6 +548,46 @@ class MeshSet {
 			}
 		}
 
+	}
+
+
+	add_depth( original_material ){
+
+		const customDistanceMaterial = new MeshDistanceMaterial({
+	    	depthPacking: RGBADepthPacking,
+	    	alphaTest: 0.5
+	    });
+
+	    customDistanceMaterial.onBeforeCompile = shader => {
+	      
+	    	// app specific instancing shader code
+	    	shader.vertexShader =
+	        	`#define DEPTH_PACKING 3201
+	            	attribute vec3 offset;
+	            	attribute vec4 orientation;
+
+	            	vec3 applyQuaternionToVector( vec4 q, vec3 v ){
+	               		return v + 2.0 * cross( q.xyz, cross( q.xyz, v ) + q.w * v );
+	            	}` + shader.vertexShader;
+
+	    	shader.vertexShader = shader.vertexShader.replace(
+	        	
+	        	"#include <project_vertex>",
+				
+				`vec3 vPosition = offset + applyQuaternionToVector( orientation, transformed );
+	     
+	            vec4 mvPosition = modelMatrix * vec4( vPosition, 1.0 );
+	            transformed = vPosition;
+	            gl_Position = projectionMatrix * modelViewMatrix * vec4( transformed, 1.0 );`
+
+	      );
+
+	      shader.fragmentShader =
+	        "#define DEPTH_PACKING 3201" + "\n" + shader.fragmentShader;
+	    };
+
+	  //   object.castShadow = true;
+	  //   object.receiveShadow = true;
 	}
 
 

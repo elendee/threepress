@@ -341,30 +341,36 @@ const fetch_wrap = async( url, method, body, no_spinner ) => {
 
 		if( method.match(/post/i) ){
 
-			fetch( url, {
-				method: 'post',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify( body )
+			// fetch( url, {
+			// 	method: 'post',
+			// 	headers: {
+			// 		'Content-Type': 'application/json',
+			// 	},
+			// 	body: JSON.stringify( body )
+			// })
+			jQuery.ajax({
+				url: url,
+				data: body,
+				method: method,
 			})
 			.then( res => {
-				if( !res ){
-					reject('no res')
-					return
-				}
-				res.json()
-				.then( r => {
+				// if( !res ){
+				// 	reject('no res')
+				// 	return
+				// }
+				// res.json()
+				// .then( r => {
 					if( !no_spinner )  spinner.hide()
-					resolve( r )
-				}).catch( err => {
-					if( !no_spinner )  spinner.hide()
-					reject( err )
+					resolve( res )
 				})
-			}).catch( err => {
-				if( !no_spinner )  spinner.hide()
-				reject( err )
-			})
+			// .catch( err => {
+			// 		if( !no_spinner )  spinner.hide()
+			// 		reject( err )
+			// 	})
+			// }).catch( err => {
+			// 	if( !no_spinner )  spinner.hide()
+			// 	reject( err )
+			// })
 			.catch( err => {
 				if( !no_spinner )  spinner.hide()
 				reject( err )
@@ -372,28 +378,32 @@ const fetch_wrap = async( url, method, body, no_spinner ) => {
 
 		}else if( method.match(/get/i) ){
 
-			fetch( url )
-			.then( res => {
-				if( !res ){
-					reject('no res')
-					return
-				}
-				res.json()
-				.then( r => {
-					if( !no_spinner )  spinner.hide()
-					resolve( r )
-				}).catch( err => {
-					if( !no_spinner )  spinner.hide()
-					reject( err )
-				})
+			// fetch( url )
+			jQuery.ajax({
+				url: url,
+				method: method,
+			})
+			// .then( res => {
+			// 	if( !res ){
+			// 		reject('no res')
+			// 		return
+			// 	}
+			// 	res.json()
+			.then( r => {
+				if( !no_spinner )  spinner.hide()
+				resolve( r )
 			}).catch( err => {
 				if( !no_spinner )  spinner.hide()
 				reject( err )
 			})
-			.catch( err => {
-				if( !no_spinner )  spinner.hide()
-				reject( err )
-			})
+			// .catch( err => {
+			// 	if( !no_spinner )  spinner.hide()
+			// 	reject( err )
+			// })
+			// .catch( err => {
+			// 	if( !no_spinner )  spinner.hide()
+			// 	reject( err )
+			// })
 
 		}else{
 

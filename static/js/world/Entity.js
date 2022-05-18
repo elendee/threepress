@@ -1,4 +1,4 @@
-import BROKER from './WorldBroker.js?v=140'
+// import BROKER from './WorldBroker.js?v=140'
 import {
 	hal,
 	get_bbox,
@@ -17,7 +17,7 @@ import {
 	// Quaternion,
 	// MeshLambertMaterial,
 } from '../../inc/three.module.js?v=140'
-import CAMERA from './CAMERA.js?v=140'
+// import CAMERA from './CAMERA.js?v=140'
 // import AnimationStudio from '../helpers/AnimationStudio.js?v=140'
 
 
@@ -239,12 +239,14 @@ class Entity {
 						if( xhr && xhr.type !== 'progress' ) console.log( `bad xhr: ${ modeltype } ${ slug }: ${ xhr.type }` )
 					}, 
 					error => {
+						console.log('FAILED LOAD', error )
 						// const report = entity.handle || entity.name || entity.type
 						// hal('error', 'failed to load model: ' + report, 2000 )
 						// console.log( `failed load path: ${ modeltype } ${ slug }` )
-						reject('failed model load: ' + filepath )
+						reject( error )
 					}
-				)
+				) // gltf load
+
 			}
 
 		})
@@ -530,3 +532,8 @@ class Entity {
 }
 
 export default Entity
+
+
+
+
+

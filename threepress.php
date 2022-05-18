@@ -158,7 +158,7 @@ if ( !class_exists( 'Threepress' ) ) {
     		wp_enqueue_script( 
 				'threepress-admin-js', 
 				plugins_url( '/static/js/init_admin.js?v=' . $threepress_version, __FILE__ ),
-				array()
+				array('jquery')
 			);
 
 	    }

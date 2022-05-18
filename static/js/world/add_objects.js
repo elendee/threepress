@@ -136,6 +136,9 @@ const handle_install = event => {
 			)
 			INSTALLS[ installation.uuid ] = installation
 		})
+		.catch( err => {
+			console.log('install err', err )
+		})
 
 	}else{
 

@@ -196,7 +196,7 @@ const grass = new InstancedMesh( geometry, leavesMaterial, instanceNumber );
 
 // Position and scale the grass blade instances randomly.
 
-for ( let i=0 ; i < instanceNumber ; i++ ) {
+for ( let i = 0 ; i < instanceNumber ; i++ ) {
 
 	dummy.position.set(
   		( Math.random() ) * TILE_SIZE,
